@@ -1,0 +1,36 @@
+================================================================================
+Setup for Ubuntu 16.04.2 LTS:
+================================================================================
+
+# grab code
+git clone https://github.com/pivot-libre/pivot.git
+cd pivot
+
+# grab dependencies
+apt install php
+apt install sqlite3
+apt install composer
+apt install php-mbstring
+apt install php-dom
+apt install -y php-sqlite3
+composer install # ignore msgs about zip/unzip missing
+
+# init DB (start sqlite3 prompt and run .save/.exit commands)
+sqlite3
+.save database/database.sqlite
+.exit
+
+# setup env variables
+touch .env
+php artisan key:generate # copy key
+export APP_KEY='<from above>'
+export DB_CONNECTION=sqlite
+export APP_DEBUG=true
+
+# generate DB and start serving
+php artisan migrate
+php artisan serve --host=<my IP> --port=8080
+
+# now visit http://<IP>:8080/.  You can register.  You get an error,
+# but if you navigate back to the main page, you can see you are
+# signed in.
