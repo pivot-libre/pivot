@@ -25,4 +25,14 @@ class ProfileController extends Controller
     {
         return view('home');
     }
+
+    /**
+     * Greet user who created new account.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function new_account()
+    {
+        return view('new_account');
+    }
 }
