@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AcceptInviteRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
-class ProfileController extends Controller
+class InviteController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -15,17 +16,7 @@ class ProfileController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
-    }
-
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        return view('home');
+        $this->middleware('auth', ['except' => ['accept']]);
     }
 
     /**
@@ -36,23 +27,26 @@ class ProfileController extends Controller
     public function accept(Request $request)
     {
         $invite = $request->input('invite', Session::get('invite', ''));
-
         $user = Auth::user();
         if (empty($user)) {
-            Session::set('invite', $invite);
-            return redirect()->route('login');
+            return redirect()->route('register', ['invite' => $invite]);
         }
-
         return view('invite.accept', ['invite' => $invite]);
     }
 
     /**
-     * Greet user who created new account.
+     * Associate user with invited elector
      *
      * @return \Illuminate\Http\Response
      */
-    public function new_account()
+    public function associate(AcceptInviteRequest $request)
     {
-        return view('new_account');
+        $invite = $request->input('invite', '');
+        if (empty($invite)) {
+            // Show error
+            die("Invite code required\n");
+        }
+
+        die("Invite code: {$invite}\n");
     }
 }

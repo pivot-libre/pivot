@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Carbon\Carbon;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -27,4 +28,29 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public function elections()
+    {
+        return $this->belongsToMany('App\Election', 'electors');
+    }
+
+    /**
+     * Accept invite with specified code
+     *
+     * @param string $code
+     */
+    public function accept($code)
+    {
+        /** @TODO Prevent user from being multiple electors */
+
+        $invite = Invite::where('code', $code)->firstOrFail();
+
+        $invite->elector->user()->associate($this);
+        $invite->elector->save();
+
+        $invite->accepted_at = Carbon::now();
+        $invite->save();
+
+        return $invite;
+    }
 }

@@ -4,10 +4,17 @@ namespace App\Http\Controllers;
 
 use DummyFullModelClass;
 use App\Election;
+use App\Elector;
+use App\User;
 use Illuminate\Http\Request;
 
 class ElectorController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -16,30 +23,9 @@ class ElectorController extends Controller
      */
     public function index(Election $election)
     {
+        $this->authorize('view', $election);
+
         return $election->electors;
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @param  \App\Election  $election
-     * @return \Illuminate\Http\Response
-     */
-    public function create(Election $election)
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Election  $election
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request, Election $election)
-    {
-        //
     }
 
     /**
@@ -51,32 +37,13 @@ class ElectorController extends Controller
      */
     public function show(Election $election, User $user)
     {
-        //
-    }
+        $this->authorize('view', $election);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Election  $election
-     * @param  \App\User  $user
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Election $election, DummyModelClass $user)
-    {
-        //
-    }
+        if ($election->electors->contains($user)) {
+            return $user;
+        }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Election  $election
-     * @param  \App\User  $user
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Election $election, DummyModelClass $user)
-    {
-        //
+        abort(404, 'Not Found');
     }
 
     /**
@@ -86,8 +53,23 @@ class ElectorController extends Controller
      * @param  \App\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Election $election, DummyModelClass $user)
+    public function destroy(Election $election, User $user)
     {
-        //
+        $this->authorize('delete', $election);
+
+        $electors = Elector::where([
+            'election_id' => $election->id,
+            'user_id' => $user->id,
+        ])->get();
+
+        foreach ($electors as $elector) {
+            if (isset($elector->invite)) {
+                $elector->invite->delete();
+            }
+
+            $elector->delete();
+        }
+
+        return response()->json(new \stdClass());
     }
 }

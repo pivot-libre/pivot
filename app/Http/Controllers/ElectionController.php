@@ -21,6 +21,7 @@ class ElectionController extends Controller
     public function index()
     {
         $id = Auth::id();
+
         return Election::where('creator_id', '=', $id)->get();
     }
 
@@ -33,6 +34,7 @@ class ElectionController extends Controller
     public function store(Request $request)
     {
         $creator = Auth::user();
+
         $election = new Election();
         $election->name = $request->json()->get('name');
         $election->creator()->associate($creator);
@@ -49,6 +51,8 @@ class ElectionController extends Controller
      */
     public function show(Election $election)
     {
+        $this->authorize('view', $election);
+
         return $election;
     }
 
@@ -62,11 +66,17 @@ class ElectionController extends Controller
      */
     public function update(Request $request, Election $election)
     {
-        $id = Auth::id();
-        if (0 === strcmp($id, $election->creator_id)) {
-            $election->name = $request->json()->get('name');
-            $election->save();
-        }
+        $this->authorize('update', $election);
+
+        $election->name = $request->json()->get('name');
+        $election->save();
+
+        // Make the creator the first elector
+        $elector = new Elector();
+        $elector->election()->associate($this);
+        $elector->user()->associate(Auth::user());
+        $elector->save();
+
         return $election;
     }
 
@@ -78,10 +88,10 @@ class ElectionController extends Controller
      */
     public function destroy(Election $election)
     {
-        $id = Auth::id();
-        if (0 === strcmp($id, $election->creator_id)) {
-            $election->delete();
-        }
+        $this->authorize('delete', $election);
+
+        $election->delete();
+
         return response()->json(new \stdClass());
     }
 }

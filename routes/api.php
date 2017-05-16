@@ -18,5 +18,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::resource('election', 'ElectionController', ['except' => ['create', 'edit']]);
-Route::resource('election.elector', 'ElectorController', ['except' => ['create', 'edit']]);
-Route::resource('election.item', 'ItemController', ['except' => ['create', 'edit']]);
+Route::resource('election.elector', 'ElectorController', [
+    'except' => ['create', 'store', 'edit', 'update'],
+    'parameters' => ['elector' => 'user'],
+]);
+Route::resource('election.invite', 'InviteController', ['only' => ['index', 'show', 'store', 'destroy']]);
+Route::post('/invite/accept', 'InviteController@accept')->name('invite.accept');

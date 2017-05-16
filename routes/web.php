@@ -18,4 +18,4 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/profile', 'ProfileController@index');
-Route::get('/new_account', 'ProfileController@new_account');
+Route::get('/profile/accept', 'ProfileController@accept');

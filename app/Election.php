@@ -32,4 +32,30 @@ class Election extends Model
     {
         return $this->belongsToMany('App\User', 'electors');
     }
+
+    public function invites()
+    {
+        return $this->belongsToMany('App\Invite', 'electors')->whereNull('accepted_at');
+    }
+
+    public function invite($email)
+    {
+        $invite = $this->invites()->where(['email' => $email])->first();
+
+        if (empty($invite)) {
+            $invite = new Invite();
+            $invite->code = bin2hex(random_bytes(4));
+            $invite->email = $email;
+            $invite->save();
+
+            $elector = new Elector();
+            $elector->election()->associate($this);
+            $elector->invite()->associate($invite);
+            $elector->save();
+        }
+
+        /** @TODO Send Invitation Email */
+
+        return $invite;
+    }
 }

@@ -16,8 +16,8 @@
 
 <script>
     export default {
-        mounted() {
-            console.log('Component mounted.')
+        ready() {
+            console.log('Hoopla');
         }
     }
 </script>
