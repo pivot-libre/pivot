@@ -41,7 +41,7 @@ class User extends Authenticatable
      */
     public function accept($code)
     {
-        /** @TODO Prevent user from being multiple electors */
+        /** @todo #1 Prevent user from being multiple electors */
 
         $invite = Invite::where('code', $code)->firstOrFail();
 

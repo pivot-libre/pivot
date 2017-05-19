@@ -54,7 +54,7 @@ class Election extends Model
             $elector->save();
         }
 
-        /** @TODO Send Invitation Email */
+        /** @todo #1 Send Invitation Email */
 
         return $invite;
     }
