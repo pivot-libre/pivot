@@ -1,5 +1,7 @@
 # Pivot: Preferential Voting Tool
 
+[![PDD status](http://www.0pdd.com/svg?name=pivot-libre/pivot)](http://www.0pdd.com/p?name=pivot-libre/pivot)
+
 ## Installation
 
 Before you start make sure you're running PHP >= 5.6.4 and have
