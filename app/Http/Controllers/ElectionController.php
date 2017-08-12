@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Election;
@@ -14,9 +13,12 @@ class ElectionController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @SWG\Get(
+     *     path="/election",
+     *     operationId="electionIndex",
+     *     @SWG\Response(response="200", description="Success"),
+     *     @SWG\Response(response="400", description="Bad Request")
+     * )
      */
     public function index()
     {

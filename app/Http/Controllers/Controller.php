@@ -1,4 +1,13 @@
 <?php
+/**
+ * @SWG\Swagger(
+ *     basePath="/api",
+ *     @SWG\Info(
+ *         title="Pivot API",
+ *         version="0.1.0"
+ *     )
+ * )
+ */
 
 namespace App\Http\Controllers;
 

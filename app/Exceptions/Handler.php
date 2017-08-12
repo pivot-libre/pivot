@@ -72,8 +72,6 @@ class Handler extends ExceptionHandler
             return response()->json($response, $status);
         }
 
-        dd("Hoopla");
-
         return parent::render($request, $exception);
     }
 
