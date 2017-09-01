@@ -33,8 +33,10 @@ class isDBUp extends Command
 
     /**
      * Execute the console command.
+     *  Prints 'true' if we can connect to the DB,
+     *  'false' otherwise.
      *
-     * @return mixed
+     * @return void
      */
     public function handle()
     {
