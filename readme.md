@@ -11,6 +11,7 @@ Before you start make sure you're running PHP >= 5.6.4 and have
 composer install                # Install PHP dependencies
 cp .env.example .env            # Create .env config file
 vim .env                        # Update database credentials
+php artisan key:generate        # Create application key
 php artisan migrate             # Run database migrations
 php artisan passport:install    # Create Oauth2 Tokens
 ```
