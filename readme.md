@@ -4,7 +4,7 @@
 
 ## Installation
 
-Before you start make sure you're running PHP >= 5.6.4 and have
+Before you start make sure you're running PHP >= 7.1 and have
 [Composer](https://getcomposer.org/download/) installed.
 
 ```shell
