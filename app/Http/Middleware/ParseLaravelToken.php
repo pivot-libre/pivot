@@ -16,15 +16,19 @@ class ParseLaravelToken
 
     public function handle($request, Closure $next, $guard = null)
     {
-        $key = $this->encrypter->getKey();
-        $token = $this->encrypter->decrypt($request->cookie('laravel_token'));
-        $data = JWT::decode($token, $key, ['HS256']);
-        if (false === $request->headers->get('x-csrf-token', false)) {
-            $request->headers->add([
-                'X-CSRF-TOKEN' => $data->csrf,
-                'X-Requested-With' => 'XMLHttpRequest',
-                'X-XSRF-TOKEN' => $request->cookie('laravel_token'),
-            ]);
+        $encryptedToken = $request->cookie('laravel_token');
+
+        if (!empty($encryptedToken)) {
+            $key = $this->encrypter->getKey();
+            $token = $this->encrypter->decrypt($encryptedToken);
+            $data = JWT::decode($token, $key, ['HS256']);
+            if (false === $request->headers->get('x-csrf-token', false)) {
+                $request->headers->add([
+                    'X-CSRF-TOKEN' => $data->csrf,
+                    'X-Requested-With' => 'XMLHttpRequest',
+                    'X-XSRF-TOKEN' => $request->cookie('laravel_token'),
+                ]);
+            }
         }
 
         return $next($request);
