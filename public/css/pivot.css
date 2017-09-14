@@ -1,0 +1,272 @@
+body {
+  margin: 0;
+  font-family: "Alegreya Sans",sans-serif;
+  font-size: 16px;
+  /*height: 100%;*/
+}
+div, ol, ul, li, a, img, form, label, input, iframe {
+  position: relative;
+  display: inline-block;
+  /*float: left;*/
+  margin-left: 0 0 0 0;
+  padding-left: 0 0 0 0;
+  /*height: 100%;  can't use this because setting it back to auto doesn't work when we need it*/
+  /*width: 100%;*/
+  background-position: center;
+  background-size: cover;
+  border: none;
+  list-style: none;
+  text-decoration: none;
+}
+label {
+  cursor: pointer;
+}
+#backgrounddiv {
+  width: 100%;
+  background-color: white;
+  text-align: center;
+}
+.backgroundheader {
+  height: 169px;
+  width: 100%;
+  background-color: #4dd0e1;
+}
+#ballotdiv {
+  height: 100%;
+  width: 1000px;
+  top: -169px;
+  float: none;
+  font-weight: 100;
+}
+.ballotheader {
+  height: 90px;
+  width: 100%;
+  color: white;
+  font-size: 34px;
+  text-align: left;
+  line-height: 90px;
+  font-family: sans-serif;
+}
+.ballotspace {
+  width: 100%;
+  background-color: #eeeeee;
+  text-align: center;
+  box-shadow: -3px 3px 4px lightgrey;
+  border-radius: 2px;
+}
+.ballotspaceheader {
+  width: 100%;
+  padding-top: 16px;
+}
+#ballotspaceheaderline1 {
+  width: 100%;
+  line-height: 30px;
+  font-size: 20px;
+  color: #3b3b3b;
+}
+#ballotspaceheaderline2 {
+  width: 100%;
+  font-size: 16px;
+  line-height: 16px;
+  padding-top: 24px;
+  color: #888888;
+}
+.ballotselections {
+  float: none;
+  width: 78%;
+}
+.ballotselection.unranked {
+  background-color: rgba(255,255,255,.75);
+}
+#unrankeditems > .ballotselection > div {
+  opacity: .7;
+}
+.ballotselection.unranked > .ballotminus,
+.ballotselection.unranked > .ballotrank {
+  /*display: none;*/
+}
+.ballotselection {
+  float: none;
+  width: 100%;
+  margin-bottom: 7px;
+  background-color: white;
+  font-family: arial;
+  line-height: 47px;
+  line-height: 47px;
+  font-size: 15px;
+  font-weight: 400;
+  text-align: left;
+  box-shadow: 2px 2px 4px lightgrey;
+  border-radius: 2px;
+  left: 70px
+}
+.ballotdescription {
+  color: #5d5d5d;
+  left: 28px;
+  width: 88%;
+}
+.ballotcost {
+  /*float: right;*/
+  color: #d53e3e;
+  width: 9%;
+  margin-right: 1%;
+  right: 1%;
+}
+
+/*https://codepen.io/zachariab/pen/wkrbc*/
+.grippy {
+  position: absolute;
+  content: '....';
+  width: 10px;
+  height: 30px;
+  display: inline-block;
+  overflow: hidden;
+  line-height: 6px;
+  padding: 3px 4px;
+  cursor: move;
+  vertical-align: middle;
+  /* margin-top: -.7em; */
+  /* margin-right: .3em; */
+  font-size: 19px;
+  font-family: sans-serif;
+  letter-spacing: 2px;
+  color: #cccccc;
+  text-shadow: 1px 0 1px black;
+  top: 3px;
+  left: 2px;
+}
+.grippy::after {
+  content: '.. .. .. ..';
+}
+.ballotselections {
+  padding: 19px 0 8px 0;
+  margin: 15px 0 15px 0;
+  min-height: 50px;
+}
+.ballotselections::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60px;
+  right: -80px;
+  bottom: 0;
+  border: 2px solid #aaaaaa;
+  /*background-color: #dddddd;*/
+}
+.ballotselections::after {
+  position: absolute;
+  font-size: 17px;
+  top: -7px;
+  left: -50px;
+  background-color: #eeeeee;
+  padding: 0 5px 0 5px;
+}
+#unrankeditems::after {
+  content: "Unranked (tied for last)";
+}
+#rankeditems::after {
+  content: "Ranked";
+}
+#unrankeditems > li {
+  cursor: pointer;
+}
+#rankeditems > li,
+.grippy,
+.grabby {
+  cursor: move;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+}
+/*#rankeditems > .ballotselection[data-tie=true],*/
+#rankeditems > .ballotselection {
+  counter-increment: counter;
+}
+#rankeditems > .ballotselection[data-tie] + .gu-transit,
+#rankeditems > .ballotselection.gu-transit + [data-tie="middle"],
+#rankeditems > .ballotselection.gu-transit + [data-tie="end"],
+#rankeditems > .ballotselection[data-tie] + [data-tie] {
+  counter-increment: none;
+}
+#rankeditems > .ballotselection[data-tie] + [data-tie="start"]:not(.gu-transit),
+/*#rankeditems > .ballotselection[data-tie="end"] + [data-tie="start"],*/
+#rankeditems > .ballotselection[data-tie="end"] + .gu-transit {
+  counter-increment: counter;
+}
+/*#rankeditems > .ballotselection::before,*/
+/*#rankeditems > .ballotselection > .ballotrank::after,*/
+#rankeditems > .ballotselection > .ballotrank > .rankdisplay::before {
+  content: counter(counter);
+}
+#unrankeditems .ballotrank {
+  display: none;
+}
+.rankdisplay::before,
+.rankdisplay,
+.ballotrank {
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  width: 40px;
+  height: 47px;
+  display: table;
+  text-align: center;
+  font-size: 18px;
+}
+.ballotrank { left: -48px; }
+.ballotrank > .rankdisplay {
+  height: 100%;
+  width: 100%;
+  background-color: #009faf;
+}
+.ballotrank:not(.ballotreview):hover .rankdisplay {
+  display: none;
+}
+.ballotrank > input {
+  transform: scale(1.5);
+  cursor: pointer;
+}
+.tie,
+.banish {
+  display: none;
+  position: absolute;
+  top: 56%;
+  left: -150%;
+}
+.banish {
+  left: -55%;
+}
+.tie::before,
+.banish::before {
+  content: "X";
+  position: absolute;
+  line-height: 0;
+  font-size: 20px;
+}
+.tie::before {
+  content: "Tie";
+}
+.tie:hover::before {
+  color: #aaaaaa;
+}
+.banish:hover::before {
+  color: red;
+}
+.ballotrank > input:checked ~ .tie,
+.ballotrank > input:checked ~ .banish {
+  display: inline-block;
+}
+.ballotrank > input:checked ~ .rankdisplay {
+  display: none;
+}
+/*hide ballotrank box when dragging*/
+.ballotselection.gu-mirror > .ballotrank {
+  display: none;
+}
+.rankdisplay {
+  background-color: #009faf;
+  border-radius: 3px;
+  color: white;
+  font-size: 12px;
+  box-shadow: -2px 2px 4px lightgrey;
+}

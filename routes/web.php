@@ -19,3 +19,9 @@ Auth::routes();
 
 Route::get('/profile', 'ProfileController@index');
 Route::get('/profile/accept', 'ProfileController@accept');
+Route::get('test', function () {
+  return "Hello";
+});
+Route::get('/ballot', function () {
+    return view('ballot');
+});
