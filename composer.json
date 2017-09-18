@@ -4,12 +4,19 @@
     "keywords": ["framework", "laravel"],
     "license": "Apache-2.0",
     "type": "project",
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/pivot-libre/tideman.git"
+        }
+    ],
     "require": {
         "php": ">=5.6.4",
         "darkaonline/l5-swagger": "~5.0",
         "laravel/framework": "5.4.*",
         "laravel/passport": "^3.0",
-        "laravel/tinker": "~1.0"
+        "laravel/tinker": "~1.0",
+        "pivot-libre/tideman": "@dev"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

@@ -4,8 +4,53 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "8648a326083ca6fa96adab3a7e878264",
+    "content-hash": "147be3f55e8eb4b2675f0cf8704fad25",
     "packages": [
+        {
+            "name": "clue/graph",
+            "version": "v0.9.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/clue/graph.git",
+                "reference": "0336a4d5229fa61a20ccceaeab25e52ac9542700"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/clue/graph/zipball/0336a4d5229fa61a20ccceaeab25e52ac9542700",
+                "reference": "0336a4d5229fa61a20ccceaeab25e52ac9542700",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.0"
+            },
+            "suggest": {
+                "graphp/algorithms": "Common graph algorithms, such as Dijkstra and Moore-Bellman-Ford (shortest path), minimum spanning tree (MST), Kruskal, Prim and many more..",
+                "graphp/graphviz": "GraphViz graph drawing / DOT output"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Fhaculty\\Graph\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A mathematical graph/network library written in PHP",
+            "homepage": "https://github.com/clue/graph",
+            "keywords": [
+                "edge",
+                "graph",
+                "mathematical",
+                "network",
+                "vertex"
+            ],
+            "time": "2015-03-07T18:11:31+00:00"
+        },
         {
             "name": "darkaonline/l5-swagger",
             "version": "5.4.0",
@@ -428,6 +473,56 @@
             "description": "A simple library to encode and decode JSON Web Tokens (JWT) in PHP. Should conform to the current spec.",
             "homepage": "https://github.com/firebase/php-jwt",
             "time": "2016-07-18T04:51:16+00:00"
+        },
+        {
+            "name": "graphp/algorithms",
+            "version": "v0.8.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/graphp/algorithms.git",
+                "reference": "81db4049c35730767ec8f97fb5c4844234b86cef"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/graphp/algorithms/zipball/81db4049c35730767ec8f97fb5c4844234b86cef",
+                "reference": "81db4049c35730767ec8f97fb5c4844234b86cef",
+                "shasum": ""
+            },
+            "require": {
+                "clue/graph": "~0.9.0|~0.8.0",
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Graphp\\Algorithms\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Christian Lück",
+                    "email": "christian@lueck.tv"
+                }
+            ],
+            "description": "Common mathematical graph algorithms",
+            "homepage": "https://github.com/graphp/algorithms",
+            "keywords": [
+                "Graph algorithms",
+                "dijkstra",
+                "kruskal",
+                "minimum spanning tree",
+                "moore-bellman-ford",
+                "prim",
+                "shortest path"
+            ],
+            "time": "2015-03-08T10:12:01+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -1582,6 +1677,47 @@
                 "x509"
             ],
             "time": "2017-06-05T06:31:10+00:00"
+        },
+        {
+            "name": "pivot-libre/tideman",
+            "version": "0.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pivot-libre/tideman.git",
+                "reference": "e50e7c719b89ae8649f8e7f3a8ca7dfe8c2be0ee"
+            },
+            "require": {
+                "clue/graph": "0.9.0",
+                "graphp/algorithms": "0.8.1",
+                "psr/log": "^1.0.2"
+            },
+            "require-dev": {
+                "cadre/sniffs": "^0.1.0",
+                "monolog/monolog": "^1.23.0",
+                "pds/skeleton": "^1.0.0",
+                "phing/phing": "^2.16.0",
+                "phpstan/phpstan": "^0.6.3",
+                "phpunit/phpunit": "^6.2.3",
+                "satooshi/php-coveralls": "^1.0.1",
+                "squizlabs/php_codesniffer": "^3.0.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PivotLibre\\Tideman\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "PivotLibre\\Tideman\\": "tests/",
+                    "PHP_CodeSniffer\\": "vendor/squizlabs/php_codesniffer/src/"
+                }
+            },
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "Implementation of the Tideman ranked pair algorithm",
+            "time": "2017-09-10T12:47:50+00:00"
         },
         {
             "name": "psr/http-message",
@@ -4442,7 +4578,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "pivot-libre/tideman": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
