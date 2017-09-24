@@ -10,4 +10,9 @@ class Candidate extends Model
     {
         return $this->belongsTo('App\Election');
     }
+
+    public function ranks()
+    {
+        return $this->hasMany('App\CandidateRank');
+    }
 }
