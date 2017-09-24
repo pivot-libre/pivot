@@ -8,16 +8,39 @@
 // EOT;
 $rankingsJson = '{"ranked":[],"unranked":[{"description":"funding for Participatory Budgeting experiment","tie":null},{"description":"funding for Participatory Budgeting experiment","tie":null},{"description":"funding for Participatory Budgeting experiment","tie":null},{"description":"Participatory Budgeting experiment","tie":null},{"description":"Approve RFP and 1-year seed-funding for Participatory Budgeting experiment","tie":null},{"description":"adsfas RFP and 1-year seed-funding for Participatory Budgeting experiment","tie":null},{"description":"Approve RFP and 1-year seed-funding for Participatory Budgeting experiment","tie":null},{"description":"and 1-year seed-funding for Participatory Budgeting experiment","tie":null}]}';
 $rankings = json_decode($rankingsJson, true);
+
+// // GET Request
+// $request = Request::create('/some/url/1', 'GET');
+// $response = Route::dispatch($request);
+//
+// // POST Request
+// $request = Request::create('/some/url/1', 'POST', Request::all());
+// $response = Route::dispatch($request);
+//
+// // Create a new election
+// POST /election
+// Request Body: {"name": "First Election"}
+// $request = Request::create('/election', 'POST', Request::all());
+// $request = Request::create('/api/election', 'POST', ['name' => 'noe First Election']);
+// $response = Route::dispatch($request);
+
+// // Return a single election
+// GET /election/{id}
+$request = Request::create('/election/1', 'GET');
+$response = Route::dispatch($request);
+
+
 ?>
 
 @section('content')
 
 <div id="pagecontent">
   <div id="ballotdiv">
-    <div class="ballotheader">City of Madison Operating Budget - 2018</div>
+    <!-- <div class="ballotheader">City of Madison Operating Budget - 2018</div> -->
+    <div class="ballotheader"><?php echo $response; ?></div>
     <div class="stepnav">
-      <a>Rank items</a>
-      <a href="review">Review</a>
+      <a href="ballot">Rank items</a>
+      <a>Review</a>
     </div>
     <div class="ballotspace">
       <div id="ballotspaceheader">

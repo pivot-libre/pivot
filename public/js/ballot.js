@@ -1,14 +1,23 @@
 'use strict';
 
 //save rankings right at the beginning, so that we update the header and record that the user has seen the ballot
-onBallotItemMove();
+// onCandidateMove();
 
 //set up drag/drop rules
 var drake = dragula([document.getElementById("rankeditems"), document.getElementById("unrankeditems")]);
-drake.on('drop', function (el) { onBallotItemDrop(el); })
+drake.on('drop', function (el) { onCandidateDrop(el); })
 
 
 //functions
+function processSelected(event, processFunction) {
+  event.preventDefault();
+  event.stopPropagation();
+  var functionVars = {}, el, els = document.querySelectorAll(".rankingTools > input:checked");
+  for (var i = 0; i < els.length; i++) {
+    processFunction(els[i], functionVars);
+  }
+  onCandidateMove();
+}
 function tieSelected(el, vars) {
   var item = el.parentElement.parentElement, tieAtt = item.getAttribute("data-tie");
   if (!vars.rankeditems) {
@@ -23,10 +32,7 @@ function tieSelected(el, vars) {
   vars.afterEl = item;  //save off the item, so we can append after it on the next iteration
   el.checked = false;
 }
-function insertAfter(el, afterEl) {
-  if (afterEl.nextElementSibling) { afterEl.parentNode.insertBefore(el, afterEl.nextElementSibling); }
-  else {afterEl.parentNode.appendChild}
-}
+
 function banish(el, vars) {
   var item = el.parentElement.parentElement
   if (!vars.unrankeditems) { vars.unrankeditems = document.getElementById("unrankeditems"); }
@@ -35,40 +41,24 @@ function banish(el, vars) {
   markTieAtt(item, "none");
   vars.unrankeditems.appendChild(item);
 }
-function processSelected(event, processFunction) {
-  event.preventDefault();
-  event.stopPropagation();
-  var functionVars = {}, el, els = document.querySelectorAll(".ballotrank > input:checked");
-  for (var i = 0; i < els.length; i++) {
-    processFunction(els[i], functionVars);
-  }
-  onBallotItemMove();
-}
-function ballotItemClick(el) {
+function candidateClick(el) {
   var rankeditems = document.getElementById("rankeditems");
   if (el.parentElement == rankeditems) { return; }  //no action when clicking a ranked item
 
   rankeditems.appendChild(el);
-  onBallotItemMove(rankeditems);
+  onCandidateMove(rankeditems);
 }
-function ordinalSuffix(i) {
-  //(got this here: https://stackoverflow.com/questions/13627308/add-st-nd-rd-and-th-ordinal-suffix-to-a-number)
-  var j = i % 10, k = i % 100;
-  if (j == 1 && k != 11) { return i + "st"; }
-  if (j == 2 && k != 12) { return i + "nd"; }
-  if (j == 3 && k != 13) { return i + "rd"; }
-  return i + "th";
-}
+
 function markTieEnds() {
   //noe - this doesn't account for cases where the last item is part of a tie. The behavior isn't too bad, though (it allows you to drag items onto the end of the tie), so I'm leaving it for now
-  var selector = "#rankeditems > .ballotselection[data-tie='middle'] + .ballotselection:not([data-tie='middle']):not([data-tie='end'])";
+  var selector = "#rankeditems > .candidate[data-tie='middle'] + .candidate:not([data-tie='middle']):not([data-tie='end'])";
   var itemsAfterTies = document.querySelectorAll(selector);
   for (var i = 0; i < itemsAfterTies.length; i++) {
     markTieAtt(itemsAfterTies[i].previousElementSibling, "end");
   }
 }
 function markTieStarts() {
-  var selector = "#rankeditems > .ballotselection:not([data-tie='start']):not([data-tie='middle']) + [data-tie='middle']";
+  var selector = "#rankeditems > .candidate:not([data-tie='start']):not([data-tie='middle']) + [data-tie='middle']";
   var itemsStartingTies = document.querySelectorAll(selector);
   for (var i = 0; i < itemsStartingTies.length; i++) {
     markTieAtt(itemsStartingTies[i], "start");
@@ -81,7 +71,7 @@ function markTieStarts() {
 }
 function removeLoneTieItems() {
   var nextSibling;
-  var selector = "#rankeditems > .ballotselection:not([data-tie]) + .ballotselection[data-tie]";
+  var selector = "#rankeditems > .candidate:not([data-tie]) + .candidate[data-tie]";
   var itemsAlone = document.querySelectorAll(selector);
   for (var i = 0; i < itemsAlone.length; i++) {
     nextSibling = itemsAlone[i].nextElementSibling;
@@ -95,7 +85,7 @@ function removeLoneTieItems() {
   }
 }
 // function mergeIntoTies() {
-//   var selector = "#rankeditems > .ballotselection[data-tie]:not([data-tie='end']) + .ballotselection:not([data-tie])";
+//   var selector = "#rankeditems > .candidate[data-tie]:not([data-tie='end']) + .candidate:not([data-tie])";
 //   var itemsAmidTies = document.querySelectorAll(selector);
 //   for (var i = 0; i < itemsAmidTies.length; i++) {
 //     console.log(itemsAmidTies[i]);
@@ -112,7 +102,7 @@ function markTieAtt(item, position) {
     // item.style["background-color"] = "yellow";
   }
 }
-function onBallotItemDrop(item) {
+function onCandidateDrop(item) {
   var previousItem, previousItemTieAtt;
   previousItem = item.previousElementSibling;
   if (previousItem) { previousItemTieAtt = previousItem.getAttribute("data-tie"); }
@@ -120,7 +110,7 @@ function onBallotItemDrop(item) {
     markTieAtt(item, "middle");
   }
   else { markTieAtt(item, "none"); }
-  onBallotItemMove();
+  onCandidateMove();
 }
 function cleanUpTies() {
   // mergeIntoTies();
@@ -128,20 +118,22 @@ function cleanUpTies() {
   markTieEnds();
   removeLoneTieItems();
 }
-function onBallotItemMove(rankeditems) {
+function onCandidateMove(rankeditems) {
   cleanUpTies();
   rankeditems = rankeditems || document.getElementById("rankeditems");
   updateHeader(rankeditems.childElementCount);
   saveRankings();
 }
 function updateHeader(rankeditemsCount) {
-  var header = document.getElementById("ballotspaceheaderline1");
+  var header = document.getElementById("ballotspaceheader");
   if (document.getElementById("unrankeditems").childElementCount == 0) {
     header.innerHTML = "You may continue sorting items. When satisfied, you can move on to the Review step.";
     return;
   }
   header.innerHTML = "Select your " + ordinalSuffix(rankeditems.childElementCount + 1) + " choice";
 }
+
+//saving to server
 function saveRankings () {
   var rankingsJson = makeRankingsJson();
   saveRankingsToServer(rankingsJson);
@@ -157,23 +149,21 @@ function makeRankingsJson () {
   rankings.ranked = [];
   rankings.unranked = [];
   ;
-  ballotItemsToArray(document.querySelectorAll("#rankeditems .ballotselection"), rankings.ranked);
-  ballotItemsToArray(document.querySelectorAll("#unrankeditems .ballotselection"), rankings.unranked);
+  candidatesToArray(document.querySelectorAll("#rankeditems .candidate"), rankings.ranked);
+  candidatesToArray(document.querySelectorAll("#unrankeditems .candidate"), rankings.unranked);
 
   // return rankings;
   return JSON.stringify(rankings);
 }
-
-function ballotItemsToArray (items, toArray) {
+function candidatesToArray (items, targetArray) {
   for (var i = 0; i < items.length; i++) {
     var item = {};
-    item.description = items[i].querySelector(".ballotdescription").innerHTML;
+    item.description = items[i].querySelector(".candidateDescription").innerHTML;
+    item.cost = items[i].querySelector(".candidateCost").innerHTML;
     item.tie = items[i].getAttribute("data-tie");
-    toArray.push(item);
+    targetArray.push(item);
   }
 };
-
-
 function sendHttpPostRequest(serviceFileName, request, onSuccessFunction, onFailFunction) {
   onFailFunction = onFailFunction || httpPostFail;  //default fail function
   var xhttp = new XMLHttpRequest();
@@ -189,4 +179,18 @@ function sendHttpPostRequest(serviceFileName, request, onSuccessFunction, onFail
 }
 function httpPostFail(status) {
   // console.log("status: " + status);
+}
+
+//helpers
+function ordinalSuffix(i) {
+  //(got this here: https://stackoverflow.com/questions/13627308/add-st-nd-rd-and-th-ordinal-suffix-to-a-number)
+  var j = i % 10, k = i % 100;
+  if (j == 1 && k != 11) { return i + "st"; }
+  if (j == 2 && k != 12) { return i + "nd"; }
+  if (j == 3 && k != 13) { return i + "rd"; }
+  return i + "th";
+}
+function insertAfter(el, afterEl) {
+  if (afterEl.nextElementSibling) { afterEl.parentNode.insertBefore(el, afterEl.nextElementSibling); }
+  else {afterEl.parentNode.appendChild}
 }
