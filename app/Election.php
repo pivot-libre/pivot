@@ -33,6 +33,11 @@ class Election extends Model
         return $this->belongsToMany('App\User', 'electors');
     }
 
+    public function candidates()
+    {
+        return $this->hasMany('App\Candidate');
+    }
+
     public function invites()
     {
         return $this->belongsToMany('App\Invite', 'electors')->whereNull('accepted_at');

@@ -22,6 +22,7 @@ Route::resource('election.elector', 'ElectorController', [
     'except' => ['create', 'store', 'edit', 'update'],
     'parameters' => ['elector' => 'user'],
 ]);
+Route::resource('election.candidate', 'CandidateController', ['only' => ['index', 'show', 'store', 'destroy']]);
 Route::resource('election.result', 'ResultController', ['only' => ['index']]);
 Route::resource('election.invite', 'InviteController', ['only' => ['index', 'show', 'store', 'destroy']]);
 Route::post('/invite/accept', 'InviteController@accept')->name('invite.accept');
