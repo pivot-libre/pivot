@@ -25,3 +25,6 @@ Route::get('test', function () {
 Route::get('/ballot', function () {
     return view('ballot');
 });
+Route::get('/review', function () {
+    return view('ballotReview');
+});

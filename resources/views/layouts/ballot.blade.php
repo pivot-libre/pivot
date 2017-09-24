@@ -13,6 +13,7 @@
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/pivot.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/stepnav.css') }}" rel="stylesheet">
     <link href="{{ asset('css/dragula.css') }}" rel="stylesheet">
 
     <!-- Scripts -->
@@ -22,7 +23,7 @@
         ]) !!};
     </script>
 </head>
-<body class="container">
+<body>
     <div id="app">
       <nav class="navbar navbar-default navbar-static-top">
           <div class="container">
