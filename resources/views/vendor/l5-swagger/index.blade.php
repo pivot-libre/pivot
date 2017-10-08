@@ -96,7 +96,6 @@ window.onload = function() {
       preFetch: function (req) {
         req.headers['X-CSRF-TOKEN'] = window.Laravel.csrfToken;
         req.headers['X-Requested-With'] = 'XMLHttpRequest';
-        console.dir(req);
         return req;
       }
     },
