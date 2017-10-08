@@ -3,6 +3,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+
+  <!-- CSRF Token -->
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+
   <title>{{config('l5-swagger.api.title')}}</title>
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:300,600|Titillium+Web:400,600,700" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="{{ l5_swagger_asset('swagger-ui.css') }}" >
@@ -27,6 +31,13 @@
       background: #fafafa;
     }
   </style>
+
+  <!-- Scripts -->
+  <script>
+      window.Laravel = {!! json_encode([
+          'csrfToken' => csrf_token(),
+      ]) !!};
+  </script>
 </head>
 
 <body>
@@ -80,6 +91,15 @@ window.onload = function() {
     configUrl: {!! isset($additionalConfigUrl) ? '"' . $additionalConfigUrl . '"' : 'null' !!},
     validatorUrl: {!! isset($validatorUrl) ? '"' . $validatorUrl . '"' : 'null' !!},
     oauth2RedirectUrl: "{{ route('l5-swagger.oauth2_callback') }}",
+
+    configs: {
+      preFetch: function (req) {
+        req.headers['X-CSRF-TOKEN'] = window.Laravel.csrfToken;
+        req.headers['X-Requested-With'] = 'XMLHttpRequest';
+        console.dir(req);
+        return req;
+      }
+    },
 
     presets: [
       SwaggerUIBundle.presets.apis,
