@@ -28,3 +28,6 @@ Route::get('/ballot', function () {
 Route::get('/review', function () {
     return view('ballotReview');
 });
+Route::get('/elections', function () {
+    return view('elections');
+});
