@@ -1,0 +1,213 @@
+'use strict';
+
+//functions
+
+//saving to server
+function showButton(input) {
+  input.nextElementSibling.removeAttribute("style")
+}
+function updateName(form) {
+  form.elements.submit.setAttribute("style", "visibility:hidden;")
+  var request = {}
+  request.api = "rename"
+  request.record = election
+  request.data = form.elements.electionName.value
+  sendRequestToServer(request)
+}
+function deleteElection(election) {
+  var request = {}
+  request.api = "delete"
+  request.record = election
+  sendRequestToServer(request, goToConfirmDeletePage)
+}
+function goToConfirmDeletePage(election) {
+  // console.log("deleted")
+  window.location.href = "confirmDelete.php"
+}
+// function goToElectionPage(election) {
+//   window.location.href = "details.php?election=" + election
+// }
+function saveElection(name) {
+    var request = {}
+    request.data = name
+    request.api = "election"
+    request.record = election
+    saveElectionToServer(request)
+}
+
+function makeElectorateArray () {
+  var electorate = [];
+  electorateToArray(document.querySelectorAll("#edititems .candidate"), electorate);
+  return electorate
+}
+function makeCandidatesArray () {
+  var candidates = [];
+  candidateDefinitionsToArray(document.querySelectorAll("#edititems .candidate"), candidates);
+  return candidates
+}
+function makeRankingsArray () {
+  var rankings = [];
+  candidatesToArray(document.querySelectorAll("#rankeditems .candidate"), rankings, "getRanking");
+  candidatesToArray(document.querySelectorAll("#unrankeditems .candidate"), rankings);
+
+  return rankings
+}
+function electorateToArray (items, targetArray) {
+  for (var i = 0; i < items.length; i++) {
+    var item = {};
+    var formElements = items[i].querySelector(".candidateDetails").elements
+    // console.log(formElements)
+    item.username = formElements.username.value
+    if (formElements.canVote.checked) {item.vote = "yes"}
+    if (formElements.canViewResults.checked) {item.results = "yes"}
+    if (formElements.isAdmin.checked) {item.admin = "yes"}
+
+    targetArray.push(item);
+  }
+}
+function candidateDefinitionsToArray (items, targetArray) {
+  for (var i = 0; i < items.length; i++) {
+    var item = {};
+    item.description = items[i].querySelector(".candidateDescription > input").value
+    item.cost = items[i].querySelector(".candidateCost > input").value
+    item.id = items[i].getAttribute("data-id") || ""
+
+    targetArray.push(item);
+  }
+};
+function candidatesToArray (items, targetArray, isRanked) {
+  var tieStat, isTiedWthPrevious, rank = 0
+  for (var i = 0; i < items.length; i++) {
+    var item = {};
+    // item.description = items[i].querySelector(".candidateDescription").innerHTML;
+    // item.cost = items[i].querySelector(".candidateCost").innerHTML;
+    // item.tie = items[i].getAttribute("data-tie");
+    item.id = items[i].getAttribute("data-id");
+
+    if (isRanked != "getRanking") {
+      targetArray.push(item)
+      continue
+    }
+
+    tieStat = items[i].getAttribute("data-tie")
+    isTiedWthPrevious = ((tieStat == "middle") || (tieStat == "end"))
+    if (isTiedWthPrevious) {item.rank = rank}
+    else {item.rank = ++rank}
+
+    targetArray.push(item);
+  }
+};
+function sendHttpPostRequest(serviceFileName, request, onSuccessFunction, onFailFunction) {
+  axios.post(serviceFileName, request)
+  .then(function (response) {
+    // console.log(response);
+    onSuccessFunction(response.data);
+  })
+  .catch(function (error) {
+    console.log(error);
+    // onFailFunction(error)
+  });
+}
+function httpPostFail(status) {
+  // console.log("status: " + status);
+}
+function removeHrefsForCurrentLoc() {
+  var hrefEls = document.querySelectorAll("[href]")
+  var currentHref = window.location.href
+  for (var i = 0; i < hrefEls.length; i++) {
+    if (canonicalize(hrefEls[i].href) == currentHref) { hrefEls[i].removeAttribute("href") }
+  }
+}
+function anchorListDiv(parent, classes, labelsAndHrefs) {
+  var stepNavigator = div(parent, "", classes);
+  for (var label in labelsAndHrefs) {
+    var href = labelsAndHrefs[label]
+    html(stepNavigator, "a", label, "href=" + href);
+  }
+}
+
+//dom
+function div(parent, id, classes, innerHtml, attributes) {
+  attributes = Array.prototype.slice.call(arguments, 4)
+  return html(parent, "div", innerHtml, "id=" + id, "class=" + classes, attributes)
+}
+function appendNewHtmlEl(parent, tag) {
+  var html = document.createElement(tag)
+  parent.appendChild(html)
+  return html
+}
+function html(parent, tag, innerHtml, attributes) {
+  var i, attString, eqPos, html, attribute, attributes = Array.prototype.slice.call(arguments, 3)
+  // attributes = arguments.slice(3)
+  html = document.createElement(tag)
+  html.innerHTML = (innerHtml || innerHtml === 0) ? innerHtml : ""
+  attributes = flattenArray(attributes)
+  for (i = 0; i < attributes.length; i++) {
+    attString = attributes[i]
+    eqPos = attString.indexOf("=")
+    attribute = attString.slice(0,eqPos)
+    if (!attribute) continue
+    html.setAttribute(attribute, attString.slice(eqPos + 1))
+  }
+  if (parent) parent.appendChild(html)
+  return html
+}
+function flattenArray(array, flattenedArray = []) {
+  var i, member
+  for (i = 0; i < array.length; i++) {
+    member = array[i]
+    if (Array.isArray(member)) { flattenArray(member, flattenedArray) }
+    else {flattenedArray.push(member)}
+  }
+  return flattenedArray
+}
+
+//http
+function httpRequest(method, endpoint, request, onSuccessFunction, onFailFunction) {
+  if (!method) method = "get"
+  if ("get" == method) request = {"params": request}
+  endpoint = "api/" + endpoint + ".php"
+
+  axios[method](endpoint, request)
+  .then(function (response) {
+    // console.log(response);
+    onSuccessFunction(response.data);
+  })
+  .catch(function (error) {
+    console.log(error);
+    // onFailFunction(response);
+  });
+}
+
+//helpers
+function ordinalSuffix(i) {
+  //(got this here: https://stackoverflow.com/questions/13627308/add-st-nd-rd-and-th-ordinal-suffix-to-a-number)
+  var j = i % 10, k = i % 100;
+  if (j == 1 && k != 11) { return i + "st"; }
+  if (j == 2 && k != 12) { return i + "nd"; }
+  if (j == 3 && k != 13) { return i + "rd"; }
+  return i + "th";
+}
+function insertAfter(el, afterEl) {
+  if (afterEl.nextElementSibling) { afterEl.parentNode.insertBefore(el, afterEl.nextElementSibling); }
+  else {afterEl.parentNode.appendChild}
+}
+function canonicalize(url) {
+  //(got this here: https://stackoverflow.com/questions/14780350/convert-relative-path-to-absolute-using-javascript)
+  var div = document.createElement('div');
+  div.innerHTML = "<a></a>";
+  div.firstChild.href = url; // Ensures that the href is properly escaped
+  div.innerHTML = div.innerHTML; // Run the current innerHTML back through the parser
+  return div.firstChild.href;
+}
+
+// function addBudgetItem() {
+//   var itemTemplate = document.querySelector("[data-id=template]");
+//   var itemContainer = document.getElementById("edititems");
+//   var clone = itemTemplate.cloneNode(true)
+//   // console.log(clone)
+//   clone.removeAttribute("data-id")
+//   itemContainer.appendChild(clone)
+//   // enable(clone)
+//   clone.querySelector("input[type=text]").focus()
+// }

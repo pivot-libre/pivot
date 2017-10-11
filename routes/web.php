@@ -25,9 +25,27 @@ Route::get('test', function () {
 Route::get('/ballot', function () {
     return view('ballot');
 });
-Route::get('/review', function () {
+Route::get('/ballotReview', function () {
     return view('ballotReview');
 });
 Route::get('/elections', function () {
     return view('elections');
+});
+Route::get('/create', function () {
+    return view('create');
+});
+Route::get('/myElections', function () {
+    return view('myElections');
+});
+Route::get('/administer', function () {
+    return view('administer');
+});
+Route::get('/candidates', function () {
+    return view('candidates');
+});
+Route::get('/electorate', function () {
+    return view('electorate');
+});
+Route::get('/results', function () {
+    return view('results');
 });
