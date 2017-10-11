@@ -1,14 +1,75 @@
 'use strict';
 
-//save rankings right at the beginning, so that we update the header and record that the user has seen the ballot
-// onCandidateMove();
+// columnWithHeadAndWorkspace(document.body, "username", "", "My Elections")
 
-//set up drag/drop rules
-var drake = dragula([document.getElementById("rankeditems"), document.getElementById("unrankeditems")]);
+var workspace = document.querySelector(".workspace")
+var mainheader = document.querySelector(".mainheader")
+mainheader.innerHTML = "Cast Ballot"
+
+anchorListDiv(workspace, "stepNavigator", {
+    "Rank Candidates": "ballot",
+    "Review ballot": "ballotReview",
+  }
+)
+
+removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
+
+var rankeditems = html(workspace, "ol", "", "id=rankeditems", "class=itemlist incrementsCounter grabbable hasLabelFrame");
+var unrankeditems = html(workspace, "ol", "", "id=unrankeditems", "class=itemlist clickable hasLabelFrame");
+var drake = dragula([rankeditems, unrankeditems]);
 drake.on('drop', function (el) { onCandidateDrop(el); })
 
+candidate(rankeditems, "", "description", "cost", "", "")
+candidate(rankeditems, "", "description", "cost", "", "")
+candidate(unrankeditems, "", "description", "cost", "", "yes")
+candidate(unrankeditems, "", "description", "cost", "", "yes")
 
-//functions
+function candidate(parent, uniq, description, cost, tie, isNew) {
+  var tie = tie ? "data-tie=" + tie : ""
+  var box = html(parent, "li", "", "class=candidate", "onclick=candidateClick(this)", "data-id=" + uniq, tie);
+
+  if ("new" == isNew) { div(box, "", "newitem", "new");}
+  var rankingTools = div(box, "", "rankingTools");
+  html(rankingTools, "input", "", "type=checkbox", "name=ballotcheck", "id=ballotcheck-" + uniq);
+  div(rankingTools, "", "banish", "", "onclick=processSelected(event,banish)");
+  div(rankingTools, "", "tie", "", "onclick=processSelected(event,tieSelected)");
+  html(rankingTools, "label", "", "class=check", "for=ballotcheck-" + uniq);
+  div(rankingTools, "", "rankdisplay");
+
+  var details = div(box, "", "candidateDetails");
+  div(details, "", "grippy");
+  div(details, "", "candidateDescription", description);
+  div(details, "", "candidateCost", cost);
+}
+
+
+function markTieAtt(item, position) {
+  if (position == "none") {
+    item.removeAttribute("data-tie");
+    // item.style["background-color"] = "";
+  }
+  else {
+    item.setAttribute("data-tie", position);
+    // item.style["background-color"] = "yellow";
+  }
+}
+function onCandidateDrop(item) {
+  var previousItem, previousItemTieAtt;
+
+  //handle ties
+  previousItem = item.previousElementSibling;
+  if (previousItem) { previousItemTieAtt = previousItem.getAttribute("data-tie"); }
+  if (previousItemTieAtt == "start" || previousItemTieAtt == "middle") {
+    markTieAtt(item, "middle");
+  }
+  else { markTieAtt(item, "none"); }
+
+  //do standard candidate move stuff
+  onCandidateMove();
+}
+function onReorder(el) {
+  //placeholder
+}
 function processSelected(event, processFunction) {
   event.preventDefault();
   event.stopPropagation();
@@ -32,7 +93,9 @@ function tieSelected(el, vars) {
   vars.afterEl = item;  //save off the item, so we can append after it on the next iteration
   el.checked = false;
 }
-
+function removeCandidate(item) {
+  item.parentElement.removeChild(item)
+}
 function banish(el, vars) {
   var item = el.parentElement.parentElement
   if (!vars.unrankeditems) { vars.unrankeditems = document.getElementById("unrankeditems"); }
@@ -48,7 +111,6 @@ function candidateClick(el) {
   rankeditems.appendChild(el);
   onCandidateMove(rankeditems);
 }
-
 function markTieEnds() {
   //noe - this doesn't account for cases where the last item is part of a tie. The behavior isn't too bad, though (it allows you to drag items onto the end of the tie), so I'm leaving it for now
   var selector = "#rankeditems > .candidate[data-tie='middle'] + .candidate:not([data-tie='middle']):not([data-tie='end'])";
@@ -84,34 +146,6 @@ function removeLoneTieItems() {
     if (!nextSibling || !nextSibling.getAttribute("data-tie")) { markTieAtt(itemsAlone[i], "none"); }
   }
 }
-// function mergeIntoTies() {
-//   var selector = "#rankeditems > .candidate[data-tie]:not([data-tie='end']) + .candidate:not([data-tie])";
-//   var itemsAmidTies = document.querySelectorAll(selector);
-//   for (var i = 0; i < itemsAmidTies.length; i++) {
-//     console.log(itemsAmidTies[i]);
-//     markTieAtt(itemsAmidTies[i], "middle");
-//   }
-// }
-function markTieAtt(item, position) {
-  if (position == "none") {
-    item.removeAttribute("data-tie");
-    // item.style["background-color"] = "";
-  }
-  else {
-    item.setAttribute("data-tie", position);
-    // item.style["background-color"] = "yellow";
-  }
-}
-function onCandidateDrop(item) {
-  var previousItem, previousItemTieAtt;
-  previousItem = item.previousElementSibling;
-  if (previousItem) { previousItemTieAtt = previousItem.getAttribute("data-tie"); }
-  if (previousItemTieAtt == "start" || previousItemTieAtt == "middle") {
-    markTieAtt(item, "middle");
-  }
-  else { markTieAtt(item, "none"); }
-  onCandidateMove();
-}
 function cleanUpTies() {
   // mergeIntoTies();
   markTieStarts();
@@ -121,76 +155,38 @@ function cleanUpTies() {
 function onCandidateMove(rankeditems) {
   cleanUpTies();
   rankeditems = rankeditems || document.getElementById("rankeditems");
-  updateHeader(rankeditems.childElementCount);
+  updateInstructions(rankeditems.childElementCount);
   saveRankings();
 }
-function updateHeader(rankeditemsCount) {
-  var header = document.getElementById("ballotspaceheader");
-  if (document.getElementById("unrankeditems").childElementCount == 0) {
-    header.innerHTML = "You may continue sorting items. When satisfied, you can move on to the Review step.";
-    return;
-  }
-  header.innerHTML = "Select your " + ordinalSuffix(rankeditems.childElementCount + 1) + " choice";
+function updateInstructions(rankeditemsCount) {
+  // var header = document.getElementById("instructions");
+  // if (document.getElementById("unrankeditems").childElementCount == 0) {
+  //   header.innerHTML = "You may continue sorting items. When satisfied, you can move on to the Review step.";
+  //   return;
+  // }
+  // header.innerHTML = "Select your " + ordinalSuffix(rankeditems.childElementCount + 1) + " choice";
 }
-
-//saving to server
 function saveRankings () {
-  var rankingsJson = makeRankingsJson();
-  saveRankingsToServer(rankingsJson);
-}
-function saveRankingsToServer(rankingsJson) {
-  sendHttpPostRequest("saveRankings.php", "rankingsJson=" + rankingsJson, successfullySaved);
-}
-function successfullySaved() {
-  console.log("saved!");
-}
-function makeRankingsJson () {
-  var rankings = {};
-  rankings.ranked = [];
-  rankings.unranked = [];
-  ;
-  candidatesToArray(document.querySelectorAll("#rankeditems .candidate"), rankings.ranked);
-  candidatesToArray(document.querySelectorAll("#unrankeditems .candidate"), rankings.unranked);
-
-  // return rankings;
-  return JSON.stringify(rankings);
-}
-function candidatesToArray (items, targetArray) {
-  for (var i = 0; i < items.length; i++) {
-    var item = {};
-    item.description = items[i].querySelector(".candidateDescription").innerHTML;
-    item.cost = items[i].querySelector(".candidateCost").innerHTML;
-    item.tie = items[i].getAttribute("data-tie");
-    targetArray.push(item);
-  }
-};
-function sendHttpPostRequest(serviceFileName, request, onSuccessFunction, onFailFunction) {
-  onFailFunction = onFailFunction || httpPostFail;  //default fail function
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      if (onSuccessFunction) { onSuccessFunction(xhttp.responseText); }
-    }
-    else if (this.readyState == 4 && this.status != 200) { onFailFunction(this.status); }
-  }
-  xhttp.open("POST", serviceFileName, true);
-  xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-  xhttp.send(request);
-}
-function httpPostFail(status) {
-  // console.log("status: " + status);
+  // var request = {}
+  // request.data = makeRankingsArray()
+  // request.api = "ballot"
+  // request.record = election
+  // saveRankingsToServer(request);
 }
 
-//helpers
-function ordinalSuffix(i) {
-  //(got this here: https://stackoverflow.com/questions/13627308/add-st-nd-rd-and-th-ordinal-suffix-to-a-number)
-  var j = i % 10, k = i % 100;
-  if (j == 1 && k != 11) { return i + "st"; }
-  if (j == 2 && k != 12) { return i + "nd"; }
-  if (j == 3 && k != 13) { return i + "rd"; }
-  return i + "th";
-}
-function insertAfter(el, afterEl) {
-  if (afterEl.nextElementSibling) { afterEl.parentNode.insertBefore(el, afterEl.nextElementSibling); }
-  else {afterEl.parentNode.appendChild}
-}
+// loadElection(1, showElectionDetails)
+//
+// function loadElection(electionId, onSuccessFunction) {
+//   if (!electionId) {return}
+//   axios.get('/api/election/' + electionId)
+//     .then(response => {
+//       // console.log(response.data);
+//       onSuccessFunction(response.data)
+//     });
+// }
+// function showElectionDetails(details) {
+//   // console.log(details)
+//   // var detailsSpace = div(workspace, "", "")
+//   appendNewHtmlEl(workspace, "br")
+//   div(workspace, "", "", "election name: " + details.name)
+// }
