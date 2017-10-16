@@ -7,8 +7,8 @@ var mainheader = document.querySelector(".mainheader")
 mainheader.innerHTML = "Review Ballot"
 
 anchorListDiv(workspace, "stepNavigator", {
-    "Rank Candidates": "ballot",
-    "Review ballot": "ballotReview",
+    "Rank Candidates": "/ballot/" + election,
+    "Review ballot": "/ballotReview/" + election
   }
 )
 

@@ -36,14 +36,14 @@ function showElection(parent, name, id, canVote, canViewResults, isAdmin) {
   var hiddenStyle = "style=visibility:hidden;";
   var nameHref = "";
   if ("yes" == isAdmin) {
-    href = "href=administer";
+    href = "href=administer/" + id;
     hiddenStyle = "";
     nameHref = href;
   }
   html(box, "a", "Administer", href, hiddenStyle);
   hiddenStyle = "style=visibility:hidden;";
   if ("yes" == canVote) {
-    href = "href=ballot";
+    href = "href=ballot/" + id;
     hiddenStyle = "";
     nameHref = href;
   }
@@ -52,7 +52,7 @@ function showElection(parent, name, id, canVote, canViewResults, isAdmin) {
 
   hiddenStyle = "style=visibility:hidden;";
   if ("yes" == canViewResults) {
-    var href = "href=results";
+    var href = "href=results/" + id;
     hiddenStyle = "";
     nameHref = href;
   }

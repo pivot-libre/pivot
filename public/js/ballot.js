@@ -7,8 +7,8 @@ var mainheader = document.querySelector(".mainheader")
 mainheader.innerHTML = "Cast Ballot"
 
 anchorListDiv(workspace, "stepNavigator", {
-    "Rank Candidates": "ballot",
-    "Review ballot": "ballotReview",
+    "Rank Candidates": "/ballot/" + election,
+    "Review ballot": "/ballotReview/" + election
   }
 )
 
@@ -19,12 +19,31 @@ var unrankeditems = html(workspace, "ol", "", "id=unrankeditems", "class=itemlis
 var drake = dragula([rankeditems, unrankeditems]);
 drake.on('drop', function (el) { onCandidateDrop(el); })
 
-candidate(rankeditems, "", "description", "cost", "", "")
-candidate(rankeditems, "", "description", "cost", "", "")
-candidate(unrankeditems, "", "description", "cost", "", "yes")
-candidate(unrankeditems, "", "description", "cost", "", "yes")
+// displayCandidate(rankeditems, "", "description", "cost", "", "")
+// displayCandidate(rankeditems, "", "description", "cost", "", "")
+// displayCandidate(unrankeditems, "", "description", "cost", "", "yes")
+// displayCandidate(unrankeditems, "", "description", "cost", "", "yes")
 
-function candidate(parent, uniq, description, cost, tie, isNew) {
+loadCandidates(election, displayCandidates)
+
+function loadCandidates(electionId, onSuccessFunction) {
+  if (!electionId) {return}
+  axios.get('/api/election/' + electionId + "/candidate")
+    .then(response => {
+      // console.log(response.data);
+      onSuccessFunction(response.data)
+    });
+}
+function displayCandidates(candidates) {
+  // console.log(candidates);
+  var candidate
+  for (var key in candidates) {
+    candidate = candidates[key]
+    // displayCandidate(rankeditems, candidate.id, candidate.name, "", "")
+    displayCandidate(unrankeditems, candidate.id, candidate.name, "", "")
+  }
+}
+function displayCandidate(parent, uniq, description, cost, tie, isNew) {
   var tie = tie ? "data-tie=" + tie : ""
   var box = html(parent, "li", "", "class=candidate", "onclick=candidateClick(this)", "data-id=" + uniq, tie);
 
