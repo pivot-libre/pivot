@@ -7,9 +7,9 @@ var mainheader = document.querySelector(".mainheader")
 mainheader.innerHTML = "Electorate"
 
 anchorListDiv(workspace, "tealButton", {
-    "Election details": "administer",
-    "Add/Edit candidates": "candidates",
-    "Manage electorate": "electorate"
+    "Election details": "/administer/" + election,
+    "Add/Edit candidates": "/candidates/" + election,
+    "Manage electorate": "/electorate/" + election
   }
 )
 

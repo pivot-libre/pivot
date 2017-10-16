@@ -22,11 +22,11 @@ Route::get('/profile/accept', 'ProfileController@accept');
 Route::get('test', function () {
   return "Hello";
 });
-Route::get('/ballot', function () {
-    return view('ballot');
+Route::get('/ballot/{election}', function ($election) {
+    return view('ballot', ['election' => $election]);
 });
-Route::get('/ballotReview', function () {
-    return view('ballotReview');
+Route::get('/ballotReview/{election}', function ($election) {
+    return view('ballotReview', ['election' => $election]);
 });
 Route::get('/elections', function () {
     return view('elections');
@@ -37,15 +37,15 @@ Route::get('/create', function () {
 Route::get('/myElections', function () {
     return view('myElections');
 });
-Route::get('/administer', function () {
-    return view('administer');
+Route::get('/administer/{election}', function ($election) {
+    return view('administer', ['election' => $election]);
 });
-Route::get('/candidates', function () {
-    return view('candidates');
+Route::get('/candidates/{election}', function ($election) {
+    return view('candidates', ['election' => $election]);
 });
-Route::get('/electorate', function () {
-    return view('electorate');
+Route::get('/electorate/{election}', function ($election) {
+    return view('electorate', ['election' => $election]);
 });
-Route::get('/results', function () {
-    return view('results');
+Route::get('/results/{election}', function ($election) {
+    return view('results', ['election' => $election]);
 });

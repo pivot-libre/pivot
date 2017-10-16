@@ -40,11 +40,6 @@ function makeElectorateArray () {
   electorateToArray(document.querySelectorAll("#edititems .candidate"), electorate);
   return electorate
 }
-function makeCandidatesArray () {
-  var candidates = [];
-  candidateDefinitionsToArray(document.querySelectorAll("#edititems .candidate"), candidates);
-  return candidates
-}
 function makeRankingsArray () {
   var rankings = [];
   candidatesToArray(document.querySelectorAll("#rankeditems .candidate"), rankings, "getRanking");
@@ -65,16 +60,6 @@ function electorateToArray (items, targetArray) {
     targetArray.push(item);
   }
 }
-function candidateDefinitionsToArray (items, targetArray) {
-  for (var i = 0; i < items.length; i++) {
-    var item = {};
-    item.description = items[i].querySelector(".candidateDescription > input").value
-    item.cost = items[i].querySelector(".candidateCost > input").value
-    item.id = items[i].getAttribute("data-id") || ""
-
-    targetArray.push(item);
-  }
-};
 function candidatesToArray (items, targetArray, isRanked) {
   var tieStat, isTiedWthPrevious, rank = 0
   for (var i = 0; i < items.length; i++) {
@@ -97,20 +82,6 @@ function candidatesToArray (items, targetArray, isRanked) {
     targetArray.push(item);
   }
 };
-function sendHttpPostRequest(serviceFileName, request, onSuccessFunction, onFailFunction) {
-  axios.post(serviceFileName, request)
-  .then(function (response) {
-    // console.log(response);
-    onSuccessFunction(response.data);
-  })
-  .catch(function (error) {
-    console.log(error);
-    // onFailFunction(error)
-  });
-}
-function httpPostFail(status) {
-  // console.log("status: " + status);
-}
 function removeHrefsForCurrentLoc() {
   var hrefEls = document.querySelectorAll("[href]")
   var currentHref = window.location.href
@@ -160,23 +131,6 @@ function flattenArray(array, flattenedArray = []) {
     else {flattenedArray.push(member)}
   }
   return flattenedArray
-}
-
-//http
-function httpRequest(method, endpoint, request, onSuccessFunction, onFailFunction) {
-  if (!method) method = "get"
-  if ("get" == method) request = {"params": request}
-  endpoint = "api/" + endpoint + ".php"
-
-  axios[method](endpoint, request)
-  .then(function (response) {
-    // console.log(response);
-    onSuccessFunction(response.data);
-  })
-  .catch(function (error) {
-    console.log(error);
-    // onFailFunction(response);
-  });
 }
 
 //helpers

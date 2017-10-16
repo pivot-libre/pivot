@@ -22,14 +22,9 @@ html(newElectionForm, "input", "", "type=submit", "value=Create");
 
 function createElection(form) {
   var name = form.elements.electionName.value
-  // console.log(name)
   axios.post('/api/election', {"name": name})
     .then(response => {
       // console.log(response.data);
-      window.location.href = "administer"
+      window.location.href = "/administer/" + response.data.id
     });
-  // var request = {}
-  // request.data = name
-  // request.api = "create"
-  // sendRequestToServer(request, goToElectionPage)
 }

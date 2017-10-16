@@ -7,15 +7,15 @@ var mainheader = document.querySelector(".mainheader")
 mainheader.innerHTML = "Administer"
 
 anchorListDiv(workspace, "tealButton", {
-    "Election details": "administer",
-    "Add/Edit candidates": "candidates",
-    "Manage electorate": "electorate"
+    "Election details": "/administer/" + election,
+    "Add/Edit candidates": "/candidates/" + election,
+    "Manage electorate": "/electorate/" + election
   }
 )
 
 removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
-loadElection(1, showElectionDetails)
+loadElection(election, showElectionDetails)
 // loadElection(2, showElectionDetails)
 
 function loadElection(electionId, onSuccessFunction) {
