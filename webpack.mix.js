@@ -13,3 +13,8 @@ const { mix } = require('laravel-mix');
 
 mix.js('resources/assets/js/app.js', 'public/js')
    .sass('resources/assets/sass/app.scss', 'public/css');
+
+
+mix.copy('vendor/swagger-api/swagger-ui/dist/swagger-ui.css', 'public/swagger/asset/swagger-ui.css');
+mix.copy('vendor/swagger-api/swagger-ui/dist/swagger-ui-bundle.js', 'public/swagger/asset/swagger-ui-bundle.js');
+mix.copy('vendor/swagger-api/swagger-ui/dist/swagger-ui-standalone-preset.js', 'public/swagger/asset/swagger-ui-standalone-preset.js');

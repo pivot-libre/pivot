@@ -11,7 +11,104 @@
                 "operationId": "electionIndex",
                 "responses": {
                     "200": {
-                        "description": "Success"
+                        "description": "Success",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Election"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/election/{electionId}": {
+            "get": {
+                "summary": "Display the specified resource.",
+                "operationId": "electionIndex",
+                "parameters": [
+                    {
+                        "name": "electionId",
+                        "in": "path",
+                        "description": "Election to get",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ElectionWithCreator"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/election/{electionId}/elector": {
+            "get": {
+                "summary": "Display a listing of the resource.",
+                "operationId": "electorIndex",
+                "parameters": [
+                    {
+                        "name": "electionId",
+                        "in": "path",
+                        "description": "Election to get",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/User"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/election/{electionId}/elector/{electorId}": {
+            "get": {
+                "summary": "Display the specified resource.",
+                "operationId": "electorIndex",
+                "parameters": [
+                    {
+                        "name": "electionId",
+                        "in": "path",
+                        "description": "Election to get",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "electorId",
+                        "in": "path",
+                        "description": "Elector to get",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
                     },
                     "400": {
                         "description": "Bad Request"
@@ -20,5 +117,101 @@
             }
         }
     },
-    "definitions": {}
+    "definitions": {
+        "Election": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "123"
+                },
+                "creator_id": {
+                    "type": "string",
+                    "example": "123"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Funds for road construction"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2017-01-01 11:00:00"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2017-01-01 11:00:00"
+                },
+                "deleted_at": {
+                    "type": "string",
+                    "example": "2017-01-01 11:00:00"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "Election"
+            }
+        },
+        "ElectionWithCreator": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "123"
+                },
+                "creator_id": {
+                    "type": "string",
+                    "example": "123"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Funds for road construction"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2017-01-01 11:00:00"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2017-01-01 11:00:00"
+                },
+                "deleted_at": {
+                    "type": "string",
+                    "example": "2017-01-01 11:00:00"
+                },
+                "creator": {
+                    "$ref": "#/definitions/User"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "ElectionWithCreator"
+            }
+        },
+        "User": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "123"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2017-01-01 11:00:00"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2017-01-01 11:00:00"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        }
+    }
 }
