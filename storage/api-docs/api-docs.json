@@ -8,6 +8,10 @@
     "paths": {
         "/election": {
             "get": {
+                "tags": [
+                    "Election"
+                ],
+                "summary": "View all elections",
                 "operationId": "electionIndex",
                 "responses": {
                     "200": {
@@ -27,7 +31,10 @@
         },
         "/election/{electionId}": {
             "get": {
-                "summary": "Display the specified resource.",
+                "tags": [
+                    "Election"
+                ],
+                "summary": "View information about an election",
                 "operationId": "electionIndex",
                 "parameters": [
                     {
@@ -56,7 +63,10 @@
         },
         "/election/{electionId}/elector": {
             "get": {
-                "summary": "Display a listing of the resource.",
+                "tags": [
+                    "Electors"
+                ],
+                "summary": "View the electorate for an election",
                 "operationId": "electorIndex",
                 "parameters": [
                     {
@@ -85,7 +95,10 @@
         },
         "/election/{electionId}/elector/{electorId}": {
             "get": {
-                "summary": "Display the specified resource.",
+                "tags": [
+                    "Electors"
+                ],
+                "summary": "Get information about an elector",
                 "operationId": "electorIndex",
                 "parameters": [
                     {
@@ -115,9 +128,202 @@
                     }
                 }
             }
+        },
+        "/election/{electionId}/invite": {
+            "get": {
+                "tags": [
+                    "Invites"
+                ],
+                "summary": "View pending invites",
+                "operationId": "pendingInviteIndex",
+                "parameters": [
+                    {
+                        "name": "electionId",
+                        "in": "path",
+                        "description": "Election to get",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/InviteWithElection"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Invites"
+                ],
+                "summary": "Send an invite",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "electionId",
+                        "in": "path",
+                        "description": "Election ID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "payload",
+                        "in": "body",
+                        "description": "Email to invite",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Email"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/Invite"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/election/{electionId}/invite/{code}": {
+            "get": {
+                "tags": [
+                    "Invites"
+                ],
+                "summary": "Get information about an invite",
+                "operationId": "inviteSearch",
+                "parameters": [
+                    {
+                        "name": "electionId",
+                        "in": "path",
+                        "description": "Election to get",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "code",
+                        "in": "path",
+                        "description": "Invite to get",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/Invite"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Invites"
+                ],
+                "summary": "Delete an invite",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "electionId",
+                        "in": "path",
+                        "description": "Election ID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "code",
+                        "in": "path",
+                        "description": "Invite Code",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/invite/accept": {
+            "post": {
+                "tags": [
+                    "Invites"
+                ],
+                "summary": "Accept an invite",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "in": "body",
+                        "description": "Code to accept an invite",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Code"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/Invite"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "Code": {
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "12345678"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "Code"
+            }
+        },
         "Election": {
             "properties": {
                 "id": {
@@ -183,6 +389,101 @@
             "type": "object",
             "xml": {
                 "name": "ElectionWithCreator"
+            }
+        },
+        "Email": {
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "Email"
+            }
+        },
+        "Invite": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "123"
+                },
+                "code": {
+                    "type": "string",
+                    "example": "12345678"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                },
+                "accepted_at": {
+                    "type": "string",
+                    "example": "2017-01-01 11:00:00"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2017-01-01 11:00:00"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2017-01-01 11:00:00"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "Invite"
+            }
+        },
+        "InviteWithElection": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "123"
+                },
+                "code": {
+                    "type": "string",
+                    "example": "12345678"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                },
+                "accepted_at": {
+                    "type": "string",
+                    "example": "2017-01-01 11:00:00"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2017-01-01 11:00:00"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2017-01-01 11:00:00"
+                },
+                "pivot": {
+                    "$ref": "#/definitions/PivotElection"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "InviteWithElection"
+            }
+        },
+        "PivotElection": {
+            "properties": {
+                "election_id": {
+                    "type": "string",
+                    "example": "123"
+                },
+                "invite_id": {
+                    "type": "string",
+                    "example": "123"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "PivotElection"
             }
         },
         "User": {
