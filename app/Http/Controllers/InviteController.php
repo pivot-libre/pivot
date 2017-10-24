@@ -17,7 +17,7 @@ class InviteController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * * @SWG\Get(
+     * @SWG\Get(
      *     tags={"Invites"},
      *     path="/election/{electionId}/invite",
      *     summary="View pending invites",
@@ -185,7 +185,7 @@ class InviteController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * * @SWG\Delete(
+     * @SWG\Delete(
      *     tags={"Invites"},
      *     path="/election/{electionId}/invite/{code}",
      *     summary="Delete an invite",

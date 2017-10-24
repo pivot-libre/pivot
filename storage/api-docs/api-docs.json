@@ -6,6 +6,151 @@
     },
     "basePath": "/api",
     "paths": {
+        "/election/{electionId}/candidate": {
+            "get": {
+                "tags": [
+                    "Candidates"
+                ],
+                "summary": "View candidates for an election",
+                "operationId": "candidateIndex",
+                "parameters": [
+                    {
+                        "name": "electionId",
+                        "in": "path",
+                        "description": "Election to get",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Candidate"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Candidates"
+                ],
+                "summary": "Add a candidate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "electionId",
+                        "in": "path",
+                        "description": "Election ID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "payload",
+                        "in": "body",
+                        "description": "Candidate to add",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateCandidate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/Candidate"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/election/{electionId}/candidate/{candidateId}": {
+            "get": {
+                "tags": [
+                    "Candidates"
+                ],
+                "summary": "Get information about an invite",
+                "operationId": "inviteSearch",
+                "parameters": [
+                    {
+                        "name": "electionId",
+                        "in": "path",
+                        "description": "Election to get",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "candidateId",
+                        "in": "path",
+                        "description": "Candidate to get",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/Candidate"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Candidates"
+                ],
+                "summary": "Delete a candidate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "electionId",
+                        "in": "path",
+                        "description": "Election ID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "candidateId",
+                        "in": "path",
+                        "description": "Candidate ID to delete",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
         "/election": {
             "get": {
                 "tags": [
@@ -312,6 +457,34 @@
         }
     },
     "definitions": {
+        "Candidate": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "123"
+                },
+                "election_id": {
+                    "type": "string",
+                    "example": "123"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Funds for road construction"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2017-01-01 11:00:00"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2017-01-01 11:00:00"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "Candidate"
+            }
+        },
         "Code": {
             "properties": {
                 "code": {
@@ -322,6 +495,18 @@
             "type": "object",
             "xml": {
                 "name": "Code"
+            }
+        },
+        "CreateCandidate": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "Highland Avenue"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "CreateCandidate"
             }
         },
         "Election": {

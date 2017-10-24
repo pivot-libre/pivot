@@ -16,6 +16,25 @@ class CandidateController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @SWG\Get(
+     *     tags={"Candidates"},
+     *     path="/election/{electionId}/candidate",
+     *     summary="View candidates for an election",
+     *     operationId="candidateIndex",
+     *     @SWG\Parameter(
+     *         name="electionId",
+     *         in="path",
+     *         description="Election to get",
+     *         required=true,
+     *         type="string",
+     *     ),
+     *     @SWG\Response(response="200", description="Success", @SWG\Schema(
+     *             type="array",
+     *             @SWG\Items(ref="#/definitions/Candidate")
+     *         )),
+     *     @SWG\Response(response="400", description="Bad Request")
+     * )
+     *
      * @return \Illuminate\Http\Response
      */
     public function index(Election $election)
@@ -25,6 +44,44 @@ class CandidateController extends Controller
         return $election->candidates;
     }
 
+    /**
+     * Add a new candidate for an election
+     *
+     * @SWG\Post(
+     *     tags={"Candidates"},
+     *     path="/election/{electionId}/candidate",
+     *     summary="Add a candidate",
+     *     consumes={"application/json"},
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *         name="electionId",
+     *         in="path",
+     *         description="Election ID",
+     *         required=true,
+     *         type="string",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="payload",
+     *         in="body",
+     *         description="Candidate to add",
+     *         required=true,
+     *         @SWG\Schema(ref="#/definitions/CreateCandidate")
+     *     ),
+     *     @SWG\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @SWG\Schema(ref="#/definitions/Candidate")
+     *     ),
+     *     @SWG\Response(
+     *         response="400",
+     *         description="Bad Request",
+     *     )
+     * )
+     *
+     * @param Request $request
+     * @param Election $election
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request, Election $election)
     {
         $this->authorize('update', $election);
@@ -43,6 +100,37 @@ class CandidateController extends Controller
         );
     }
 
+    /**
+     * Show a candidate from an election
+     *
+     * @SWG\Get(
+     *     tags={"Candidates"},
+     *     path="/election/{electionId}/candidate/{candidateId}",
+     *     operationId="inviteSearch",
+     *     summary="Get information about an invite",
+     *     @SWG\Parameter(
+     *         name="electionId",
+     *         in="path",
+     *         description="Election to get",
+     *         required=true,
+     *         type="string",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="candidateId",
+     *         in="path",
+     *         description="Candidate to get",
+     *         required=true,
+     *         type="string",
+     *     ),
+     *     @SWG\Response(response="200", description="Success", @SWG\Schema(ref="#/definitions/Candidate")
+     *     ),
+     *     @SWG\Response(response="400", description="Bad Request")
+     * )
+     *
+     * @param Election $election
+     * @param Candidate $candidate
+     * @return Candidate
+     */
     public function show(Election $election, Candidate $candidate)
     {
         $this->authorize('view', $election);
@@ -50,6 +138,43 @@ class CandidateController extends Controller
         return $candidate;
     }
 
+    /**
+     * Delete a candidate from an election
+     *
+     * @SWG\Delete(
+     *     tags={"Candidates"},
+     *     path="/election/{electionId}/candidate/{candidateId}",
+     *     summary="Delete a candidate",
+     *     consumes={"application/json"},
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *         name="electionId",
+     *         in="path",
+     *         description="Election ID",
+     *         required=true,
+     *         type="string",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="candidateId",
+     *         in="path",
+     *         description="Candidate ID to delete",
+     *         required=true,
+     *         type="string",
+     *     ),
+     *     @SWG\Response(
+     *         response=200,
+     *         description="successful operation"
+     *     ),
+     *     @SWG\Response(
+     *         response="400",
+     *         description="Bad Request",
+     *     )
+     * )
+     *
+     * @param Election $election
+     * @param Candidate $candidate
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy(Election $election, Candidate $candidate)
     {
         $this->authorize('update', $election);
