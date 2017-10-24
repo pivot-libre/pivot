@@ -107,7 +107,7 @@ class CandidateController extends Controller
      *     tags={"Candidates"},
      *     path="/election/{electionId}/candidate/{candidateId}",
      *     operationId="inviteSearch",
-     *     summary="Get information about an invite",
+     *     summary="Get information about a candidate",
      *     @SWG\Parameter(
      *         name="electionId",
      *         in="path",
