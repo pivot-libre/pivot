@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Election;
@@ -16,7 +17,10 @@ class ElectionController extends Controller
      * @SWG\Get(
      *     path="/election",
      *     operationId="electionIndex",
-     *     @SWG\Response(response="200", description="Success"),
+     *     @SWG\Response(response="200", description="Success", @SWG\Schema(
+     *             type="array",
+     *             @SWG\Items(ref="#/definitions/Election")
+     *         )),
      *     @SWG\Response(response="400", description="Bad Request")
      * )
      */
@@ -30,7 +34,7 @@ class ElectionController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -48,7 +52,24 @@ class ElectionController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Election  $election
+     * * @SWG\Get(
+     *     path="/election/{electionId}",
+     *     operationId="electionIndex",
+     *     @SWG\Parameter(
+     *         name="electionId",
+     *         in="path",
+     *         description="Election to get",
+     *         required=true,
+     *         type="string",
+     *     ),
+     *     @SWG\Response(response="200", description="Success", @SWG\Schema(
+     *             type="array",
+     *             @SWG\Items(ref="#/definitions/ElectionWithCreator")
+     *         )),
+     *     @SWG\Response(response="400", description="Bad Request")
+     * )
+     *
+     * @param  \App\Election $election
      * @return \Illuminate\Http\Response
      */
     public function show(Election $election)
@@ -62,8 +83,8 @@ class ElectionController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Election  $election
+     * @param  \Illuminate\Http\Request $request
+     * @param  \App\Election $election
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Election $election)
@@ -85,7 +106,7 @@ class ElectionController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Election  $election
+     * @param  \App\Election $election
      * @return \Illuminate\Http\Response
      */
     public function destroy(Election $election)

@@ -18,7 +18,24 @@ class ElectorController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @param  \App\Election  $election
+     * @SWG\Get(
+     *     path="/election/{electionId}/elector",
+     *     operationId="electorIndex",
+     *     @SWG\Parameter(
+     *         name="electionId",
+     *         in="path",
+     *         description="Election to get",
+     *         required=true,
+     *         type="string",
+     *     ),
+     *     @SWG\Response(response="200", description="Success", @SWG\Schema(
+     *             type="array",
+     *             @SWG\Items(ref="#/definitions/User")
+     *         )),
+     *     @SWG\Response(response="400", description="Bad Request")
+     * )
+     *
+     * @param  \App\Election $election
      * @return \Illuminate\Http\Response
      */
     public function index(Election $election)
@@ -31,8 +48,30 @@ class ElectorController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Election  $election
-     * @param  \App\User  $user
+     * @SWG\Get(
+     *     path="/election/{electionId}/elector/{electorId}",
+     *     operationId="electorIndex",
+     *     @SWG\Parameter(
+     *         name="electionId",
+     *         in="path",
+     *         description="Election to get",
+     *         required=true,
+     *         type="string",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="electorId",
+     *         in="path",
+     *         description="Elector to get",
+     *         required=true,
+     *         type="string",
+     *     ),
+     *     @SWG\Response(response="200", description="Success", @SWG\Schema(ref="#/definitions/User")
+     *     ),
+     *     @SWG\Response(response="400", description="Bad Request")
+     * )
+     *
+     * @param  \App\Election $election
+     * @param  \App\User $user
      * @return \Illuminate\Http\Response
      */
     public function show(Election $election, User $user)
@@ -49,8 +88,8 @@ class ElectorController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Election  $election
-     * @param  \App\User  $user
+     * @param  \App\Election $election
+     * @param  \App\User $user
      * @return \Illuminate\Http\Response
      */
     public function destroy(Election $election, User $user)
