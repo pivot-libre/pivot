@@ -4,12 +4,12 @@ namespace App\Definitions;
 
 /**
  * @SWG\Definition(
- *     definition="Election",
+ *     definition="ElectionWithCreator",
  *     type="object",
- *     @SWG\Xml(name="Election")
+ *     @SWG\Xml(name="ElectionWithCreator")
  * )
  */
-class Election
+class ElectionWithCreator
 {
     /**
      * @var string
@@ -46,4 +46,10 @@ class Election
      * @SWG\Property(example="2017-01-01 11:00:00")
      */
     public $deleted_at;
+
+    /**
+     * @var User
+     * @SWG\Property()
+     */
+    public $creator;
 }

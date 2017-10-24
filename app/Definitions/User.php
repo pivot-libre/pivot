@@ -4,12 +4,12 @@ namespace App\Definitions;
 
 /**
  * @SWG\Definition(
- *     definition="Election",
+ *     definition="User",
  *     type="object",
- *     @SWG\Xml(name="Election")
+ *     @SWG\Xml(name="User")
  * )
  */
-class Election
+class User
 {
     /**
      * @var string
@@ -19,15 +19,15 @@ class Election
 
     /**
      * @var string
-     * @SWG\Property(example="123")
+     * @SWG\Property(example="John Doe")
      */
-    public $creator_id;
+    public $name;
 
     /**
      * @var string
-     * @SWG\Property(example="Funds for road construction")
+     * @SWG\Property(example="john.doe@example.com")
      */
-    public $name;
+    public $email;
 
     /**
      * @var string
@@ -40,10 +40,4 @@ class Election
      * @SWG\Property(example="2017-01-01 11:00:00")
      */
     public $updated_at;
-
-    /**
-     * @var string
-     * @SWG\Property(example="2017-01-01 11:00:00")
-     */
-    public $deleted_at;
 }
