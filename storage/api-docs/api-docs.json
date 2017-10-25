@@ -42,6 +42,7 @@
                     "Candidates"
                 ],
                 "summary": "Add a candidate",
+                "operationId": "createCandidate",
                 "consumes": [
                     "application/json"
                 ],
@@ -84,8 +85,8 @@
                 "tags": [
                     "Candidates"
                 ],
-                "summary": "Get information about an invite",
-                "operationId": "inviteSearch",
+                "summary": "Get information about a candidate",
+                "operationId": "getCandidateById",
                 "parameters": [
                     {
                         "name": "electionId",
@@ -119,6 +120,7 @@
                     "Candidates"
                 ],
                 "summary": "Delete a candidate",
+                "operationId": "deleteCandidate",
                 "consumes": [
                     "application/json"
                 ],
@@ -180,7 +182,7 @@
                     "Election"
                 ],
                 "summary": "View information about an election",
-                "operationId": "electionIndex",
+                "operationId": "getElectionById",
                 "parameters": [
                     {
                         "name": "electionId",
@@ -244,7 +246,7 @@
                     "Electors"
                 ],
                 "summary": "Get information about an elector",
-                "operationId": "electorIndex",
+                "operationId": "getElectorById",
                 "parameters": [
                     {
                         "name": "electionId",
@@ -280,7 +282,7 @@
                     "Invites"
                 ],
                 "summary": "View pending invites",
-                "operationId": "pendingInviteIndex",
+                "operationId": "inviteIndex",
                 "parameters": [
                     {
                         "name": "electionId",
@@ -310,6 +312,7 @@
                     "Invites"
                 ],
                 "summary": "Send an invite",
+                "operationId": "createInvite",
                 "consumes": [
                     "application/json"
                 ],
@@ -353,7 +356,7 @@
                     "Invites"
                 ],
                 "summary": "Get information about an invite",
-                "operationId": "inviteSearch",
+                "operationId": "getInviteByCode",
                 "parameters": [
                     {
                         "name": "electionId",
@@ -387,6 +390,7 @@
                     "Invites"
                 ],
                 "summary": "Delete an invite",
+                "operationId": "deleteInvite",
                 "consumes": [
                     "application/json"
                 ],
@@ -425,6 +429,7 @@
                     "Invites"
                 ],
                 "summary": "Accept an invite",
+                "operationId": "acceptInvite",
                 "consumes": [
                     "application/json"
                 ],

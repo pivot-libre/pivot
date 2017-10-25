@@ -58,7 +58,7 @@ class ElectionController extends Controller
      *     tags={"Election"},
      *     path="/election/{electionId}",
      *     summary="View information about an election",
-     *     operationId="electionIndex",
+     *     operationId="getElectionById",
      *     @SWG\Parameter(
      *         name="electionId",
      *         in="path",

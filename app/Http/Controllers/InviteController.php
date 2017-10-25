@@ -21,7 +21,7 @@ class InviteController extends Controller
      *     tags={"Invites"},
      *     path="/election/{electionId}/invite",
      *     summary="View pending invites",
-     *     operationId="pendingInviteIndex",
+     *     operationId="inviteIndex",
      *     @SWG\Parameter(
      *         name="electionId",
      *         in="path",
@@ -52,6 +52,7 @@ class InviteController extends Controller
      *     tags={"Invites"},
      *     path="/election/{electionId}/invite",
      *     summary="Send an invite",
+     *     operationId="createInvite",
      *     consumes={"application/json"},
      *     produces={"application/json"},
      *     @SWG\Parameter(
@@ -105,8 +106,8 @@ class InviteController extends Controller
      * @SWG\Get(
      *     tags={"Invites"},
      *     path="/election/{electionId}/invite/{code}",
-     *     operationId="inviteSearch",
      *     summary="Get information about an invite",
+     *     operationId="getInviteByCode",
      *     @SWG\Parameter(
      *         name="electionId",
      *         in="path",
@@ -145,6 +146,7 @@ class InviteController extends Controller
      *     summary="Accept an invite",
      *     consumes={"application/json"},
      *     produces={"application/json"},
+     *     operationId="acceptInvite",
      *     @SWG\Parameter(
      *         name="payload",
      *         in="body",
@@ -191,6 +193,7 @@ class InviteController extends Controller
      *     summary="Delete an invite",
      *     consumes={"application/json"},
      *     produces={"application/json"},
+     *     operationId="deleteInvite",
      *     @SWG\Parameter(
      *         name="electionId",
      *         in="path",

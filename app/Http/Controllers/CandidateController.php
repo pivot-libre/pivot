@@ -53,6 +53,7 @@ class CandidateController extends Controller
      *     summary="Add a candidate",
      *     consumes={"application/json"},
      *     produces={"application/json"},
+     *     operationId="createCandidate",
      *     @SWG\Parameter(
      *         name="electionId",
      *         in="path",
@@ -106,8 +107,8 @@ class CandidateController extends Controller
      * @SWG\Get(
      *     tags={"Candidates"},
      *     path="/election/{electionId}/candidate/{candidateId}",
-     *     operationId="inviteSearch",
      *     summary="Get information about a candidate",
+     *     operationId="getCandidateById",
      *     @SWG\Parameter(
      *         name="electionId",
      *         in="path",
@@ -147,6 +148,7 @@ class CandidateController extends Controller
      *     summary="Delete a candidate",
      *     consumes={"application/json"},
      *     produces={"application/json"},
+     *     operationId="deleteCandidate",
      *     @SWG\Parameter(
      *         name="electionId",
      *         in="path",

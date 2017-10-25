@@ -54,7 +54,7 @@ class ElectorController extends Controller
      *     tags={"Electors"},
      *     path="/election/{electionId}/elector/{electorId}",
      *     summary="Get information about an elector",
-     *     operationId="electorIndex",
+     *     operationId="getElectorById",
      *     @SWG\Parameter(
      *         name="electionId",
      *         in="path",
