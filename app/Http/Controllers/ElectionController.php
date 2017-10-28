@@ -15,8 +15,10 @@ class ElectionController extends Controller
 
     /**
      * @SWG\Get(
+     *     tags={"Election"},
      *     path="/election",
      *     operationId="electionIndex",
+     *     summary="View all elections",
      *     @SWG\Response(response="200", description="Success", @SWG\Schema(
      *             type="array",
      *             @SWG\Items(ref="#/definitions/Election")
@@ -53,8 +55,10 @@ class ElectionController extends Controller
      * Display the specified resource.
      *
      * * @SWG\Get(
+     *     tags={"Election"},
      *     path="/election/{electionId}",
-     *     operationId="electionIndex",
+     *     summary="View information about an election",
+     *     operationId="getElectionById",
      *     @SWG\Parameter(
      *         name="electionId",
      *         in="path",

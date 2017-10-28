@@ -19,7 +19,9 @@ class ElectorController extends Controller
      * Display a listing of the resource.
      *
      * @SWG\Get(
+     *     tags={"Electors"},
      *     path="/election/{electionId}/elector",
+     *     summary="View the electorate for an election",
      *     operationId="electorIndex",
      *     @SWG\Parameter(
      *         name="electionId",
@@ -49,8 +51,10 @@ class ElectorController extends Controller
      * Display the specified resource.
      *
      * @SWG\Get(
+     *     tags={"Electors"},
      *     path="/election/{electionId}/elector/{electorId}",
-     *     operationId="electorIndex",
+     *     summary="Get information about an elector",
+     *     operationId="getElectorById",
      *     @SWG\Parameter(
      *         name="electionId",
      *         in="path",
