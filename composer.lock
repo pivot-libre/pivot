@@ -7,52 +7,6 @@
     "content-hash": "147be3f55e8eb4b2675f0cf8704fad25",
     "packages": [
         {
-            "name": "bitexpert/slf4psrlog",
-            "version": "0.1.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/bitExpert/slf4psrlog.git",
-                "reference": "40408cb83f08738b630f1a90b2824c0a39b619af"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/bitExpert/slf4psrlog/zipball/40408cb83f08738b630f1a90b2824c0a39b619af",
-                "reference": "40408cb83f08738b630f1a90b2824c0a39b619af",
-                "shasum": ""
-            },
-            "require": {
-                "psr/log": "^1.0"
-            },
-            "provide": {
-                "psr/log-implementation": "1.0.0"
-            },
-            "require-dev": {
-                "phpdocumentor/phpdocumentor": "^2.8.0",
-                "phpmd/phpmd": "^2.2.0",
-                "phpunit/php-code-coverage": "^2.1.0",
-                "phpunit/phpunit": "^4.7.0",
-                "squizlabs/php_codesniffer": "^2.3"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "bitExpert\\Slf4PsrLog\\": "src/bitExpert/Slf4PsrLog"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Stephan Hochdörfer",
-                    "email": "S.Hochdoerfer@bitExpert.de"
-                }
-            ],
-            "description": "Simple Logging Facade for Loggers implementing PSR-3 logging interface.",
-            "time": "2015-10-18T15:43:07+00:00"
-        },
-        {
             "name": "clue/graph",
             "version": "v0.9.0",
             "source": {
@@ -1730,10 +1684,9 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/pivot-libre/tideman.git",
-                "reference": "871aa088aacba4e268d44f50bbc1f43ed405a84d"
+                "reference": "dffb0e9f53fd12ea6de11306d5341703240ef3b4"
             },
             "require": {
-                "bitexpert/slf4psrlog": "^0.1.3",
                 "clue/graph": "0.9.0",
                 "graphp/algorithms": "0.8.1",
                 "psr/log": "^1.0.2"
@@ -1764,7 +1717,7 @@
                 "Apache-2.0"
             ],
             "description": "Implementation of the Tideman ranked pair algorithm",
-            "time": "2017-10-08T15:23:42+00:00"
+            "time": "2017-10-28T14:24:37+00:00"
         },
         {
             "name": "psr/http-message",
@@ -3149,6 +3102,52 @@
         }
     ],
     "packages-dev": [
+        {
+            "name": "bitexpert/slf4psrlog",
+            "version": "0.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bitExpert/slf4psrlog.git",
+                "reference": "40408cb83f08738b630f1a90b2824c0a39b619af"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bitExpert/slf4psrlog/zipball/40408cb83f08738b630f1a90b2824c0a39b619af",
+                "reference": "40408cb83f08738b630f1a90b2824c0a39b619af",
+                "shasum": ""
+            },
+            "require": {
+                "psr/log": "^1.0"
+            },
+            "provide": {
+                "psr/log-implementation": "1.0.0"
+            },
+            "require-dev": {
+                "phpdocumentor/phpdocumentor": "^2.8.0",
+                "phpmd/phpmd": "^2.2.0",
+                "phpunit/php-code-coverage": "^2.1.0",
+                "phpunit/phpunit": "^4.7.0",
+                "squizlabs/php_codesniffer": "^2.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "bitExpert\\Slf4PsrLog\\": "src/bitExpert/Slf4PsrLog"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Stephan Hochdörfer",
+                    "email": "S.Hochdoerfer@bitExpert.de"
+                }
+            ],
+            "description": "Simple Logging Facade for Loggers implementing PSR-3 logging interface.",
+            "time": "2015-10-18T15:43:07+00:00"
+        },
         {
             "name": "doctrine/instantiator",
             "version": "1.1.0",
