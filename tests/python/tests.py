@@ -8,6 +8,10 @@ def load_users():
     with open('users.json') as f:
         return json.loads(f.read())["users"]
 
+def dump(out):
+    with open('dump.html', 'w') as f:
+        f.write(out)
+
 # generic API
 def user_get(user, url):
     headers = {'Authorization': 'Bearer '+user['token']}
@@ -17,6 +21,7 @@ def user_get(user, url):
         return json.loads(d)
     except:
         print 'could not parse: ' + d[:100] + '...'
+        dump(d)
         assert(0)
 
 def user_put(user, url, body):
@@ -27,6 +32,7 @@ def user_put(user, url, body):
         return json.loads(d)
     except:
         print 'could not parse: ' + d[:100] + '...'
+        dump(d)
         assert(0)
 
 # pivot API wrappers

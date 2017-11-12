@@ -8,6 +8,8 @@ use PivotLibre\Tideman\Agenda;
 use PivotLibre\Tideman\Ballot;
 use PivotLibre\Tideman\Candidate;
 use PivotLibre\Tideman\CandidateList;
+use PivotLibre\Tideman\NBallot;
+use PivotLibre\Tideman\RankedPairsCalculator;
 
 class ResultController extends Controller
 {
@@ -25,24 +27,36 @@ class ResultController extends Controller
     {
         $this->authorize('update', $election);
 
-        // TODO: use real votes, not dummy values
+        # index candidates (both our representation and tideman representation) by ID
+        $pivotCandidates = array();
+        $tidemanCandidates = array();
+        foreach ($election->candidates as $c) {
+            $id = $c["id"];
+            $pivotCandidates[$id] = $c;
+            $tidemanCandidates[$id] = new Candidate($id, $name = $c["name"]);
+        }
 
-        $alice = new Candidate("A", "alice");
-        $bob = new Candidate("B", "bob");
-        $claire = new Candidate("C", "claire", "hah");
-
-        $ballot1 = new Ballot(
-            new CandidateList($alice),
-            new CandidateList($bob),
-            new CandidateList($claire)
+        // construct an arbitrary tie-breaking ballot (TODO: do this in a non-arbitrary way)
+        $candidateLists = array_map(
+            function($c) {return new CandidateList($c);},
+            array_values($tidemanCandidates)
         );
-        $ballot2 = new Ballot(
-            new CandidateList($bob),
-            new CandidateList($alice),
-            new CandidateList($claire)
-        );
+        $tieBreaker = new Ballot(...$candidateLists);
 
-        $instance = new Agenda($ballot1, $ballot2);
-        return $instance->getCandidates();
+        // TODO: populate ballots with actual user rankings
+        $ballot = new NBallot(1, ...$candidateLists);
+        $ballots = [$ballot];
+
+        // compute election results
+        $instance = new RankedPairsCalculator($tieBreaker);
+        $winnerOrder = $instance->calculate(sizeof($tidemanCandidates), ...$ballots);
+
+        // format for return (i.e., convert tideman candidates back to pivot candidates)
+        $rv = array("order" => array());
+        foreach ($winnerOrder as $w) {
+            $candidate = $pivotCandidates[$w->getId()];
+            array_push($rv["order"], $candidate);
+        }
+        return $rv;
     }
 }
