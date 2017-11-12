@@ -79,6 +79,6 @@ class CandidateRankController extends Controller
             array_push($ranks, $rank);
         }
         
-        return $rank;
+        return $ranks;
     }
 }
