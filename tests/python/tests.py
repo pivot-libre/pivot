@@ -14,6 +14,7 @@ def dump(out):
 
 # generic API
 def user_get(user, url):
+    print 'GET '+url
     headers = {'Authorization': 'Bearer '+user['token']}
     r = requests.get(url = URL + '/' + url, headers=headers)
     d = r.content
@@ -25,6 +26,7 @@ def user_get(user, url):
         assert(0)
 
 def user_put(user, url, body):
+    print 'POST '+url
     headers = {'Authorization': 'Bearer '+user['token']}
     r = requests.post(url = URL + '/' + url, headers=headers, data=json.dumps(body))
     d = r.content

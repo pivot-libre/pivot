@@ -15,4 +15,6 @@ class Candidate extends Model
     {
         return $this->hasMany('App\CandidateRank');
     }
+
+    // TODO: allow admin to specify candidate order
 }
