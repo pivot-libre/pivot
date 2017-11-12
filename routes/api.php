@@ -18,6 +18,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::resource('election', 'ElectionController', ['except' => ['create', 'edit']]);
+Route::post('election/{election_id}/batchvote', 'CandidateRankController@batchvote')->name('election.batchvote');
 Route::resource('election.elector', 'ElectorController', [
     'except' => ['create', 'store', 'edit', 'update'],
     'parameters' => ['elector' => 'user'],

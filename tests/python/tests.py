@@ -25,7 +25,7 @@ def user_get(user, url):
         dump(d)
         assert(0)
 
-def user_put(user, url, body):
+def user_post(user, url, body):
     print 'POST '+url
     headers = {'Authorization': 'Bearer '+user['token']}
     r = requests.post(url = URL + '/' + url, headers=headers, data=json.dumps(body))
@@ -42,7 +42,7 @@ def get_elections(user):
     return user_get(user, 'election')
 
 def create_election(user, name):
-    return user_put(user, 'election', {"name": name})
+    return user_post(user, 'election', {"name": name})
 
 def get_candidates(user, election):
     url = 'election/%d/candidate' % election['id']
@@ -54,23 +54,27 @@ def get_electors(user, election):
 
 def create_candidate(user, election, name):
     url = 'election/%d/candidate' % election['id']
-    return user_put(user, url, {"name": name})
+    return user_post(user, url, {"name": name})
 
 def set_rank(user, election, candidate, rank):
     url = 'election/%d/candidate/%d/rank' % (election['id'], candidate['id'])
-    return user_put(user, url, {"rank": rank})
+    return user_post(user, url, {"rank": rank})
 
 def invite(user, election, email):
     url = 'election/%d/invite' % (election['id'])
-    return user_put(user, url, {"email": email})
+    return user_post(user, url, {"email": email})
 
 def accept(user, code):
     url = 'invite/accept'
-    return user_put(user, url, {"code": code})
+    return user_post(user, url, {"code": code})
 
 def election_result(user, election):
     url = 'election/%d/result' % election['id']
     return user_get(user, url)
+
+def batchvote(user, election, votes):
+    url = 'election/%d/batchvote' % election['id']
+    return user_post(user, url, {'votes': votes})
 
 def test1():
     users = load_users()
@@ -94,9 +98,18 @@ def test1():
     assert(len(get_candidates(user, election)) == 3)
 
     # vote
-    set_rank(user, election, A, 2)
-    set_rank(user, election, B, 1)
-    set_rank(user, election, C, 3)
+    batch = True
+    if batch:
+        votes = [
+            {'candidate_id': A['id'], 'rank': 2},
+            {'candidate_id': B['id'], 'rank': 1},
+            {'candidate_id': C['id'], 'rank': 3},
+        ]
+        print batchvote(user, election, votes)
+    else:
+        set_rank(user, election, A, 2)
+        set_rank(user, election, B, 1)
+        set_rank(user, election, C, 3)
 
     # result
     print election_result(user, election)
