@@ -25,6 +25,8 @@ class CandidateRankController extends Controller
 
     public function store(Request $request, Election $election, Candidate $candidate)
     {
+        // TODO: send batch of ranks
+        
         // TODO: need to authorize?  Or just let it fail when we can't
         // find an elector with the current election ID and user ID?
 

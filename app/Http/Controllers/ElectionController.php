@@ -30,6 +30,12 @@ class ElectionController extends Controller
     {
         $id = Auth::id();
 
+        // TODO: add more election metadata:
+        // - number of people who voted (X of Y)
+        // - a version that returns everything actionable to you
+        // - what can you vote on?
+        // - what can you administer? (what you can view?)
+
         return Election::where('creator_id', '=', $id)->get();
     }
 
