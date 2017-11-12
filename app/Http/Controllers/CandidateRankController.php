@@ -55,4 +55,30 @@ class CandidateRankController extends Controller
 
         return $rank;
     }
+
+    public function batchvote(Request $request, $election_id)
+    {
+        $user = Auth::user();
+        $elector = Elector::where('election_id', '=', $election_id)->where('user_id', '=', $user->id)->firstOrFail();
+        $election = Election::where('id', '=', $election_id)->firstOrFail();
+
+        $ranks = array();
+        
+        // iterate over list of rankings
+        foreach($request->json()->get('votes') as $vote) {
+            // TODO: check this is a valid candidate?
+            $candidate_id = $vote['candidate_id'];
+            $rank_num = $vote['rank'];
+
+            $rank = CandidateRank::firstOrNew(['elector_id' => $elector->id, 'candidate_id' => $candidate_id]);
+            $rank->elector_id = $elector->id;
+            $rank->candidate_id = $candidate_id;
+            $rank->rank = $rank_num;
+            $rank->save();
+
+            array_push($ranks, $rank);
+        }
+        
+        return $rank;
+    }
 }
