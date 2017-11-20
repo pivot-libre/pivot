@@ -29,14 +29,37 @@ class ElectionController extends Controller
     public function index()
     {
         $id = Auth::id();
+        $user = Auth::user();
 
         // TODO: add more election metadata:
         // - number of people who voted (X of Y)
-        // - a version that returns everything actionable to you
-        // - what can you vote on?
-        // - what can you administer? (what you can view?)
 
-        return Election::where('creator_id', '=', $id)->get();
+        $can_vote = 'can_vote';
+        $can_edit = 'can_edit';
+        $results = array();
+
+        // first, collect elections we can vote on
+        foreach ($user->elections as $election) {
+            $row = $election->toArray();
+            $row[$can_vote] = true;
+            $row[$can_edit] = false;
+            $results[$row['id']] = $row;
+        }
+
+        // second, collect elections we can admin
+        foreach (Election::where('creator_id', '=', $id)->get() as $election) {
+            $row = $election->toArray();
+            if (array_key_exists($row['id'], $results)) {
+                // can both edit and vote
+                $results[$row['id']][$can_edit] = true;
+            } else {
+                $row[$can_vote] = false;
+                $row[$can_edit] = true;
+                $results[$row['id']] = $row;
+            }
+        }
+
+        return array_values($results);
     }
 
     /**

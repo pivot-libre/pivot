@@ -81,7 +81,16 @@ def test1():
     userA = users[0]
     userB = users[1]
 
-    # election
+    # election (A's view)
+    len1A = len(get_elections(userA))
+    len1B = len(get_elections(userB))
+    election = create_election(userA, 'test-election')
+    len2A = len(get_elections(userA))
+    len2B = len(get_elections(userB))
+    assert(len2A == len1A + 1)
+    assert(len2B == len1B)
+
+    # election (B's view)
     len1 = len(get_elections(userA))
     election = create_election(userA, 'test-election')
     len2 = len(get_elections(userA))
@@ -99,7 +108,11 @@ def test1():
     assert(len(electors) == 2)
     electors = get_electors(userB, election)
     assert(len(electors) == 2)
-    
+
+    # verify B can now see it after being added
+    len3B = len(get_elections(userB))
+    assert(len3B == len2B + 1)
+
     # candidates
     A = create_candidate(userA, election, 'candidate-A')
     B = create_candidate(userA, election, 'candidate-B')
