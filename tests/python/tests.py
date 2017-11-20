@@ -78,24 +78,33 @@ def batchvote(user, election, votes):
 
 def test1():
     users = load_users()
-    user = users[0]
+    userA = users[0]
+    userB = users[1]
 
     # election
-    len1 = len(get_elections(user))
-    election = create_election(user, 'test-election')
-    len2 = len(get_elections(user))
+    len1 = len(get_elections(userA))
+    election = create_election(userA, 'test-election')
+    len2 = len(get_elections(userA))
     assert(len2 == len1 + 1)
 
     # electors
-    code = invite(user, election, user['email'])['code']
-    accept(user, code)
-    get_electors(user, election)
-
+    code = invite(userA, election, userA['email'])['code']
+    print code
+    accept(userA, code)
+    code = invite(userA, election, userB['email'])['code']
+    electors = get_electors(userA, election)
+    assert(len(electors) == 1)
+    accept(userB, code)
+    electors = get_electors(userA, election)
+    assert(len(electors) == 2)
+    electors = get_electors(userB, election)
+    assert(len(electors) == 2)
+    
     # candidates
-    A = create_candidate(user, election, 'candidate-A')
-    B = create_candidate(user, election, 'candidate-B')
-    C = create_candidate(user, election, 'candidate-C')
-    assert(len(get_candidates(user, election)) == 3)
+    A = create_candidate(userA, election, 'candidate-A')
+    B = create_candidate(userA, election, 'candidate-B')
+    C = create_candidate(userA, election, 'candidate-C')
+    assert(len(get_candidates(userA, election)) == 3)
 
     # vote
     batch = True
@@ -105,14 +114,14 @@ def test1():
             {'candidate_id': B['id'], 'rank': 1},
             {'candidate_id': C['id'], 'rank': 3},
         ]
-        print batchvote(user, election, votes)
+        print batchvote(userA, election, votes)
     else:
-        set_rank(user, election, A, 2)
-        set_rank(user, election, B, 1)
-        set_rank(user, election, C, 3)
+        set_rank(userA, election, A, 2)
+        set_rank(userA, election, B, 1)
+        set_rank(userA, election, C, 3)
 
     # result
-    print election_result(user, election)
+    print election_result(userA, election)
 
 def main():
     test1()
