@@ -21,16 +21,12 @@ class ResultController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @param int $electionId
+     * @return Illuminate\Collection of all CandidateRanks associated with
+     * the election identified by the parameterized  id.
      */
-    public function index(Election $election)
+    public function getCandidateRankCollection($electionId)
     {
-        $this->authorize('update', $election);
-        
-        $electionId = $election->getKey();
-        
         /*
         SELECT 
             candidate_ranks.elector_id,
@@ -50,14 +46,22 @@ class ResultController extends Controller
             ->orderBy('elector_id', 'asc')
             ->orderBy('rank', 'asc')
             ->get();
-
+        return $candidateRanks;
+    }
+    /**
+     * @param Illuminate\Database\Eloquent\Relations\Collection of App\CandidateRank
+     * @return array of arrays of arrays. The arrays are grouped at the outermost level
+     * on elector id. The arrays are grouped at the next level by rank. Array entries at this level are ordered in
+     * ascending rank. The innermost arrays are associative arrays that contain CandidateRank attributes.
+     */
+    public function groupRankingsByElectorAndRank($candidateRanks)
+    {
         $candidateRanksGroupedByElector = $candidateRanks->mapToGroups(function($candidateRank){
             $value = $candidateRank;
             $key = $candidateRank->getAttributeValue('elector_id');
             return [ $key => $value ];
         });
-
-        var_dump($candidateRanksGroupedByElector->toArray());
+        // var_dump($candidateRanksGroupedByElector->toArray());
 
         $candidateRanksGroupedByElectorAndRank = $candidateRanksGroupedByElector->map(function($candidateRanksFromOneElector){
             return $candidateRanksFromOneElector->mapToGroups(function($candidateRank){
@@ -66,22 +70,54 @@ class ResultController extends Controller
                 return [ $key => $value ];
             });
         })->toArray();
-        
-        $ballots = array_map(function($ballotArray){
+        return $candidateRanksGroupedByElectorAndRank;
+    }
+
+    /**
+     * @param array of arrays of arrays as output by $this->groupRankingsByElectorAndRank
+     * @return array of NBallots
+     */
+    public function buildNBallots($candidateRanksGroupedByElectorAndRank)
+    {
+        $nBallots = array_map(function($ballotArray){
             $candidateLists = array_map(function($candidateListArray){
                 
                 $candidates = array_map(function($candidateArray){
-                    return new Candidate($candidateArray['id']);
+                    return new Candidate($candidateArray['id'], $candidateArray['name']);
                 }, $candidateListArray);
 
                 $candidateList = new CandidateList(...$candidates);
                 return $candidateList;
             }, $ballotArray);
-            $nballot = new NBallot(1, ...$candidateLists);
-            return $nballot;
+            $nBallot = new NBallot(1, ...$candidateLists);
+            return $nBallot;
         }, $candidateRanksGroupedByElectorAndRank);
+        return $nBallots;
+    }
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Election $election)
+    {
+        $this->authorize('update', $election);
+        
+        $electionId = $election->getKey();
+        
+        $candidateRanks = $this->getCandidateRankCollection($electionId);
+        $candidateRanksGroupedByElectorAndRank = $this->groupRankingsByElectorAndRank($candidateRanks);
 
-        var_dump($ballots);
+        $nBallots = $this->buildNBallots($candidateRanksGroupedByElectorAndRank);
+        $numWinners = $election->candidates()->count();
+
+        //choose a random ballot for tie-breaking
+        $tieBreakerBallotIndex = array_rand($nBallots);
+        $tieBreakerBallot = $nBallots[$tieBreakerBallotIndex];
+
+        $calculator = new RankedPairsCalculator($tieBreakerBallot);
+        $winnerOrder = $calculator->calculate($numWinners, ...$nBallots);
+        var_dump($winnerOrder);
         return;
 
         $pivotCandidates = array();
