@@ -48,6 +48,7 @@ class ResultController extends Controller
             ->get();
         return $candidateRanks;
     }
+
     /**
      * @param Illuminate\Database\Eloquent\Relations\Collection of App\CandidateRank
      * @return array of arrays of arrays. The arrays are grouped at the outermost level
@@ -61,7 +62,6 @@ class ResultController extends Controller
             $key = $candidateRank->getAttributeValue('elector_id');
             return [ $key => $value ];
         });
-        // var_dump($candidateRanksGroupedByElector->toArray());
 
         $candidateRanksGroupedByElectorAndRank = $candidateRanksGroupedByElector->map(function($candidateRanksFromOneElector){
             return $candidateRanksFromOneElector->mapToGroups(function($candidateRank){
@@ -116,40 +116,20 @@ class ResultController extends Controller
         $tieBreakerBallot = $nBallots[$tieBreakerBallotIndex];
 
         $calculator = new RankedPairsCalculator($tieBreakerBallot);
-        $winnerOrder = $calculator->calculate($numWinners, ...$nBallots);
-        var_dump($winnerOrder);
-        return;
+        $winnerOrder = $calculator->calculate($numWinners, ...$nBallots)->toArray();
 
-        $pivotCandidates = array();
-        $tidemanCandidates = array();
-        // $election->
-        foreach ($election->candidates as $c) {
-            $id = $c["id"];
-            $pivotCandidates[$id] = $c;
-            $tidemanCandidates[$id] = new Candidate($id, $name = $c["name"]);
-        }
-
-        // construct an arbitrary tie-breaking ballot (TODO: do this in a non-arbitrary way)
-        $candidateLists = array_map(
-            function($c) {return new CandidateList($c);},
-            array_values($tidemanCandidates)
-        );
-        $tieBreaker = new Ballot(...$candidateLists);
-
-        // TODO: populate ballots with actual user rankings
-        $ballot = new NBallot(1, ...$candidateLists);
-        $ballots = [$ballot];
-
-        // compute election results
-        $instance = new RankedPairsCalculator($tieBreaker);
-        $winnerOrder = $instance->calculate(sizeof($tidemanCandidates), ...$ballots);
-
+        $pivotCandidates = $election->candidates()->get()->keyBy('id');
+        
         // format for return (i.e., convert tideman candidates back to pivot candidates)
-        $rv = array("order" => array());
-        foreach ($winnerOrder as $w) {
-            $candidate = $pivotCandidates[$w->getId()];
-            array_push($rv["order"], $candidate);
+        $orderedPivotCandidates = [];
+        //use explicit numerical indexing because order is very important
+        for($i = 0; $i < sizeof($winnerOrder); $i++) {
+            $tidemanCandidate = $winnerOrder[$i];
+            $candidateId = (int)$tidemanCandidate->getId();
+            $pivotCandidate = $pivotCandidates->get($candidateId);
+            $orderedPivotCandidates[] = $pivotCandidate;
         }
-        return $rv;
+        $wrapper = ["order" => $orderedPivotCandidates];
+        return $wrapper;
     }
 }
