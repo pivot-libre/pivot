@@ -24,7 +24,8 @@ div, ol, ul, li, a, img, form, label, input, iframe {
   border: none;
   list-style: none;
 }
-.tealButtonItem,
+.button2,
+.button1Item,
 label:hover {
   cursor: pointer;
 }
@@ -53,16 +54,17 @@ svg {
   fill: #3798d4;
   fill: #444;
 }
+.button2:hover,
 .buttonspace > div,
 .stepNavigator > a::after,
-.tealButtonItem:hover,
+.button1Item:hover,
 .details,
-[type=submit].tealButton,
-.tealButton a[href]:hover,
-a[href].tealButton:hover,
+[type=submit].button1,
+.button1 a[href]:hover,
+a[href].button1:hover,
 .electionListing a[href]:hover,
-.tealButton a:not([href]),
-a:not([href]).tealButton,
+.button1 a:not([href]),
+a:not([href]).button1,
 .electionListing a:not([href]),
 .electionListing a:hover + a[style] + .electionName,
 .electionListing a:hover + .electionName,
@@ -71,15 +73,16 @@ a:not([href]).tealButton,
 .orange1 {
   background-color: #fcb8a8;
 }
+.button2,
 .checkLabel,
 .buttonspace > .enabled,
 .labelspace > .enabled,
 .createOrLogin > input[type=submit],
-.tealButtonItem,
+.button1Item,
 .details,
-[type=submit].tealButton,
-.tealButton a,
-a.tealButton,
+[type=submit].button1,
+.button1 a,
+a.button1,
 .electionListing a,
 .rankdisplay,
 .orange2 {
@@ -149,11 +152,11 @@ body,
 .createOrLogin > input[type=submit],
 .stepNavigator > a[href],
 .checkLabel,
-.tealButtonItem,
+.button1Item,
 .details,
-[type=submit].tealButton,
-.tealButton a,
-a.tealButton,
+[type=submit].button1,
+.button1 a,
+a.button1,
 .electionListing a,
 .rankdisplay,
 #maincolumn,
@@ -589,11 +592,12 @@ ol:not(#edititems) .rankingTools > input:checked ~ .banish {
   /*margin: 10px;*/
   padding: 10px;
 }
-.tealButtonItem,
+.button2,
+.button1Item,
 .details,
-[type=submit].tealButton,
-.tealButton a,
-a.tealButton,
+[type=submit].button1,
+.button1 a,
+a.button1,
 .electionListing a {
   text-decoration: none;
   font-size: 20px;
@@ -630,7 +634,7 @@ a.tealButton,
   box-sizing: border-box;
   /* border: 2px solid #009faf; */
   height: 38px;
-  margin: 5px 2px 5px 2px;
+  /*margin: 5px 2px 5px 2px;*/
   line-height: 38px;
 }
 .checkLabel2 {

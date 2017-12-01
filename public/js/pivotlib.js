@@ -40,13 +40,6 @@ function makeElectorateArray () {
   electorateToArray(document.querySelectorAll("#edititems .candidate"), electorate);
   return electorate
 }
-function makeRankingsArray () {
-  var rankings = [];
-  candidatesToArray(document.querySelectorAll("#rankeditems .candidate"), rankings, "getRanking");
-  candidatesToArray(document.querySelectorAll("#unrankeditems .candidate"), rankings);
-
-  return rankings
-}
 function electorateToArray (items, targetArray) {
   for (var i = 0; i < items.length; i++) {
     var item = {};
@@ -60,28 +53,6 @@ function electorateToArray (items, targetArray) {
     targetArray.push(item);
   }
 }
-function candidatesToArray (items, targetArray, isRanked) {
-  var tieStat, isTiedWthPrevious, rank = 0
-  for (var i = 0; i < items.length; i++) {
-    var item = {};
-    // item.description = items[i].querySelector(".candidateDescription").innerHTML;
-    // item.cost = items[i].querySelector(".candidateCost").innerHTML;
-    // item.tie = items[i].getAttribute("data-tie");
-    item.id = items[i].getAttribute("data-id");
-
-    if (isRanked != "getRanking") {
-      targetArray.push(item)
-      continue
-    }
-
-    tieStat = items[i].getAttribute("data-tie")
-    isTiedWthPrevious = ((tieStat == "middle") || (tieStat == "end"))
-    if (isTiedWthPrevious) {item.rank = rank}
-    else {item.rank = ++rank}
-
-    targetArray.push(item);
-  }
-};
 function removeHrefsForCurrentLoc() {
   var hrefEls = document.querySelectorAll("[href]")
   var currentHref = window.location.href
@@ -165,3 +136,17 @@ function canonicalize(url) {
 //   // enable(clone)
 //   clone.querySelector("input[type=text]").focus()
 // }
+
+// getTest('/api/election')
+// getTest('/api/election/1')
+// getTest('/api/election/1/result')
+// getTest('/api/election/1/candidate')
+// getTest('/api/election/1/candidate/1')
+// getTest('/api/election/1/candidate/1/rank')
+// getTest('/api/election/1/candidate/10/rank')
+function getTest(resource) {
+  axios.get(resource)
+    .then(response => {
+      console.log(response.data);
+    });
+}

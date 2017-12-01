@@ -6,7 +6,7 @@ var workspace = document.querySelector(".workspace")
 var mainheader = document.querySelector(".mainheader")
 mainheader.innerHTML = "Candidates"
 
-anchorListDiv(workspace, "tealButton", {
+anchorListDiv(workspace, "button1", {
     "Election details": "/administer/" + election,
     "Add/Edit candidates": "/candidates/" + election,
     "Manage electorate": "/electorate/" + election
@@ -22,8 +22,8 @@ drake.on('drop', function (el) { onReorder(el); })
 // displayCandidate(edititems, "", "description 1", "$1")
 // displayCandidate(edititems, "", "description 2", "$2")
 
-div(workspace, "AddCandidate", "tealButtonItem", "+ Add Candidate", "onclick=addCandidate()");
-div(workspace, "SaveElection", "tealButtonItem", "Save Election", "onclick=saveCandidates(election)");
+div(workspace, "AddCandidate", "button1Item", "+ Add Candidates", "onclick=addCandidate()");
+div(workspace, "SaveElection", "button1Item", "Save Election", "onclick=saveCandidates(election)");
 
 loadCandidates(election, displayCandidates)
 

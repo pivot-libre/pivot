@@ -6,7 +6,7 @@ var workspace = document.querySelector(".workspace")
 var mainheader = document.querySelector(".mainheader")
 mainheader.innerHTML = "Administer"
 
-anchorListDiv(workspace, "tealButton", {
+anchorListDiv(workspace, "button1", {
     "Election details": "/administer/" + election,
     "Add/Edit candidates": "/candidates/" + election,
     "Manage electorate": "/electorate/" + election
@@ -30,5 +30,14 @@ function showElectionDetails(details) {
   // console.log(details)
   // var detailsSpace = div(workspace, "", "")
   appendNewHtmlEl(workspace, "br")
-  div(workspace, "", "", "election name: " + details.name)
+  div(workspace, "", "button2", "election name: " + details.name)
+  div(workspace, "", "button2", "Delete Election", "onclick=deleteElection(" + details.id + ")")
+}
+function deleteElection(electionId) {
+  if (!electionId) {return}
+  axios.delete('/api/election/' + electionId)
+    .then(response => {
+      // console.log(response.data);
+      window.location.href = "/myElections"
+    });
 }
