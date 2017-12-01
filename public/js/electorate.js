@@ -6,7 +6,7 @@ var workspace = document.querySelector(".workspace")
 var mainheader = document.querySelector(".mainheader")
 mainheader.innerHTML = "Electorate"
 
-anchorListDiv(workspace, "tealButton", {
+anchorListDiv(workspace, "button1", {
     "Election details": "/administer/" + election,
     "Add/Edit candidates": "/candidates/" + election,
     "Manage electorate": "/electorate/" + election
@@ -26,9 +26,11 @@ elector(edititems, "", "carl", "yes", "yes", "yes")
 //   candidate(edititems, "", username, privileges["vote"], privileges["results"], privileges["admin"]);
 // }
 
-div(workspace, "AddCandidate", "tealButtonItem", "+ Add Person", "onclick=addElector()");
-div(workspace, "SaveElection", "tealButtonItem", "Save Election", "onclick=saveElectorate()");
-checkboxWithLabel(workspace, "checked=checked", "sendEmails", "Send emails to new users", "checkLabel2");
+div(workspace, "AddCandidate", "button1Item", "+ Add Person", "onclick=addElector()");
+div(workspace, "SaveElection", "button1Item", "Save Election", "onclick=saveElectorate()");
+checkboxWithLabel(workspace, "checked=checked", "sendEmails", "Send emails to new users", "checkLabel2 button1Item");
+
+loadElectorate(election, displayElectorate)
 
 // httpRequest("get", "getCandidates", {"election": election}, showCandidates)
 
@@ -54,7 +56,7 @@ function elector(parent, uniq, description, canVote, canViewResults, isAdmin) {
   else {checked = "";}
   checkboxWithLabel(electorChecks, checked, "isAdmin", "Is Admin");
 }
-function checkboxWithLabel(parent, checked, name, label, labelClass = "checkLabel") {
+function checkboxWithLabel(parent, checked, name, label, labelClass = "checkLabel button1Item") {
   label = html(parent, "label", label, "class=" + labelClass);
   html(label, "input", "", "type=checkbox", checked, "name=" + name);
 }
@@ -63,26 +65,20 @@ function addElector() {
   elector(itemContainer, "", "", "yes", "yes", "")
 }
 function saveElectorate(el) {
-  // var request = {}
-  // request.data = makeElectorateArray()
-  // // console.log(request.data)
-  // request.api = "electorate"
-  // request.record = election
-  // saveElectorateToServer(request);
 }
-// loadElection(1, showElectionDetails)
-//
-// function loadElection(electionId, onSuccessFunction) {
-//   if (!electionId) {return}
-//   axios.get('/api/election/' + electionId)
-//     .then(response => {
-//       // console.log(response.data);
-//       onSuccessFunction(response.data)
-//     });
-// }
-// function showElectionDetails(details) {
-//   // console.log(details)
-//   // var detailsSpace = div(workspace, "", "")
-//   appendNewHtmlEl(workspace, "br")
-//   div(workspace, "", "", "election name: " + details.name)
-// }
+function loadElectorate(electionId, onSuccessFunction) {
+  if (!electionId) {return}
+  axios.get('/api/election/' + electionId + "/elector")
+    .then(response => {
+      console.log(response.data);
+      // onSuccessFunction(response.data)
+    });
+}
+function displayElectorate(electorate) {
+  console.log(electorate);
+  var elector
+  for (var key in electorate) {
+    electorate = electorate[key]
+    elector(edititems, "", "Nathan", "yes", "yes", "yes")
+  }
+}

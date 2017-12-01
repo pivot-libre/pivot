@@ -26,7 +26,7 @@ class CandidateRankController extends Controller
     public function store(Request $request, Election $election, Candidate $candidate)
     {
         // TODO: send batch of ranks
-        
+
         // TODO: need to authorize?  Or just let it fail when we can't
         // find an elector with the current election ID and user ID?
 
@@ -63,7 +63,7 @@ class CandidateRankController extends Controller
         $election = Election::where('id', '=', $election_id)->firstOrFail();
 
         $ranks = array();
-        
+
         // iterate over list of rankings
         foreach($request->json()->get('votes') as $vote) {
             // TODO: check this is a valid candidate?
@@ -78,7 +78,7 @@ class CandidateRankController extends Controller
 
             array_push($ranks, $rank);
         }
-        
+
         return $ranks;
     }
 }

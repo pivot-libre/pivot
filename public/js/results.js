@@ -17,10 +17,13 @@ removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 var workspace = document.querySelector(".workspace")
 var edititems = html(workspace, "ol", "", "id=edititems", "class=itemlist incrementsCounter");
 
-candidate(edititems, "", "description", "cost")
-candidate(edititems, "", "description", "cost")
-candidate(edititems, "", "description", "cost")
-candidate(edititems, "", "description", "cost")
+// candidate(edititems, "", "description", "cost")
+// candidate(edititems, "", "description", "cost")
+// candidate(edititems, "", "description", "cost")
+// candidate(edititems, "", "description", "cost")
+
+loadResults(election, showElectionResults)
+
 
 function candidate(parent, uniq, description, cost, tie) {
   if (uniq) { id = "data-id=" + uniq }
@@ -36,19 +39,19 @@ function candidate(parent, uniq, description, cost, tie) {
   div(candidateCost, "", "", cost);
 }
 
-// loadElection(1, showElectionDetails)
-//
-// function loadElection(electionId, onSuccessFunction) {
-//   if (!electionId) {return}
-//   axios.get('/api/election/' + electionId)
-//     .then(response => {
-//       // console.log(response.data);
-//       onSuccessFunction(response.data)
-//     });
-// }
-// function showElectionDetails(details) {
-//   // console.log(details)
-//   // var detailsSpace = div(workspace, "", "")
-//   appendNewHtmlEl(workspace, "br")
-//   div(workspace, "", "", "election name: " + details.name)
-// }
+
+function loadResults(electionId, onSuccessFunction) {
+  if (!electionId) {return}
+  axios.get('/api/election/' + electionId + '/result')
+    .then(response => {
+      // console.log(response.data);
+      onSuccessFunction(response.data)
+    });
+}
+function showElectionResults(results) {
+  // console.log(results.order)
+  var candidateOrder = results.order
+  for (var key in candidateOrder) {
+    candidate(edititems, "", candidateOrder[key].name, "cost")
+  }
+}

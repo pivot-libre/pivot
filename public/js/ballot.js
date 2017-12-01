@@ -185,27 +185,98 @@ function updateInstructions(rankeditemsCount) {
   // }
   // header.innerHTML = "Select your " + ordinalSuffix(rankeditems.childElementCount + 1) + " choice";
 }
-function saveRankings () {
+// var saveStatuses = {}, saveStatuses.status = "", saveStatuses.
+var saveStatus = ""
+function saveRankings() {
+  // console.log(saveStatus)
+  //if a save is already in progress, just record that we need to save again and quit
+  if (("saving" == saveStatus) || ("queued" == saveStatus)) {
+    saveStatus = "queued"
+    return "queued"
+  }
+  // console.log(saveStatus)
+  saveStatus = "saving"
+  updateStatusDisplay("Saving")
+  var candidateRanks = {}
+  candidateRanks.votes = makeRankingsArray()
+  batchVote(election, candidateRanks, finishSaveRankings)
   // var request = {}
   // request.data = makeRankingsArray()
   // request.api = "ballot"
   // request.record = election
   // saveRankingsToServer(request);
+  return "saving"
+}
+function finishSaveRankings(response) {
+  // console.log("finishSaveRankings");
+  // console.log(saveStatus)
+  console.log(response);
+  if ("queued" == saveStatus) {
+    saveStatus = "saved"  //reset saveStatus so that saveRankings doesn't just quit
+    saveRankings()
+    return
+  }
+  saveStatus = "saved"
+  updateStatusDisplay("Saved!")
+  // console.log(saveStatus)
+}
+function updateStatusDisplay(newStatus) {
+  var saveStatusDomEl = document.getElementById("saveStatusDomEl")
+  if (!saveStatusDomEl) { saveStatusDomEl = div(workspace, "saveStatusDomEl")}
+  saveStatusDomEl.innerHTML = newStatus
+}
+function makeRankingsArray () {
+  var rankings = [];
+  candidatesToArray(document.querySelectorAll("#rankeditems .candidate"), rankings, "getRanking");
+  candidatesToArray(document.querySelectorAll("#unrankeditems .candidate"), rankings);
+
+  return rankings
 }
 
-// loadElection(1, showElectionDetails)
-//
-// function loadElection(electionId, onSuccessFunction) {
-//   if (!electionId) {return}
-//   axios.get('/api/election/' + electionId)
-//     .then(response => {
-//       // console.log(response.data);
-//       onSuccessFunction(response.data)
-//     });
-// }
-// function showElectionDetails(details) {
-//   // console.log(details)
-//   // var detailsSpace = div(workspace, "", "")
-//   appendNewHtmlEl(workspace, "br")
-//   div(workspace, "", "", "election name: " + details.name)
-// }
+function candidatesToArray (candidates, targetArray, isRanked) {
+  var tieStat, isTiedWthPrevious, rank = 0
+  for (var i = 0; i < candidates.length; i++) {
+    var item = {};
+    item.candidate_id = candidates[i].getAttribute("data-id");
+
+    if (isRanked != "getRanking") {
+      item.rank = 0
+      targetArray.push(item)
+      continue
+    }
+
+    // tieStat = candidates[i].getAttribute("data-tie")
+    // isTiedWthPrevious = ((tieStat == "middle") || (tieStat == "end"))
+    // if (isTiedWthPrevious) {item.rank = rank}
+    else {item.rank = ++rank}
+
+    targetArray.push(item);
+  }
+};
+// var candidateRanks = {}
+// candidateRanks.votes = []
+// candidateRanks.votes.push({"candidate_id": 10, "rank":1})
+// candidateRanks.votes.push({"candidate_id": 1, "rank":1})
+// batchVote(election, candidateRanks)
+function batchVote(electionId, candidateRanks, onSuccessFunction) {
+  // console.log(candidateRanks)
+  if (!electionId) {return}
+  axios.post('/api/election/' + electionId + '/batchvote', candidateRanks)
+    .then(response => {
+      // console.log(response.data);
+      onSuccessFunction(response.data)
+    });
+}
+getRankedCandidates(1,1)
+getRankedCandidates(1,10)
+function getRankedCandidates(electionId, candidateId, onSuccessFunction) {
+  if (!electionId) {return}
+  // axios.get('/api/election/' + electionId + '/candidate')
+  axios.get('/api/election/' + electionId + '/candidate/' + candidateId)
+  // axios.get('/api/election/' + electionId + '/batchvote/' + candidateId)
+  // axios.get('/api/election/' + electionId + '/batchvote')
+    .then(response => {
+      console.log(response.data);
+      // onSuccessFunction(response.data)
+    });
+}

@@ -22,27 +22,27 @@ axios.get('/api/election')
 //   });
 
 function showElections(myElections) {
-  // console.log(myElections)
+  console.log(myElections)
   var electn
   for (var key in myElections) {
     electn = myElections[key]
     // showElection(elections, electn.name, electn.id, electn.vote, electn.results, electn.admin)
-    showElection(elections, electn.name, electn.id, "yes", "yes", "yes")
+    showElection(elections, electn.name, electn.id, electn.can_vote, "canViewResults", electn.can_edit)
   }
 }
-function showElection(parent, name, id, canVote, canViewResults, isAdmin) {
+function showElection(parent, name, id, canVote, canViewResults, canEdit) {
   var box = html(parent, "li", "", "class=electionListing");
   var href = "";
   var hiddenStyle = "style=visibility:hidden;";
   var nameHref = "";
-  if ("yes" == isAdmin) {
+  if (canEdit) {
     href = "href=administer/" + id;
     hiddenStyle = "";
     nameHref = href;
   }
   html(box, "a", "Administer", href, hiddenStyle);
   hiddenStyle = "style=visibility:hidden;";
-  if ("yes" == canVote) {
+  if (canVote) {
     href = "href=ballot/" + id;
     hiddenStyle = "";
     nameHref = href;
@@ -51,7 +51,7 @@ function showElection(parent, name, id, canVote, canViewResults, isAdmin) {
   html(box, "a", name, nameHref, "class=electionName");
 
   hiddenStyle = "style=visibility:hidden;";
-  if ("yes" == canViewResults) {
+  if ("canViewResults" == canViewResults) {
     var href = "href=results/" + id;
     hiddenStyle = "";
     nameHref = href;
