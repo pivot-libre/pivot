@@ -76,6 +76,10 @@ def batchvote(user, election, votes):
     url = 'election/%d/batchvote' % election['id']
     return user_post(user, url, {'votes': votes})
 
+def batchvote_view(user, election):
+    url = 'election/%d/batchvote' % election['id']
+    return user_get(user, url)
+
 def test1():
     users = load_users()
     userA = users[0]
@@ -121,17 +125,15 @@ def test1():
 
     # vote
     batch = True
-    if batch:
-        votes = [
-            {'candidate_id': A['id'], 'rank': 2},
-            {'candidate_id': B['id'], 'rank': 1},
-            {'candidate_id': C['id'], 'rank': 3},
-        ]
-        print batchvote(userA, election, votes)
-    else:
-        set_rank(userA, election, A, 2)
-        set_rank(userA, election, B, 1)
-        set_rank(userA, election, C, 3)
+    votes = [
+        {'candidate_id': A['id'], 'rank': 2},
+        {'candidate_id': B['id'], 'rank': 1},
+        {'candidate_id': C['id'], 'rank': 3},
+    ]
+    bv1 = batchvote(userA, election, votes)
+    bv2 = batchvote_view(userA, election)
+    assert(len(bv1)) == len(votes)
+    assert(len(bv2)) == len(votes)
 
     # result
     print election_result(userA, election)

@@ -81,4 +81,11 @@ class CandidateRankController extends Controller
 
         return $ranks;
     }
+
+    public function batchvote_view(Request $request, $election_id)
+    {
+        $user = Auth::user();
+        $elector = Elector::where('election_id', '=', $election_id)->where('user_id', '=', $user->id)->firstOrFail();
+        return $elector->ranks;
+    }
 }

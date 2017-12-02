@@ -22,4 +22,9 @@ class Elector extends Model
     {
         return $this->belongsTo('App\User');
     }
+
+    public function ranks()
+    {
+        return $this->hasMany('App\CandidateRank');
+    }
 }
