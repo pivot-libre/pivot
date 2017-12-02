@@ -137,6 +137,7 @@ def test1():
 
     # result
     print election_result(userA, election)
+    print election_result(userB, election)
 
 def main():
     test1()
