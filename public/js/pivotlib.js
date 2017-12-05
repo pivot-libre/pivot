@@ -137,15 +137,24 @@ function canonicalize(url) {
 //   clone.querySelector("input[type=text]").focus()
 // }
 
-// getTest('/api/election')
-// getTest('/api/election/1')
-// getTest('/api/election/1/result')
-// getTest('/api/election/1/candidate')
-// getTest('/api/election/1/candidate/1')
-// getTest('/api/election/1/candidate/1/rank')
-// getTest('/api/election/1/candidate/10/rank')
-function getTest(resource) {
+// getResource('/api/election')
+// getResource('/api/election/1')
+// getResource('/api/election/1/result')
+// getResource('/api/election/1/candidate')
+// getResource('/api/election/1/candidate/1')
+// getResource('/api/election/1/candidate/1/rank')
+// getResource('/api/election/1/candidate/10/rank')
+// getResource('/api/election/2/invite')
+function getResource(resource) {
   axios.get(resource)
+    .then(response => {
+      console.log(response.data);
+    });
+}
+// postToResource('/api/election/2/invite', {"email": "nathan.eckberg@gmail.com"})
+// postToResource('/api/invite/accept', {"code": "e2562a8a"})
+function postToResource(resource, payload) {
+  axios.post(resource, payload)
     .then(response => {
       console.log(response.data);
     });

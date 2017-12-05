@@ -459,6 +459,38 @@
                     }
                 }
             }
+        },
+        "/election/{electionId}/result": {
+            "get": {
+                "tags": [
+                    "Election"
+                ],
+                "summary": "View results for an election",
+                "operationId": "getElectionResults",
+                "parameters": [
+                    {
+                        "name": "electionId",
+                        "in": "path",
+                        "description": "Election to get results of",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Candidate"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
         }
     },
     "definitions": {
