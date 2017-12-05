@@ -24,23 +24,74 @@ drake.on('drop', function (el) { onCandidateDrop(el); })
 // displayCandidate(unrankeditems, "", "description", "cost", "", "yes")
 // displayCandidate(unrankeditems, "", "description", "cost", "", "yes")
 
-loadCandidates(election, displayCandidates)
+// loadCandidates(election, displayCandidates)
+loadBallot(election, displayBallot)
 
-function loadCandidates(electionId, onSuccessFunction) {
-  if (!electionId) {return}
-  axios.get('/api/election/' + electionId + "/candidate")
-    .then(response => {
-      // console.log(response.data);
-      onSuccessFunction(response.data)
-    });
+function loadBallot(electionId, onSuccessFunction) {
+  //define functions that we will use to get both the candidate definitions and the user's ranked ballot
+  var getballotDefinition = function() { return axios.get('/api/election/' + electionId + '/candidate') }
+  var getRankedBallot = function() { return axios.get('/api/election/' + electionId + '/batchvote') }
+
+  axios.all([getballotDefinition(), getRankedBallot()])
+    .then(axios.spread(function (definition, rankings) {
+      // Both requests are now complete
+      // console.log(acct.data, perms.data)
+      onSuccessFunction(definition.data, rankings.data)
+    }));
 }
-function displayCandidates(candidates) {
-  // console.log(candidates);
+function displayBallot(ballotDefinition, rankedBallot) {
+  var candidate, sortedDefinitions = {}, sortedCandidates = {}
+  console.log(rankedBallot.length)
+
+  //if the user hasn't looked at this ballot before, we can simply display the ballot definition
+  if (0 == rankedBallot.length) { dispayCandidatesWithRank("", ballotDefinition, rankeditems, unrankeditems); return}
+
+  //build a list of candidate definitions
+  for (var key in ballotDefinition) {
+    candidate = ballotDefinition[key]
+    sortedDefinitions[candidate.id] = candidate
+  }
+
+  //build lists of all the candidates that were previously given each rank
+  for (var key in rankedBallot) {
+    candidate = rankedBallot[key]
+    if (!sortedCandidates[candidate.rank]) { sortedCandidates[candidate.rank] = [] }
+    sortedCandidates[candidate.rank].push(sortedDefinitions[candidate.candidate_id])
+    delete sortedDefinitions[candidate.candidate_id]
+  }
+
+  //add any candidates that are new since the user last reviewed this ballot
+  for (var key in sortedDefinitions) {
+    candidate = sortedDefinitions[key]
+    if (!sortedCandidates[""]) { sortedCandidates[""] = [] }
+    sortedCandidates[""].push(candidate)
+  }
+  // console.log(ballotDefinition, rankedBallot)
+  // console.log(sortedDefinitions)
+  // console.log(sortedCandidates)
+  for (var rank in sortedCandidates) {
+    dispayCandidatesWithRank(rank, sortedCandidates[rank], rankeditems, unrankeditems)
+  }
+}
+function dispayCandidatesWithRank(rank, candidates, rankeditems, unrankeditems) {
   var candidate
   for (var key in candidates) {
     candidate = candidates[key]
-    // displayCandidate(rankeditems, candidate.id, candidate.name, "", "")
-    displayCandidate(unrankeditems, candidate.id, candidate.name, "", "")
+    //if not ranked, it goes in the unranked group
+    if (!rank || 0 == rank) { displayCandidate(unrankeditems, candidate.id, candidate.name, "", "", ("" == rank ? "new": "")); continue }
+
+    //if length is 1, it is not a tie
+    if (1 == candidates.length) { displayCandidate(rankeditems, candidate.id, candidate.name, "", ""); continue }
+
+    //handle ties:
+    //if length is greater than 1 and this is the first key, we are at the start of a tie
+    if (0 == key) { displayCandidate(rankeditems, candidate.id, candidate.name, "", "start", ""); continue }
+
+    //if this is not the last key, we are in the middle of a tie
+    if (key < candidates.length - 1) { displayCandidate(rankeditems, candidate.id, candidate.name, "", "middle", ""); continue }
+
+    //if we've gotten this far, we must be at the end of a tie
+    displayCandidate(rankeditems, candidate.id, candidate.name, "", "end", "")
   }
 }
 function displayCandidate(parent, uniq, description, cost, tie, isNew) {
@@ -188,28 +239,19 @@ function updateInstructions(rankeditemsCount) {
 // var saveStatuses = {}, saveStatuses.status = "", saveStatuses.
 var saveStatus = ""
 function saveRankings() {
-  // console.log(saveStatus)
   //if a save is already in progress, just record that we need to save again and quit
   if (("saving" == saveStatus) || ("queued" == saveStatus)) {
     saveStatus = "queued"
     return "queued"
   }
-  // console.log(saveStatus)
   saveStatus = "saving"
   updateStatusDisplay("Saving")
   var candidateRanks = {}
   candidateRanks.votes = makeRankingsArray()
   batchVote(election, candidateRanks, finishSaveRankings)
-  // var request = {}
-  // request.data = makeRankingsArray()
-  // request.api = "ballot"
-  // request.record = election
-  // saveRankingsToServer(request);
   return "saving"
 }
 function finishSaveRankings(response) {
-  // console.log("finishSaveRankings");
-  // console.log(saveStatus)
   console.log(response);
   if ("queued" == saveStatus) {
     saveStatus = "saved"  //reset saveStatus so that saveRankings doesn't just quit
@@ -218,7 +260,6 @@ function finishSaveRankings(response) {
   }
   saveStatus = "saved"
   updateStatusDisplay("Saved!")
-  // console.log(saveStatus)
 }
 function updateStatusDisplay(newStatus) {
   var saveStatusDomEl = document.getElementById("saveStatusDomEl")
@@ -245,9 +286,9 @@ function candidatesToArray (candidates, targetArray, isRanked) {
       continue
     }
 
-    // tieStat = candidates[i].getAttribute("data-tie")
-    // isTiedWthPrevious = ((tieStat == "middle") || (tieStat == "end"))
-    // if (isTiedWthPrevious) {item.rank = rank}
+    tieStat = candidates[i].getAttribute("data-tie")
+    isTiedWthPrevious = ((tieStat == "middle") || (tieStat == "end"))
+    if (isTiedWthPrevious) {item.rank = rank}
     else {item.rank = ++rank}
 
     targetArray.push(item);
@@ -267,8 +308,8 @@ function batchVote(electionId, candidateRanks, onSuccessFunction) {
       onSuccessFunction(response.data)
     });
 }
-getRankedCandidates(1,1)
-getRankedCandidates(1,10)
+// getRankedCandidates(1,1)
+// getRankedCandidates(1,10)
 function getRankedCandidates(electionId, candidateId, onSuccessFunction) {
   if (!electionId) {return}
   // axios.get('/api/election/' + electionId + '/candidate')
