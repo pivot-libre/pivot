@@ -88,11 +88,14 @@ a.button1,
 .orange2 {
   background-color: #ff876d;
 }
+
 #topNav a:not([href]),
 .hasLabelFrame::after,
 #maincolumn,
 .blue {
   background-color: #3798d4;
+  background-image: url("https://www.transparenttextures.com/patterns/black-thread-light.png");
+  background-size: auto;
 }
 .newitem,
 .blue2 {
@@ -173,6 +176,8 @@ a.button1,
   overflow: hidden;
   padding: 0 0 20px 0;
   margin: 5px 0 0 0;
+  /*background-image: url("https://www.transparenttextures.com/patterns/black-thread-light.png");
+  background-size: auto;*/
 }
 #topNav {
   width: 100%;
