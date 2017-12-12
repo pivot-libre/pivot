@@ -148,14 +148,20 @@ function canonicalize(url) {
 function getResource(resource) {
   axios.get(resource)
     .then(response => {
-      console.log(response.data);
-    });
+    console.log(response);
+  })
+  .catch(error => {
+    console.log(error);
+  })
 }
 // postToResource('/api/election/2/invite', {"email": "nathan.eckberg@gmail.com"})
-// postToResource('/api/invite/accept', {"code": "e2562a8a"})
+postToResource('/api/invite/accept', {"code": "e2562a8a"})
 function postToResource(resource, payload) {
   axios.post(resource, payload)
     .then(response => {
-      console.log(response.data);
-    });
+      console.log(response);
+    })
+    .catch(error => {
+      console.log(error);
+    })
 }

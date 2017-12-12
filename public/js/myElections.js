@@ -22,7 +22,7 @@ axios.get('/api/election')
 //   });
 
 function showElections(myElections) {
-  console.log(myElections)
+  // console.log(myElections)
   var electn
   for (var key in myElections) {
     electn = myElections[key]
@@ -53,8 +53,24 @@ function showElection(parent, name, id, canVote, canViewResults, canEdit) {
   hiddenStyle = "style=visibility:hidden;";
   if ("canViewResults" == canViewResults) {
     var href = "href=results/" + id;
-    hiddenStyle = "";
+    // hiddenStyle = "";
     nameHref = href;
   }
-  html(box, "a", "View Results", href, hiddenStyle);
+  var resultsButton = html(box, "a", "View Results", href, hiddenStyle);
+  loadResults(id, function() {
+    // console.log(resultsButton)
+    // console.log(resultsButton.style.visibility)
+    resultsButton.style.visibility = null
+  })
+}
+function loadResults(electionId, onSuccessFunction) {
+  if (!electionId) {return}
+  axios.get('/api/election/' + electionId + '/result')
+    .then(response => {
+      // console.log(response.data);
+      onSuccessFunction(response.data)
+    })
+    .catch(error => {
+      // console.log(error);
+    })
 }

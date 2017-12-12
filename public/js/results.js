@@ -35,8 +35,8 @@ function candidate(parent, uniq, description, cost, tie) {
   var details = div(box, "", "candidateDetails");
   var candidateDescription = div(details, "", "candidateDescription");
   div(candidateDescription, "", "", description);
-  var candidateCost = div(details, "", "candidateCost");
-  div(candidateCost, "", "", cost);
+  // var candidateCost = div(details, "", "candidateCost");
+  // div(candidateCost, "", "", cost);
 }
 
 
@@ -46,7 +46,10 @@ function loadResults(electionId, onSuccessFunction) {
     .then(response => {
       // console.log(response.data);
       onSuccessFunction(response.data)
-    });
+    })
+    .catch(error => {
+      console.log(error);
+    })
 }
 function showElectionResults(results) {
   // console.log(results.order)
