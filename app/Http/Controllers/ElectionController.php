@@ -77,9 +77,6 @@ class ElectionController extends Controller
         $election->creator()->associate($creator);
         $election->save();
         $location = route('election.index', ['id' => $election->id]);
-
-#        $response = Response::make(null, 201)
-        #            ->header('Location', $location, true, 201);
         $response = response(null, 201)->header('Location', $location);
         return $response;
     }
