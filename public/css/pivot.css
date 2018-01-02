@@ -242,6 +242,9 @@ a.button1,
   width: 100%;
   font-size: 20px;
 }
+.w100 {
+  width: 100%;
+}
 .itemlist {
   width: 100%;
   padding: 20px;

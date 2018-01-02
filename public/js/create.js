@@ -11,15 +11,6 @@ var newElectionForm = html(workspace, "form", "", "action=javascript:;", "onsubm
 html(newElectionForm, "input", "", "type=text", "name=electionName", "placeholder=Election name").focus();
 html(newElectionForm, "input", "", "type=submit", "value=Create");
 
-
-// axios.get('/api/election')
-//   .then(response => {
-//     // console.log("create.js!");
-//     // console.log(response.data);
-//     showElections(response.data)
-//   });
-
-
 function createElection(form) {
   var name = form.elements.electionName.value
   axios.post('/api/election', {"name": name})
