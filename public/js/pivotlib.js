@@ -145,19 +145,37 @@ function canonicalize(url) {
 // getResource('/api/election/1/candidate/1/rank')
 // getResource('/api/election/1/candidate/10/rank')
 // getResource('/api/election/2/invite')
-function getResource(resource) {
+function getResource(resource, onSuccess, onError) {
   axios.get(resource)
     .then(response => {
-    console.log(response);
-  })
-  .catch(error => {
-    console.log(error);
-  })
+      if (onSuccess) {onSuccess(response.data); return}
+      // console.log(response);
+      console.log(JSON.stringify(response.data, "", " "));
+    })
+    .catch(error => {
+      if (onError) {onError(response.data); return}
+      console.log(error);
+    })
 }
 // postToResource('/api/election/2/invite', {"email": "nathan.eckberg@gmail.com"})
-postToResource('/api/invite/accept', {"code": "e2562a8a"})
-function postToResource(resource, payload) {
+// postToResource('/api/invite/accept', {"code": "e2562a8a"})
+function postToResource(resource, payload, onSuccess, onError) {
   axios.post(resource, payload)
+    .then(response => {
+      if (onSuccess) {onSuccess(response.data); return}
+      console.log(response);
+    })
+    .catch(error => {
+      if (onError) {onError(response.data); return}
+      console.log("error:");
+      console.log(resource);
+      console.log(payload);
+      console.log(onSuccess);
+      console.log(error);
+    })
+}
+function deleteResource(resource) {
+  axios.delete(resource)
     .then(response => {
       console.log(response);
     })
