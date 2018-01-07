@@ -44,10 +44,12 @@ class Election extends Model
         return $this->belongsToMany('App\Invite', 'electors')->whereNull('accepted_at');
     }
 
-    public function send_invite_email($email)
+    public function send_invite_email($email, $code)
     {
+        $msg = 'Your Pivot Libre code is '.$code;
+        
         try {
-            Mail::raw('Text to e-mail', function ($message) use ($email) {
+            Mail::raw($msg, function ($message) use ($email) {
                 $name = 'Elector';
                 $message->to($email, $name)->subject('Pivot Libre Election Invitation');
             });
@@ -73,9 +75,9 @@ class Election extends Model
             $elector->election()->associate($this);
             $elector->invite()->associate($invite);
             $elector->save();
-        }
 
-        $mail_error = $this->send_invite_email($email);
+            $mail_error = $this->send_invite_email($email, $invite->code);
+        }
 
         $result = $invite->toArray();
         $result['mail_error'] = $mail_error;
