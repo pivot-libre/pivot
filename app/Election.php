@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Mail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -43,11 +44,26 @@ class Election extends Model
         return $this->belongsToMany('App\Invite', 'electors')->whereNull('accepted_at');
     }
 
+    public function send_invite_email($email)
+    {
+        try {
+            Mail::raw('Text to e-mail', function ($message) use ($email) {
+                $name = 'Elector';
+                $message->to($email, $name)->subject('Pivot Libre Election Invitation');
+            });
+        } catch(\Exception $e) {
+            return $e->getMessage();
+        }
+        return null;
+    }
+
     public function invite($email)
     {
         $invite = $this->invites()->where(['email' => $email])->first();
+        $mail_error = null;
 
-        if (empty($invite)) {
+        if (empty($invite))
+        {
             $invite = new Invite();
             $invite->code = bin2hex(random_bytes(4));
             $invite->email = $email;
@@ -59,8 +75,10 @@ class Election extends Model
             $elector->save();
         }
 
-        /** @todo #1 Send Invitation Email */
+        $mail_error = $this->send_invite_email($email);
 
-        return $invite;
+        $result = $invite->toArray();
+        $result['mail_error'] = $mail_error;
+        return $result;
     }
 }

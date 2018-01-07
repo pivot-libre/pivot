@@ -2,7 +2,7 @@
 import os, sys, json, requests
 from collections import defaultdict as ddict
 
-URL = 'http://homestead.app/api'
+URL = 'http://homestead.test/api'
 
 def load_users():
     with open('users.json') as f:
@@ -101,10 +101,14 @@ def test1():
     assert(len2 == len1 + 1)
 
     # electors
-    code = invite(userA, election, userA['email'])['code']
+    invite_status = invite(userA, election, userA['email'])
+    print 'invite_status: %s' % str(invite_status)
+    code = invite_status['code']
     print code
     accept(userA, code)
-    code = invite(userA, election, userB['email'])['code']
+    invite_status = invite(userA, election, userB['email'])
+    print 'invite_status: %s' % str(invite_status)
+    code = invite_status['code']
     electors = get_electors(userA, election)
     assert(len(electors) == 1)
     accept(userB, code)
