@@ -86,18 +86,9 @@ class InviteController extends Controller
     public function store(Request $request, Election $election)
     {
         $this->authorize('update', $election);
-
         $email = $request->json()->get('email');
-
         $invite = $election->invite($email);
-
-        return redirect()->route(
-            'election.invite.show',
-            [
-                'election' => $election,
-                'invite' => $invite,
-            ]
-        );
+        return $invite;
     }
 
     /**
