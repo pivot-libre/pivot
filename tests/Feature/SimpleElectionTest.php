@@ -64,5 +64,6 @@ class SimpleElectionTest extends TestCase
         $electionId = $election['id'];
         $candidateName = 'Alice';
         $candidate = $this->addCandidate($candidateName, $electionId);
+        $this->assertNotEmpty($candidate);
     }
 }

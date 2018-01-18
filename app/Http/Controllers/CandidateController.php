@@ -135,10 +135,12 @@ class CandidateController extends Controller
      * @param Candidate $candidate
      * @return Candidate
      */
-    public function show(Election $election, Candidate $candidate)
+    public function show($electionId, $candidateId)
     {
+        $election = Election::find($electionId);
         $this->authorize('view', $election);
-
+        $candidate = Candidate::find($candidateId);
+        var_dump($candidate);
         return $candidate;
     }
 
