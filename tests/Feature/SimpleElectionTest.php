@@ -17,18 +17,21 @@ class SimpleElectionTest extends TestCase
         $this->user = factory(\App\User::class)->create();
     }
 
-    /**
-     * A basic test example.
-     *
-     * @return void
-     */
-    public function testExample()
+    public function assertNewEntity($response)
     {
-        $response = $this->actingAs($this->user)
-            ->withSession(['foo' => 'bar'])
-            ->get('/');
-        $response->assertStatus(200);
+        $response->assertStatus(201);
+        $response->assertHeader('Location');
     }
+    
+    public function getNewEntity($response) {
+        
+        $newEntityUrl = $response->headers->get('Location');
+        $response = $this->actingAs($this->user)
+            ->json('GET', $newEntityUrl);
+        $objects = $response->decodeResponseJson();
+        return $objects;
+    }
+    
     public function createElection($electionName)
     {
         $storeRoute = route('election.store');
@@ -36,19 +39,30 @@ class SimpleElectionTest extends TestCase
             ->json('POST', '/api/election', [
                'name' => $electionName 
            ]);
-
-        return $response;
-    }
+        $this->assertNewEntity($response);
+        $election = $this->getNewEntity($response);
         
-    public function testCreateElection()
+        return $election;
+    }
+   
+    public function addCandidate($candidateName, $electionId)
     {
-        $response = $this->createElection('myElection');
-        $response->assertStatus(201);
-        $response->assertHeader('Location');
+        $response = $this->actingAs($this->user)
+            ->json('POST', "/api/election/$electionId/candidate", [
+                'name' => $candidateName
+            ]);
+
+        $this->assertNewEntity($response);
+        $candidate = $this->getNewEntity($response);
+
+        return $candidate;
     }
 
-    public function addCandidate($candidateId, $candidateName = '')
+    public function testSimpleElection()
     {
-
+        $election = $this->createElection('myElection')[0];
+        $electionId = $election['id'];
+        $candidateName = 'Alice';
+        $candidate = $this->addCandidate($candidateName, $electionId);
     }
 }

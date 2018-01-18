@@ -83,22 +83,25 @@ class CandidateController extends Controller
      * @param Election $election
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request, Election $election)
+    public function store(Request $request, $electionId)
     {
+        $election = Election::find($electionId);
         $this->authorize('update', $election);
 
         $candidate = new Candidate();
         $candidate->name = $request->json()->get('name');
         $candidate->election_id = $election->id;
         $candidate->save();
-
-        return redirect()->route(
+        $location = route(
             'election.candidate.show',
             [
                 'election' => $election,
                 'candidate' => $candidate,
             ]
         );
+
+        $response = response(null, 201)->header('Location', $location);
+        return $response;
     }
 
     /**
