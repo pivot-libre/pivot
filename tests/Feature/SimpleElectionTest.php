@@ -28,6 +28,7 @@ class SimpleElectionTest extends TestCase
         $newEntityUrl = $response->headers->get('Location');
         $response = $this->actingAs($this->user)
             ->json('GET', $newEntityUrl);
+        $response->assertStatus(200);
         $objects = $response->decodeResponseJson();
         return $objects;
     }
@@ -54,7 +55,6 @@ class SimpleElectionTest extends TestCase
 
         $this->assertNewEntity($response);
         $candidate = $this->getNewEntity($response);
-
         return $candidate;
     }
 
