@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.pivot')
 
 @section('content')
 <div class="container">

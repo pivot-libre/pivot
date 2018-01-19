@@ -3,14 +3,14 @@ body {
   margin: 0;
   padding: 5px;
   font-family: "Alegreya Sans",sans-serif;
-  font-size: 16px;
+  font-size: 0px;
   text-decoration: none;
   height: 100%;
   width: 100%;
   text-align: center;
   font-weight: 100;
 }
-div, ol, ul, li, a, img, form, label, input, iframe {
+div, ol, ul, li, a, img, form, label, input, iframe, button {
   position: relative;
   display: inline-block;
   box-sizing: border-box;
@@ -23,15 +23,20 @@ div, ol, ul, li, a, img, form, label, input, iframe {
   background-size: cover;
   border: none;
   list-style: none;
-}
-.button2,
-.button1Item,
-label:hover {
-  cursor: pointer;
+  font-family: "Alegreya Sans",sans-serif;
 }
 svg {
   width: 100%;
   height: 100%;
+}
+.button2,
+.button1Item,
+label:hover,
+button:hover,
+input[type=submit]:hover,
+.clickable1:hover,
+.cursorPointer {
+  cursor: pointer;
 }
 
 /*colors*/
@@ -54,39 +59,49 @@ svg {
   fill: #3798d4;
   fill: #444;
 }
+
 .button2:hover,
-.buttonspace > div,
-.stepNavigator > a::after,
+/* .stepNavigator > a::after, */
 .button1Item:hover,
 .details,
-[type=submit].button1,
 .button1 a[href]:hover,
 a[href].button1:hover,
-.electionListing a[href]:hover,
+a[href]:hover,
 .button1 a:not([href]),
 a:not([href]).button1,
-.electionListing a:not([href]),
-.electionListing a:hover + a[style] + .electionName,
-.electionListing a:hover + .electionName,
-.electionListing a:hover,
-.stepNavigator > a::after,
+a:not([href]),
+a:hover + a[style] + .electionName,
+a:hover + .electionName,
+a:hover,
+/* .stepNavigator > a::after, */
+button:hover,
+input[type=submit]:hover,
+.clickable1:hover,
 .orange1 {
   background-color: #fcb8a8;
 }
+/* .grabbable, */
 .button2,
-.checkLabel,
-.buttonspace > .enabled,
-.labelspace > .enabled,
-.createOrLogin > input[type=submit],
 .button1Item,
 .details,
-[type=submit].button1,
+button,
+input[type=submit],
+.clickable1,
 .button1 a,
 a.button1,
-.electionListing a,
-.rankdisplay,
+a,
 .orange2 {
   background-color: #ff876d;
+}
+/* .button1:active, */
+/* .button2:active, */
+.button1Item:active,
+a[href]:active,
+button:active,
+input[type=submit]:active,
+.clickable1:active,
+.opacity5 {
+  opacity: .5;
 }
 
 #topNav a:not([href]),
@@ -102,7 +117,6 @@ a.button1,
   background-color: #009faf;
 }
 
-/*.checkLabel,*/
 .blue3 {
   background-color: #4dd0e1;
 }
@@ -114,22 +128,27 @@ body,
 .black {
   background-color: black;
 }
-.electionListing .electionName,
-.candidateDetails,
-.stepNavigator > a[href]::after,
-.stepNavigator > a::before,
-.stepNavigator > a[href]::after,
+.a1,
+a.a1:hover,
+.bgColorTransparent {
+  background-color: transparent;
+}
+.electionName,
+/* .candidateDetails, */
+/* .stepNavigator > a[href]::after, */
+/* .stepNavigator > a::before, */
+/* .stepNavigator > a[href]::after, */
+.text1,
 .white {
   background-color: white;
 }
 
 .userDescription,
-.candidateDescription,
+/* .candidateDescription, */
 .grey1 {
   color: #5d5d5d;
 }
 .electorChecks,
-.candidateCost,
 .red1 {
   color: #d53e3e;
 }
@@ -145,23 +164,20 @@ body,
 .slate {
   color: #444;
 }
-.electionListing .electionName,
+.electionName,
+.text1,
 .black {
   color: black;
 }
-.checkLabel,
-.createOrLogin > .header1,
-.createOrLogin > .header2,
-.createOrLogin > input[type=submit],
-.stepNavigator > a[href],
-.checkLabel,
+/* .stepNavigator > a[href], */
 .button1Item,
 .details,
-[type=submit].button1,
+button,
+input[type=submit],
+.clickable1,
 .button1 a,
 a.button1,
-.electionListing a,
-.rankdisplay,
+a,
 #maincolumn,
 .white {
   color: white;
@@ -187,51 +203,11 @@ a.button1,
 .mainheader {
   width: 100%;
   font-size: 40px;
-  font-family: fantasy;
+  /* font-family: fantasy; */
   padding: 20px;
 }
 
-/* step navigator */
-.stepNavigator {
-  width: 100%;
-}
-.stepNavigator > a {
-  padding: 10px 40px 0px 40px;
-  margin: 4px -2px 10px -2px;
-  font-size: 18px;
-  text-decoration: none;
-}
-.stepNavigator > a::before {
-  content: '';
-  position: absolute;
-  top: -6px;
-  left: 50%;
-  right:auto;
-  transform: translateX(-50%);
-  width: 100%;
-  height: 5px;
-}
-.stepNavigator > a:nth-of-type(1)::before {
-  left: 50%;
-  transform: none;
-  width: 50%;
-}
-.stepNavigator > a:nth-last-of-type(1)::before {
-  left: 0%;
-  transform: none;
-  width: 50%;
-}
-.stepNavigator > a::after {
-  content: '';
-  position: absolute;
-  top: -14px;
-  left: 50%;
-  right:auto;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-}
+/* cssremove3 */
 
 /* ballot layout and skin */
 .workspace {
@@ -242,12 +218,29 @@ a.button1,
   width: 100%;
   font-size: 20px;
 }
+.row1,
 .w100 {
   width: 100%;
 }
+.w75 {
+  width: 75%;
+}
+.w67 {
+  width: 67%;
+}
+.w50 {
+  width: 50%;
+}
+.w33 {
+  width: 33%;
+}
+.w25 {
+  width: 25%
+}
 .itemlist {
   width: 100%;
-  padding: 20px;
+  padding-top: 20px;
+  padding-bottom: 20px;
   margin-top: 10px;
   min-height: 50px;
 }
@@ -273,404 +266,101 @@ a.button1,
 #rankeditems::after {
   content: "Ranked";
 }
-#edititems .candidateDetails {
-  right: 75px;
-  left: 50px;
+#electorateUl::after {
+  content: "Current Electorate";
 }
-#unrankeditems .candidateDetails {
-  opacity: .9;
+#pendingUl::after {
+  content: "Pending Invites";
 }
-.candidate {
-  box-sizing: border-box;
-  width: 100%;
-  height: 48px;
-  /*min-height: 48px;*/
-  padding: 10px;
+#unsentUl::after {
+  content: "Unsent Invites";
 }
-.rankDisplaySpace + .candidateDetails {
-  left: 50px;
-}
-.candidateDetails {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 110px;
-  right: 0;
-  border-radius: 2px;
-  font-family: arial;
-  line-height: 47px;
-  font-size: 15px;
-  font-weight: 400;
-  text-align: left;
-  overflow: hidden;
-}
-.userDescription,
-.candidateDescription {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 25px;
-  right: 100px;
-}
-.userDescription {
-  right: 365px;
-}
-.electorChecks,
-.candidateCost {
-  position: absolute;
-  box-sizing: border-box;
-  top: 0;
-  bottom: 0;
-  /*width: 100px;*/
-  right: 0;
-  padding: 0 5px 0 5px;
-}
-.electorChecks input[type=checkbox] {
-  display: inline-block;
-}
-/*https://codepen.io/zachariab/pen/wkrbc*/
-.grippy {
-  position: absolute;
-  content: '....';
-  width: 10px;
-  height: 30px;
-  display: inline-block;
-  overflow: hidden;
-  line-height: 6px;
-  padding: 3px 4px;
-  cursor: move;
-  vertical-align: middle;
-  font-size: 19px;
-  font-family: sans-serif;
-  letter-spacing: 2px;
-  color: #cccccc;
-  top: 3px;
-  left: 2px;
-}
-.grippy::after {
-  content: '.. .. .. ..';
-}
-.clickable {
-  cursor: pointer;
-}
+/* cssremove1 */
 .grabbable,
 .grippy,
-.grabby {
+.grabby,
+.cursorMoveGrab {
   cursor: move;
   cursor: grab;
   cursor: -moz-grab;
   cursor: -webkit-grab;
 }
-#maincolumn.viewonly .candidate {
-  cursor: default;
-}
-/* rank tie and banish display */
-#unrankeditems > .candidate > .rankDisplaySpace,
-#unrankeditems > .candidate > .rankingTools {
-  display: none;
-}
-.newitem {
-  position: absolute;
-  top: 5px;
-  bottom: 5px;
-  left: 12px;
-  width: 82px;
-  text-align: center;
-  line-height: 38px;
-  font-size: 22px;
-  border: 2px solid;
-  text-transform: uppercase;
-  font-weight: 500;
-}
-ol:not(#unrankeditems) .newitem {
-  display: none;
-}
-.rankDisplaySpace,
-.rankingTools {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 110px;
-  text-align: left;
-}
-.rankDisplaySpace {
-  width: 50px;
-}
-.rankdisplay {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  line-height: 47px;
-  width: 47px;
-  font-size: 18px;
-  text-align: center;
-}
-ol:not(#edititems) .rankdisplay {
-  right: 2px;
-}
-#edititems .rankdisplay {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 2px;
-  /*right: 2px;*/
-  /*height: 100%;*/
-  line-height: 47px;
-  width: 47px;
-}
-.rankdisplay::before {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-.rankingTools .check:hover + .rankdisplay,
-.rankingTools .rankdisplay:hover {
-  display: none;
-}
-.rankingTools > input {
-  /*position: absolute;*/
-  height: 100%;
-  width: 45px;
-  /*transform: scale(1.5);*/
-  cursor: pointer;
-}
-.candidateDetails input[type=text] {
-    box-sizing: border-box;
-    width: 100%;
-    height: 40px;
-    font-size: 15px;
-    margin-top: 4px;
-    padding: 0px 8px 0px 8px;
-}
-.tie,
-ol:not(#edititems) .banish {
-  /*position: absolute;*/
-  display: none;
-  height: 100%;
-  width: 33%;
-  text-align: center;
-  cursor: pointer;
-}
-#edititems .edit,
-#edititems .banish {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  /*left: 43px;*/
-  right: 2px;
-  /*height: 100%;*/
-  line-height: 47px;
-  width: 24px;
-  text-align: center;
-  cursor: pointer;
-}
-#edititems .edit {
-  right: 36px;
-}
-[data-id=template],
-#ballotitem-template {
-  display: none;
-}
+/* cssremove2 */
 
-label.check {
-  position: absolute;
-  box-sizing: border-box;
-  height: 100%;
-  width: 45px;
-  top: 0;
-  right: 0;
-}
-label.check::before,
-label.check::after {
-    content: "";
-    position: absolute;
-    top: 25%;
-    bottom: 25%;
-    left: 25%;
-    right: 25%;
-    /*border: 2px solid #009faf;*/
-    border: 2px solid #4dd0e1;
-    border-radius: 3px;
-}
-label.check::before {
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="50.04999923706055 37.630001068115234 99.89999389648438 81.08000183105469" width="99.89999389648438" height="81.08000183105469"><path d=" M 87.37 81.17 C 102.21 66.90 116.49 52.06 131.18 37.63 C 137.62 43.64 143.71 50.00 149.95 56.22 C 129.15 77.10 108.36 97.99 87.41 118.71 C 75.03 106.14 62.43 93.79 50.05 81.22 C 56.29 75.00 62.38 68.64 68.82 62.63 C 75.06 68.75 81.20 74.97 87.37 81.17 Z" transform="matrix(1, 0, 0, 1, -1.7763568394002505e-15, 0)" fill="rgba(0, 159, 175, 1)"/></svg>');
-  /*background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='61' height='41' fill='@{bgColor}' stroke='none'><path d='M0,0 L30,40 L60,0 L0,0 Z'></path></svg>") no-repeat;*/
-  background-color: #fff;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
-  overflow: hidden;
-}
-label.check::after {
-  background-color: white;
-  opacity: 1;
-}
-label.check:hover::after {
-  opacity: .75;
-}
-.edit::before,
-.tie::before,
-.banish::before {
-  content: "";
-  position: absolute;
-  top: 25%;
-  bottom: 25%;
-  left: 25%;
-  right: 25%;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
-}
-.banish::before {
-  background-image: url('data:image/svg+xml;utf8,<svg viewBox="74.98812866210938 49.971858978271484 66.72299194335938 66.70027160644531" width="66.72299194335938" height="66.70027160644531" xmlns="http://www.w3.org/2000/svg"><path fill="rgba(0,0,0,1)" d=" M 76.14 54.07 C 78.58 49.65 85.19 48.57 88.82 52.16 C 95.47 58.26 101.45 65.08 108.12 71.17 C 115.55 65.34 121.35 57.68 128.55 51.58 C 133.25 47.72 141.11 51.28 141.60 57.26 C 142.37 61.74 138.58 64.93 135.75 67.75 C 130.58 72.92 125.29 77.96 120.26 83.27 C 125.42 88.93 131.04 94.14 136.43 99.57 C 139.20 102.22 142.48 105.53 141.55 109.75 C 140.77 115.73 132.74 118.95 128.21 114.80 C 121.28 108.59 115.19 101.49 108.27 95.26 C 101.74 101.40 95.70 108.04 89.18 114.20 C 86.49 116.97 81.92 117.51 78.73 115.29 C 74.90 112.89 73.71 107.13 76.58 103.55 C 82.69 96.36 90.32 90.55 96.17 83.13 C 90.22 76.64 83.66 70.75 77.61 64.36 C 74.88 61.75 74.10 57.33 76.14 54.07 Z" transform="matrix(1, 0, 0, 1, -1.7763568394002505e-15, 0)"/></svg>');
-}
-.tie::before {
-  background-image: url('data:image/svg+xml;utf8,<svg viewBox="50.00421142578125 62.44163513183594 100.000732421875 75.09085083007812" width="100.000732421875" height="75.09085083007812" xmlns="http://www.w3.org/2000/svg"><path fill="rgba(0,0,0,1)" d="M 71.4 50.52 C 76.77 48.82 83.02 51.31 85.78 56.2 C 87.56 59.13 87.52 62.68 87.55 66 C 87.43 89.68 87.57 113.36 87.48 137.03 C 87.61 141.81 84.99 146.58 80.62 148.66 C 75.42 151.41 68.48 149.74 65.02 145.01 C 62.76 142.2 62.44 138.47 62.46 135.01 C 62.56 111 62.44 86.98 62.51 62.97 C 62.27 57.41 66 51.99 71.4 50.52 Z M 121.4 50.52 C 126.76 48.82 133.01 51.31 135.78 56.2 C 137.56 59.13 137.52 62.69 137.55 66.01 C 137.43 89.68 137.57 113.36 137.48 137.04 C 137.61 141.82 134.98 146.58 130.62 148.66 C 125.42 151.41 118.48 149.74 115.02 145.01 C 112.76 142.2 112.44 138.47 112.46 135.01 C 112.56 110.99 112.44 86.98 112.51 62.97 C 112.27 57.41 116 51.99 121.4 50.52 Z" transform="matrix(0, 1, -1, 0, 199.99163818359375, -0.017517000436782837)"/></svg>');
-}
-.tie:hover::before {
-  background-image: url('data:image/svg+xml;utf8,<svg viewBox="50.00421142578125 62.44163513183594 100.000732421875 75.09085083007812" width="100.000732421875" height="75.09085083007812" xmlns="http://www.w3.org/2000/svg"><path fill="rgb(170, 170, 170,1)" d="M 71.4 50.52 C 76.77 48.82 83.02 51.31 85.78 56.2 C 87.56 59.13 87.52 62.68 87.55 66 C 87.43 89.68 87.57 113.36 87.48 137.03 C 87.61 141.81 84.99 146.58 80.62 148.66 C 75.42 151.41 68.48 149.74 65.02 145.01 C 62.76 142.2 62.44 138.47 62.46 135.01 C 62.56 111 62.44 86.98 62.51 62.97 C 62.27 57.41 66 51.99 71.4 50.52 Z M 121.4 50.52 C 126.76 48.82 133.01 51.31 135.78 56.2 C 137.56 59.13 137.52 62.69 137.55 66.01 C 137.43 89.68 137.57 113.36 137.48 137.04 C 137.61 141.82 134.98 146.58 130.62 148.66 C 125.42 151.41 118.48 149.74 115.02 145.01 C 112.76 142.2 112.44 138.47 112.46 135.01 C 112.56 110.99 112.44 86.98 112.51 62.97 C 112.27 57.41 116 51.99 121.4 50.52 Z" transform="matrix(0, 1, -1, 0, 199.99163818359375, -0.017517000436782837)"/></svg>');
-}
-.banish:hover::before {
-  background-image: url('data:image/svg+xml;utf8,<svg viewBox="74.98812866210938 49.971858978271484 66.72299194335938 66.70027160644531" width="66.72299194335938" height="66.70027160644531" xmlns="http://www.w3.org/2000/svg"><path fill="rgba(255,0,0,1)" d=" M 76.14 54.07 C 78.58 49.65 85.19 48.57 88.82 52.16 C 95.47 58.26 101.45 65.08 108.12 71.17 C 115.55 65.34 121.35 57.68 128.55 51.58 C 133.25 47.72 141.11 51.28 141.60 57.26 C 142.37 61.74 138.58 64.93 135.75 67.75 C 130.58 72.92 125.29 77.96 120.26 83.27 C 125.42 88.93 131.04 94.14 136.43 99.57 C 139.20 102.22 142.48 105.53 141.55 109.75 C 140.77 115.73 132.74 118.95 128.21 114.80 C 121.28 108.59 115.19 101.49 108.27 95.26 C 101.74 101.40 95.70 108.04 89.18 114.20 C 86.49 116.97 81.92 117.51 78.73 115.29 C 74.90 112.89 73.71 107.13 76.58 103.55 C 82.69 96.36 90.32 90.55 96.17 83.13 C 90.22 76.64 83.66 70.75 77.61 64.36 C 74.88 61.75 74.10 57.33 76.14 54.07 Z" transform="matrix(1, 0, 0, 1, -1.7763568394002505e-15, 0)"/></svg>');
-}
-.edit::before {
-  background-image: url('data:image/svg+xml;utf8,<svg viewBox="62.41731643676758 38.18569564819336 74.39918518066406 74.42430114746094" width="74.39918518066406" height="74.42430114746094" xmlns="http://www.w3.org/2000/svg"><path d="M 82.906 106.927 L 62.459 112.613 L 67.902 91.918 Z M 114.655 45.065 L 129.662 60.072 L 85.186 104.548 L 70.179 89.541 Z M 121.801 38.046 L 136.808 53.053 L 132 57.861 L 116.993 42.854 Z" style="fill: rgb(0, 0, 0);"/></svg>');
-}
-.edit:hover::before {
-  background-image: url('data:image/svg+xml;utf8,<svg viewBox="62.41731643676758 38.18569564819336 74.39918518066406 74.42430114746094" width="74.39918518066406" height="74.42430114746094" xmlns="http://www.w3.org/2000/svg"><path d="M 82.906 106.927 L 62.459 112.613 L 67.902 91.918 Z M 114.655 45.065 L 129.662 60.072 L 85.186 104.548 L 70.179 89.541 Z M 121.801 38.046 L 136.808 53.053 L 132 57.861 L 116.993 42.854 Z" style="fill: rgb(0, 159, 175);"/></svg>');
-}
-.vote::before {
-  background-image: url('data:image/svg+xml;utf8,<svg viewBox="40.27000045776367 12.605377197265625 155.81187438964844 174.72491455078125" width="155.81187438964844" height="174.72491455078125" xmlns="http://www.w3.org/2000/svg"><path d="M 87.54 21.57 C 85.12 28.27 87.15 35.72 84.42 42.35 C 82.26 48.35 77.28 52.57 73.43 57.44 C 67.33 65.01 61.31 72.63 54.94 79.96 C 52.04 83.44 47.47 84.46 43.76 86.75 C 40.73 88.72 40.3 92.65 40.27 95.95 C 40.36 117.98 40.24 140.01 40.29 162.05 C 40.27 165.55 40.85 170.01 44.6 171.45 C 49.45 173.17 54.7 173.2 59.74 174.07 C 71.33 175.96 83.23 176.8 94.33 180.88 C 111.61 186.31 129.92 187.88 147.96 187.17 C 154.58 186.87 161.48 186.58 167.53 183.55 C 173.07 180.91 177.38 175.91 179.17 170.03 C 180.46 166.21 180.25 162.12 181.07 158.21 C 182.27 154.63 185.08 151.84 186.24 148.23 C 187.99 143.69 187.07 138.79 187.29 134.08 C 187.9 130.79 190.12 128.06 190.91 124.81 C 192.21 120.27 190.62 115.62 190.92 111.03 C 191.39 106.84 193.91 103.28 195.08 99.29 C 197.4 91.94 195.66 83.35 190.18 77.83 C 185.72 73.03 179.12 70.85 172.69 70.67 C 158.8 70.18 144.9 70.46 131 70.48 C 125.69 70.44 120.34 70.88 115.09 69.91 C 116.72 63.87 119.94 58.36 121.14 52.18 C 123.77 41.2 123.12 28.39 115.54 19.44 C 110.84 13.59 102.5 11.24 95.37 13.39 C 91.56 14.56 88.77 17.87 87.54 21.57 Z" transform="matrix(1, 0, 0, 1, 0, -8.881784197001252e-16)" style="fill: rgb(255, 0, 0);"/></svg>');
-}
-.vote:hover::before {
-  background-image: url('data:image/svg+xml;utf8,<svg viewBox="40.27000045776367 12.605377197265625 155.81187438964844 174.72491455078125" width="155.81187438964844" height="174.72491455078125" xmlns="http://www.w3.org/2000/svg"><path d="M 87.54 21.57 C 85.12 28.27 87.15 35.72 84.42 42.35 C 82.26 48.35 77.28 52.57 73.43 57.44 C 67.33 65.01 61.31 72.63 54.94 79.96 C 52.04 83.44 47.47 84.46 43.76 86.75 C 40.73 88.72 40.3 92.65 40.27 95.95 C 40.36 117.98 40.24 140.01 40.29 162.05 C 40.27 165.55 40.85 170.01 44.6 171.45 C 49.45 173.17 54.7 173.2 59.74 174.07 C 71.33 175.96 83.23 176.8 94.33 180.88 C 111.61 186.31 129.92 187.88 147.96 187.17 C 154.58 186.87 161.48 186.58 167.53 183.55 C 173.07 180.91 177.38 175.91 179.17 170.03 C 180.46 166.21 180.25 162.12 181.07 158.21 C 182.27 154.63 185.08 151.84 186.24 148.23 C 187.99 143.69 187.07 138.79 187.29 134.08 C 187.9 130.79 190.12 128.06 190.91 124.81 C 192.21 120.27 190.62 115.62 190.92 111.03 C 191.39 106.84 193.91 103.28 195.08 99.29 C 197.4 91.94 195.66 83.35 190.18 77.83 C 185.72 73.03 179.12 70.85 172.69 70.67 C 158.8 70.18 144.9 70.46 131 70.48 C 125.69 70.44 120.34 70.88 115.09 69.91 C 116.72 63.87 119.94 58.36 121.14 52.18 C 123.77 41.2 123.12 28.39 115.54 19.44 C 110.84 13.59 102.5 11.24 95.37 13.39 C 91.56 14.56 88.77 17.87 87.54 21.57 Z" transform="matrix(1, 0, 0, 1, 0, -8.881784197001252e-16)" style="fill: rgb(255, 0, 0);"/></svg>');
-}
-
-input[type=checkbox] {
-  display: none;
-}
-.rankingTools > input:checked ~ .tie,
-ol:not(#edititems) .rankingTools > input:checked ~ .banish {
-  display: inline-block;
-}
-.rankingTools > input:checked ~ .rankdisplay {
-  display: none;
-}
-.rankingTools > input:checked ~ label.check::after {
-  opacity: 0;
-}
 /*hide rankingTools box when dragging*/
-.candidate.gu-mirror > .rankingTools {
+li.gu-mirror > .rankingTools {
   display: none;
+}
+
+/* conditional hiding */
+.hidden3,
+.hidden2,
+.hidden1,
+.hidden {
+  visibility: hidden;
+  transition: visibility 0s linear 0s !important;
+}
+ol .hidden2:checked,
+ol .hidden2:checked ~ .hidden3,
+ol li:hover .hidden2,
+ul li[data-isNew="new"] .hidden1 {
+  visibility: visible;
 }
 
 /* rank counting (FUNCTIONAL) */
 /* increment the rank with each candidate by default */
-.incrementsCounter > .candidate {
+.incrementsCounter > li {
   counter-increment: rank;
 }
 /* do not increment the rank for gu-transit items that fall after a tied item, nor the ranks for items within a tie that fall after a gu-transit item, since they might not be coming from a tie */
-.incrementsCounter > .candidate[data-tie] + .gu-transit,
-.incrementsCounter > .candidate.gu-transit + [data-tie="middle"],
-.incrementsCounter > .candidate.gu-transit + [data-tie="end"],
-.incrementsCounter > .candidate[data-tie] + [data-tie] {
+.incrementsCounter > li[data-tie] + .gu-transit,
+.incrementsCounter > li.gu-transit + [data-tie="middle"],
+.incrementsCounter > li.gu-transit + [data-tie="end"],
+.incrementsCounter > li[data-tie] + [data-tie] {
   counter-increment: none;
 }
-.incrementsCounter > .candidate[data-tie] + [data-tie="start"]:not(.gu-transit),
+.incrementsCounter > li[data-tie] + [data-tie="start"]:not(.gu-transit),
 /* increment the rank for gu-transit items that fall right after the end of a tie */
-.incrementsCounter > .candidate[data-tie="end"] + .gu-transit {
+.incrementsCounter > li[data-tie="end"] + .gu-transit {
   counter-increment: rank;
 }
 /* actually show the count */
-.incrementsCounter > .candidate .rankdisplay::before {
+.orderdisplay::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.incrementsCounter > li .orderdisplay::before {
   content: counter(rank);
 }
 
-
 /* other stuff */
-.electionlist {
-  width: 70%;
-}
 .electionListing {
-  /*display: block;*/
   width: 100%;
-  /*margin: 10px;*/
-  padding: 10px;
+  padding: 6px;
 }
+label,
+input,
 .button2,
 .button1Item,
 .details,
-[type=submit].button1,
+button,
+input[type=submit],
+.clickable1,
 .button1 a,
 a.button1,
-.electionListing a {
+a {
   text-decoration: none;
   font-size: 20px;
   padding: 10px;
   transition: all .25s;
 }
-.electionListing .electionName {
+.electionName {
   /*height: 100%;*/
   width: 50%;
   text-align: left;
-}
-.createOrLogin {
-  width: 100%;
-}
-.createOrLogin > .header1 {
-  width: 100%;
-  font-size: 25px;
-}
-.createOrLogin > .header2 {
-  width: 100%;
-  font-size: 20px;
-  margin: 5px 0 10px 0;
-}
-.createOrLogin > input {
-  font-size: 20px;
-  padding: 10px;
-}
-.createOrLogin > input[type=text]{
-  width: 40%;
-}
-.checkLabel {
-  display: inline-block;
-  padding: 0 10px 0 10px;
-  box-sizing: border-box;
-  /* border: 2px solid #009faf; */
-  height: 38px;
-  /*margin: 5px 2px 5px 2px;*/
-  line-height: 38px;
-}
-.checkLabel2 {
-  display: inline-block;
-}
-.checkLabel2 > input {
-  display: inline-block;
-}
-.buttonspace {
-  font-size: 0px;
-  /*text-align: right;*/
-}
-.labelspace {
-  font-size: 0px;
-  text-align: left;
-}
-.buttonspace > div {
-  font-size: 18px;
-  padding: 7px;
-  margin: 8px;
-  border-radius: 21px;
-}
-.labelspace > div,
-.labelspace > input {
-  font-size: 18px;
-  padding: 10px;
-  margin: 5px;
-  width: 100%;
 }
 .leftMenu {
   width: 50%;
@@ -694,8 +384,6 @@ a.button1,
   font-size: 20px;
   padding: 5px;
 }
-#topNav a {
-}
 .leftMenu a {
   margin: 0 3px 0 0;
   border-radius: 6px 6px 0 0;
@@ -705,4 +393,42 @@ a.button1,
   margin: 2px 0 2px 0;
   border-radius: 6px;
   padding: 3px 5px 3px 5px;
+}
+
+/* revamp */
+.text1square {
+  height: 41px;
+  width: 41px;
+  line-height: 41px;
+  vertical-align: top;
+}
+.grabbable,
+.text1square,
+.text1,
+.font20 {
+  font-size: 20px;
+}
+/* .grabbable, */
+.text1,
+.padding10 {
+  padding: 10px;
+}
+.text1,
+.textAlignLeft {
+  text-align: left;
+}
+label,
+.textAlignRight {
+  text-align: right;
+}
+.text1square,
+.textAlignCenter {
+  text-align: center;
+}
+.a1,
+.underline {
+  text-decoration: underline;
+}
+.row1 {
+  padding: 4px 0px 4px 0px;
 }
