@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.pivot')
 
 @section('content')
 <div class="container">
@@ -19,7 +19,7 @@
                             <label for="name" class="col-md-4 control-label">Invite Code (optional)</label>
 
                             <div class="col-md-6">
-                                <input id="name" type="text" class="form-control" name="invite" value="{{ $invite }}" required autofocus>
+                                <input id="codeInput" type="text" class="form-control" name="invite" value="{{ $invite }}" required autofocus>
 
                                 @if ($errors->has('invite'))
                                     <span class="help-block">
@@ -30,11 +30,12 @@
                         </div>
 
                         <div class="form-group">
-                            <div class="col-md-6 col-md-offset-4">
-                                <button type="submit" class="btn btn-primary">
+                          <div class="clickable1" id="acceptButton">Accept</div>
+                            <!-- <div class="col-md-6 col-md-offset-4">
+                                <button type="submit" class="btn btn-primary" id="acceptButton">
                                     Accept
                                 </button>
-                            </div>
+                            </div> -->
                         </div>
 
                     </form>
@@ -43,4 +44,18 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script src="{{ asset('js/pivotlib.js') }}"></script>
+<script>
+var codeInput = document.getElementById("codeInput")
+var acceptButton = document.getElementById("acceptButton")
+acceptButton.onclick = function() {
+  var code = codeInput.value
+  if (!code) { return }
+  // console.log(code)
+  postToResource('/api/invite/accept', {"code": code})
+}
+</script>
 @endsection

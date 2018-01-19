@@ -1,110 +1,105 @@
 'use strict';
 
-//functions
+//load ballot
+function loadBallot(electionId, onSuccessFunction, perCandidateFunc) {
+  //define functions that we will use to get both the candidate definitions and the user's ranked ballot
+  var getballotDefinition = function() { return axios.get('/api/election/' + electionId + '/candidate') }
+  var getRankedBallot = function() { return axios.get('/api/election/' + electionId + '/batchvote') }
 
-//saving to server
-function showButton(input) {
-  input.nextElementSibling.removeAttribute("style")
+  axios.all([getballotDefinition(), getRankedBallot()])
+    .then(axios.spread(function (definition, rankings) {
+      // Both requests are now complete
+      // console.log(acct.data, perms.data)
+      onSuccessFunction(definition.data, rankings.data, perCandidateFunc)
+    }));
 }
-function updateName(form) {
-  form.elements.submit.setAttribute("style", "visibility:hidden;")
-  var request = {}
-  request.api = "rename"
-  request.record = election
-  request.data = form.elements.electionName.value
-  sendRequestToServer(request)
-}
-function deleteElection(election) {
-  var request = {}
-  request.api = "delete"
-  request.record = election
-  sendRequestToServer(request, goToConfirmDeletePage)
-}
-function goToConfirmDeletePage(election) {
-  // console.log("deleted")
-  window.location.href = "confirmDelete.php"
-}
-// function goToElectionPage(election) {
-//   window.location.href = "details.php?election=" + election
-// }
-function saveElection(name) {
-    var request = {}
-    request.data = name
-    request.api = "election"
-    request.record = election
-    saveElectionToServer(request)
-}
+function displayBallot(ballotDefinition, rankedBallot, perCandidateFunc) {
+  var candidate, sortedDefinitions = {}, sortedCandidates = {}
 
-function makeElectorateArray () {
-  var electorate = [];
-  electorateToArray(document.querySelectorAll("#edititems .candidate"), electorate);
-  return electorate
-}
-function electorateToArray (items, targetArray) {
-  for (var i = 0; i < items.length; i++) {
-    var item = {};
-    var formElements = items[i].querySelector(".candidateDetails").elements
-    // console.log(formElements)
-    item.username = formElements.username.value
-    if (formElements.canVote.checked) {item.vote = "yes"}
-    if (formElements.canViewResults.checked) {item.results = "yes"}
-    if (formElements.isAdmin.checked) {item.admin = "yes"}
+  //if the user hasn't looked at this ballot before, we can simply display the ballot definition
+  if (0 == rankedBallot.length) { dispayCandidatesWithRank("", ballotDefinition, rankeditems, unrankeditems, perCandidateFunc); return}
 
-    targetArray.push(item);
+  //build a list of candidate definitions
+  for (var key in ballotDefinition) {
+    candidate = ballotDefinition[key]
+    sortedDefinitions[candidate.id] = candidate
+  }
+
+  //build lists of all the candidates that were previously given each rank
+  for (var key in rankedBallot) {
+    candidate = rankedBallot[key]
+    if (!sortedCandidates[candidate.rank]) { sortedCandidates[candidate.rank] = [] }
+    sortedCandidates[candidate.rank].push(sortedDefinitions[candidate.candidate_id])
+    delete sortedDefinitions[candidate.candidate_id]
+  }
+
+  //add any candidates that are new since the user last reviewed this ballot
+  for (var key in sortedDefinitions) {
+    candidate = sortedDefinitions[key]
+    if (!sortedCandidates[""]) { sortedCandidates[""] = [] }
+    sortedCandidates[""].push(candidate)
+  }
+  for (var rank in sortedCandidates) {
+    dispayCandidatesWithRank(rank, sortedCandidates[rank], rankeditems, unrankeditems, perCandidateFunc)
   }
 }
+function dispayCandidatesWithRank(rank, candidates, rankeditems, unrankeditems, perCandidateFunc) {
+  var candidate
+  for (var key in candidates) {
+    candidate = candidates[key]
+    //if not ranked, it goes in the unranked group
+    if (!rank || 0 == rank) { perCandidateFunc(unrankeditems, candidate.id, candidate.name, "", "", ("" == rank ? "new": "")); continue }
+
+    //if length is 1, it is not a tie
+    if (1 == candidates.length) { perCandidateFunc(rankeditems, candidate.id, candidate.name, "", ""); continue }
+
+    //handle ties:
+    //if length is greater than 1 and this is the first key, we are at the start of a tie
+    if (0 == key) { perCandidateFunc(rankeditems, candidate.id, candidate.name, "", "start", ""); continue }
+
+    //if this is not the last key, we are in the middle of a tie
+    if (key < candidates.length - 1) { perCandidateFunc(rankeditems, candidate.id, candidate.name, "", "middle", ""); continue }
+
+    //if we've gotten this far, we must be at the end of a tie
+    perCandidateFunc(rankeditems, candidate.id, candidate.name, "", "end", "")
+  }
+}
+
+// dom manipulation
+function div(parent, id, classes, innerHtml, attributes) {
+  attributes = attributes || {}
+  if (id) attributes.id = id
+  if (classes) attributes.class = classes
+  return html(parent, "div", innerHtml, attributes)
+}
+function html(parent, tag, innerHtml, attributes) {
+  var i, attString, html, attribute
+  html = document.createElement(tag)
+  html.innerHTML = (innerHtml || innerHtml === 0) ? innerHtml : ""
+  for (attribute in attributes) {
+    if (!attributes.hasOwnProperty(attribute)) continue
+    html.setAttribute(attribute, attributes[attribute])
+  }
+  if (parent) parent.appendChild(html)
+  return html
+}
+
+//helpers
 function removeHrefsForCurrentLoc() {
   var hrefEls = document.querySelectorAll("[href]")
   var currentHref = window.location.href
   for (var i = 0; i < hrefEls.length; i++) {
     if (canonicalize(hrefEls[i].href) == currentHref) { hrefEls[i].removeAttribute("href") }
+    else if (window.location.pathname == "/" && window.location.protocol + "//" + window.location.host + "/myElections" == canonicalize(hrefEls[i].href)) { hrefEls[i].removeAttribute("href") }
   }
 }
 function anchorListDiv(parent, classes, labelsAndHrefs) {
   var stepNavigator = div(parent, "", classes);
   for (var label in labelsAndHrefs) {
     var href = labelsAndHrefs[label]
-    html(stepNavigator, "a", label, "href=" + href);
+    html(stepNavigator, "a", label, {"href": href});
   }
 }
-
-//dom
-function div(parent, id, classes, innerHtml, attributes) {
-  attributes = Array.prototype.slice.call(arguments, 4)
-  return html(parent, "div", innerHtml, "id=" + id, "class=" + classes, attributes)
-}
-function appendNewHtmlEl(parent, tag) {
-  var html = document.createElement(tag)
-  parent.appendChild(html)
-  return html
-}
-function html(parent, tag, innerHtml, attributes) {
-  var i, attString, eqPos, html, attribute, attributes = Array.prototype.slice.call(arguments, 3)
-  // attributes = arguments.slice(3)
-  html = document.createElement(tag)
-  html.innerHTML = (innerHtml || innerHtml === 0) ? innerHtml : ""
-  attributes = flattenArray(attributes)
-  for (i = 0; i < attributes.length; i++) {
-    attString = attributes[i]
-    eqPos = attString.indexOf("=")
-    attribute = attString.slice(0,eqPos)
-    if (!attribute) continue
-    html.setAttribute(attribute, attString.slice(eqPos + 1))
-  }
-  if (parent) parent.appendChild(html)
-  return html
-}
-function flattenArray(array, flattenedArray = []) {
-  var i, member
-  for (i = 0; i < array.length; i++) {
-    member = array[i]
-    if (Array.isArray(member)) { flattenArray(member, flattenedArray) }
-    else {flattenedArray.push(member)}
-  }
-  return flattenedArray
-}
-
-//helpers
 function ordinalSuffix(i) {
   //(got this here: https://stackoverflow.com/questions/13627308/add-st-nd-rd-and-th-ordinal-suffix-to-a-number)
   var j = i % 10, k = i % 100;
@@ -125,17 +120,6 @@ function canonicalize(url) {
   div.innerHTML = div.innerHTML; // Run the current innerHTML back through the parser
   return div.firstChild.href;
 }
-
-// function addBudgetItem() {
-//   var itemTemplate = document.querySelector("[data-id=template]");
-//   var itemContainer = document.getElementById("edititems");
-//   var clone = itemTemplate.cloneNode(true)
-//   // console.log(clone)
-//   clone.removeAttribute("data-id")
-//   itemContainer.appendChild(clone)
-//   // enable(clone)
-//   clone.querySelector("input[type=text]").focus()
-// }
 
 // getResource('/api/election')
 // getResource('/api/election/1')

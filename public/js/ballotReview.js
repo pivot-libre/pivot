@@ -1,12 +1,10 @@
 'use strict';
 
-// columnWithHeadAndWorkspace(document.body, "username", "", "My Elections")
-
 var workspace = document.querySelector(".workspace")
 var mainheader = document.querySelector(".mainheader")
 mainheader.innerHTML = "Review Ballot"
 
-anchorListDiv(workspace, "stepNavigator", {
+anchorListDiv(workspace, "", {
     "Rank Candidates": "/ballot/" + election,
     "Review ballot": "/ballotReview/" + election
   }
@@ -14,39 +12,16 @@ anchorListDiv(workspace, "stepNavigator", {
 
 removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
-var rankeditems = html(workspace, "ol", "", "id=rankeditems", "class=itemlist incrementsCounter");
-var unrankeditems = html(workspace, "ol", "", "id=unrankeditems", "class=itemlist");
+var rankeditems = html(workspace, "ol", "", {"id": "rankeditems", "class": "itemlist incrementsCounter"});
+var unrankeditems = html(workspace, "ol", "", {"id": "unrankeditems", "class": "itemlist"});
 
-candidate(rankeditems, "", "description", "cost", "", "")
-candidate(rankeditems, "", "description", "cost", "", "")
-candidate(unrankeditems, "", "description", "cost", "", "yes")
-candidate(unrankeditems, "", "description", "cost", "", "yes")
+loadBallot(election, displayBallot, li1)
 
-function candidate(parent, uniq, description, cost, tie, isNew) {
-  var tie = tie ? "data-tie=" + tie : ""
-  var box = html(parent, "li", "", "class=candidate", "onclick=candidateClick(this)", "data-id=" + uniq, tie);
+function li1(parent, uniq, description, cost, tie, isNew) {
+  var candidateLiAtts = {"class": "row1"}
+  if (tie) { candidateLiAtts["data-tie"] = tie }
+  var box = html(parent, "li", "", candidateLiAtts);
 
-  var rankingTools = div(box, "", "rankingTools");
-  div(rankingTools, "", "rankdisplay");
-
-  var details = div(box, "", "candidateDetails");
-  div(details, "", "candidateDescription", description);
-  div(details, "", "candidateCost", cost);
+  div(box, "", "text1square orderdisplay");
+  div(box, "", "text1 w75", description);
 }
-
-// loadElection(1, showElectionDetails)
-//
-// function loadElection(electionId, onSuccessFunction) {
-//   if (!electionId) {return}
-//   axios.get('/api/election/' + electionId)
-//     .then(response => {
-//       // console.log(response.data);
-//       onSuccessFunction(response.data)
-//     });
-// }
-// function showElectionDetails(details) {
-//   // console.log(details)
-//   // var detailsSpace = div(workspace, "", "")
-//   appendNewHtmlEl(workspace, "br")
-//   div(workspace, "", "", "election name: " + details.name)
-// }

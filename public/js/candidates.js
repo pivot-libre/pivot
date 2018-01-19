@@ -1,12 +1,10 @@
 'use strict';
 
-// columnWithHeadAndWorkspace(document.body, "username", "", "My Elections")
-
 var workspace = document.querySelector(".workspace")
 var mainheader = document.querySelector(".mainheader")
 mainheader.innerHTML = "Candidates"
 
-anchorListDiv(workspace, "button1", {
+anchorListDiv(workspace, "", {
     "Election details": "/administer/" + election,
     "Add/Edit candidates": "/candidates/" + election,
     "Manage electorate": "/electorate/" + election
@@ -15,15 +13,12 @@ anchorListDiv(workspace, "button1", {
 
 removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
-var edititems = html(workspace, "ol", "", "id=edititems", "class=itemlist incrementsCounter")
+var edititems = html(workspace, "ol", "", {"id": "edititems", "class": "itemlist incrementsCounter"})
 var drake = dragula([document.getElementById("edititems")])
-drake.on('drop', function (el) { onReorder(el); })
+// drake.on('drop', function (el) { onCandidateDrop(el); })
 
-// displayCandidate(edititems, "", "description 1", "$1")
-// displayCandidate(edititems, "", "description 2", "$2")
-
-div(workspace, "AddCandidate", "button1Item", "+ Add Candidates", "onclick=addCandidate()");
-div(workspace, "SaveElection", "button1Item", "Save Election", "onclick=saveCandidates(election)");
+div(workspace, "AddCandidate", "button1Item", "+ Add Candidates", {"onclick": "addCandidate()"});
+div(workspace, "SaveElection", "button1Item", "Save Election", {"onclick": "saveCandidates(election)"});
 
 loadCandidates(election, displayCandidates)
 
@@ -43,41 +38,39 @@ function displayCandidates(candidates) {
     displayCandidate(edititems, candidate.id, candidate.name, "", "")
   }
 }
-function displayCandidate(parent, uniq, description, cost, tie) {
-  var id = uniq ? "data-id=" + uniq : ""
-  var box = html(parent, "li", "", "class=candidate", id);
-
-  div(box, "", "banish", "", "onclick=removeCandidate(this.parentElement)");
-  div(box, "", "rankdisplay");
-
-  var details = div(box, "", "candidateDetails");
-  div(details, "", "grippy");
-  var candidateDescription = div(details, "", "candidateDescription");
-  html(candidateDescription, "input", "", "type=text", "value=" + (description || ""), "placeholder=Budget item title/description");
-  var candidateCost = div(details, "", "candidateCost");
-  html(candidateCost, "input", "", "type=text", "value=" + (cost || ""), "placeholder=cost");
+function displayCandidate(parent, id, description, cost, tie) {
+  var candidateLiAtts = {"class": "row1"}
+  // var candidateLiAtts = {"class": "candidate"}
+  if (id) { candidateLiAtts["data-id"] = id}
+  var box = html(parent, "li", "", candidateLiAtts);
+  //
+  // div(box, "", "banish", "", {"onclick": "removeCandidate(this.parentElement)"});
+  // div(box, "", "orderdisplay");
+  //
+  // var details = div(box, "", "candidateDetails");
+  // div(box, "", "grippy");
+  // var candidateDescription = div(details, "", "candidateDescription");
+  div(box, "", "grabbable", "#");
+  div(box, "", "grabbable", "^v");
+  html(box, "input", "", {"class": "text1 w75", "type": "text", "value": (description || ""), "placeholder": "Budget item title/description"});
+  div(box, "", "clickable1", "X", {"onclick": "removeCandidate(this.parentElement)"});
 }
 function addCandidate() {
   var itemContainer = document.getElementById("edititems");
   displayCandidate(edititems)
 }
+function removeCandidate(el) {
+  if (el.hasAttribute(["data-id"])) {console.log("I don't think there's currently an api to get rid of old candidates"); return}
+  el.parentElement.removeChild(el)
+}
 function saveCandidates(electionId) {
   var newCandidates = gatherNewCandidates(electionId)
-  // for (var i = 0; i < newCandidates.length; i++) {
-  //   saveCandidate(electionId, newCandidates[i])
-  // }
 }
 function saveCandidate(electionId, candidateData, candidateHtmlEl) {
-  // console.log(candidateData)
-  // console.log('/api/election/' + electionId + "/candidate")
+  console.log(candidateData)
   axios.post('/api/election/' + electionId + "/candidate", candidateData)
     .then(response => {
-      // function() {
-        // console.log(response.data)
         candidateHtmlEl.setAttribute("data-id", response.data.id)
-      // }
-  //     // console.log(response.data);
-  //     onSuccessFunction(response.data)
     });
 }
 function makeCandidatesArray () {
@@ -87,31 +80,10 @@ function makeCandidatesArray () {
 }
 function gatherNewCandidates(electionId) {
   var newCandidates = []
-  var candidateHtmlEls = document.querySelectorAll("#edititems .candidate:not([data-id])")
+  var candidateHtmlEls = document.querySelectorAll("#edititems li:not([data-id])")
   for (var i = 0; i < candidateHtmlEls.length; i++) {
     var candidateDef = {};
-    candidateDef.name = candidateHtmlEls[i].querySelector(".candidateDescription > input").value
-    // candidateDef.cost = candidateHtmlEls[i].querySelector(".candidateCost > input").value
-    // candidateDef.id = candidateHtmlEls[i].getAttribute("data-id") || ""
-    // newCandidates.push(candidateDef);
+    candidateDef.name = candidateHtmlEls[i].querySelector("input").value
     saveCandidate(electionId, candidateDef, candidateHtmlEls[i])
   }
-  // return newCandidates
 };
-
-// loadElection(1, showElectionDetails)
-//
-// function loadElection(electionId, onSuccessFunction) {
-//   if (!electionId) {return}
-//   axios.get('/api/election/' + electionId)
-//     .then(response => {
-//       // console.log(response.data);
-//       onSuccessFunction(response.data)
-//     });
-// }
-// function showElectionDetails(details) {
-//   // console.log(details)
-//   // var detailsSpace = div(workspace, "", "")
-//   appendNewHtmlEl(workspace, "br")
-//   div(workspace, "", "", "election name: " + details.name)
-// }
