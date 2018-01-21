@@ -68,6 +68,10 @@ def accept(user, code):
     url = 'invite/accept'
     return user_post(user, url, {"code": code})
 
+def acceptable(user):
+    url = 'invite/acceptable'
+    return user_post(user, url, {})
+
 def election_result(user, election):
     url = 'election/%d/result' % election['id']
     return user_get(user, url)
@@ -111,6 +115,8 @@ def test1():
     code = invite_status['code']
     electors = get_electors(userA, election)
     assert(len(electors) == 1)
+    codes = [inv['code'] for inv in acceptable(userB)]
+    assert (code in codes)
     accept(userB, code)
     electors = get_electors(userA, election)
     assert(len(electors) == 2)
