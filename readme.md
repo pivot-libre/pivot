@@ -16,6 +16,19 @@ php artisan migrate             # Run database migrations
 php artisan passport:install    # Create Oauth2 Tokens
 ```
 
+## Running Tests
+
+In addition to running the installation steps, you will need to run the following.
+
+```shell
+#create a test database
+mysql -e 'create database homestead_test;'
+#populate the database
+php artisan migrate --database=testing
+#run the tests
+phpunit
+```
+
 ## Compiling Assets
 
 If you're going to be working in [Sass](http://sass-lang.com/) or
@@ -46,3 +59,5 @@ php artisan passport:install
 
 ## REST API
 Once you have pivot up and running, visit http://yourhostname.here/docs in a web browser to view dynamic Swagger REST API documentation.
+
+
