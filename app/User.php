@@ -53,4 +53,13 @@ class User extends Authenticatable
 
         return $invite;
     }
+
+    /**
+     * List invitations that have been sent to user's email
+     */
+    public function acceptable()
+    {
+        $invites = Invite::where('email', $this->email)->where('accepted_at', null)->get();
+        return $invites;
+    }
 }

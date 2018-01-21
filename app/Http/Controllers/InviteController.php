@@ -175,6 +175,11 @@ class InviteController extends Controller
         );
     }
 
+    public function acceptable(Request $request)
+    {
+        return Auth::user()->acceptable();
+    }
+
     /**
      * Remove the specified resource from storage.
      *
