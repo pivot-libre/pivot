@@ -177,17 +177,7 @@ class InviteController extends Controller
 
     public function acceptable(Request $request)
     {
-        $invites = Auth::user()->acceptable();
-        $results = array();
-
-        foreach ($invites as $invite) {
-            $election = $invite->elector->election;
-            $row = array("election_name" => $election->name,
-                         "code" => $invite->code);
-            $results[$invite->code] = $row;
-        }
-
-        return array_values($results);
+        return Auth::user()->acceptable();
     }
 
     /**
