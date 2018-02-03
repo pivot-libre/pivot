@@ -14,6 +14,7 @@ def dump(out):
 
 # generic API
 def user_get(user, url):
+    global URL
     print 'GET '+url
     headers = {'Authorization': 'Bearer '+user['token']}
     r = requests.get(url = URL + '/' + url, headers=headers)
@@ -21,11 +22,12 @@ def user_get(user, url):
     try:
         return json.loads(d)
     except:
-        print 'could not parse: ' + d[:100] + '...'
+        print 'could not parse: ' + d + '...'
         dump(d)
         assert(0)
 
 def user_post(user, url, body):
+    global URL
     print 'POST '+url
     headers = {'Authorization': 'Bearer '+user['token']}
     r = requests.post(url = URL + '/' + url, headers=headers, data=json.dumps(body))
@@ -33,7 +35,7 @@ def user_post(user, url, body):
     try:
         return json.loads(d)
     except:
-        print 'could not parse: ' + d[:100] + '...'
+        print 'could not parse: ' + d + '...'
         dump(d)
         assert(0)
 
@@ -85,6 +87,7 @@ def batchvote_view(user, election):
     return user_get(user, url)
 
 def test1():
+    print "\n============= TEST 1 ============\n"
     users = load_users()
     userA = users[0]
     userB = users[1]
@@ -149,8 +152,36 @@ def test1():
     print election_result(userA, election)
     print election_result(userB, election)
 
-def main():
+def test2():
+    print "\n============= TEST 2 ============\n"
+    users = load_users()
+    userA = users[0]
+    userB = users[1]
+
+    election = create_election(userA, 'Triceritops Rex')
+    invite_status = invite(userA, election, userA['email'])
+    A = create_candidate(userA, election, 'candidate-A')
+    B = create_candidate(userA, election, 'candidate-B')
+    C = create_candidate(userA, election, 'candidate-C')
+    D = create_candidate(userA, election, 'candidate-D')
+    batch = True
+    votes = [
+        {'candidate_id': A['id'], 'rank': 2},
+        {'candidate_id': B['id'], 'rank': 1},
+        {'candidate_id': C['id'], 'rank': 3},
+        {'candidate_id': C['id'], 'rank': 4},
+    ]
+    bv1 = batchvote(userA, election, votes)
+    print election_result(userA, election)
+
+def main(url = ''):
+    global URL
+    if len(url) > 0:
+        URL = url
+    else:
+        print "\n no url specified. Using default " + URL
     test1()
+    test2()
 
 if __name__ == '__main__':
-    main()
+    main(*sys.argv[1:])
