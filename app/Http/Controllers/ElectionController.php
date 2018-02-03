@@ -76,8 +76,9 @@ class ElectionController extends Controller
         $election->name = $request->json()->get('name');
         $election->creator()->associate($creator);
         $election->save();
-
-        return redirect()->route('election.show', ['id' => $election->id]);
+        $location = route('election.index', ['id' => $election->id]);
+        $response = response(null, 201)->header('Location', $location);
+        return $response;
     }
 
     /**
