@@ -118,7 +118,8 @@ def test1():
     code = invite_status['code']
     electors = get_electors(userA, election)
     assert(len(electors) == 1)
-    codes = [inv['code'] for inv in acceptable(userB)]
+    acceptables = acceptable(userB)
+    codes = [inv['code'] for inv in acceptables]
     assert (code in codes)
     accept(userB, code)
     electors = get_electors(userA, election)
@@ -160,6 +161,8 @@ def test2():
 
     election = create_election(userA, 'Triceritops Rex')
     invite_status = invite(userA, election, userA['email'])
+    code = invite_status['code']
+    accept(userA, code)
     A = create_candidate(userA, election, 'candidate-A')
     B = create_candidate(userA, election, 'candidate-B')
     C = create_candidate(userA, election, 'candidate-C')
