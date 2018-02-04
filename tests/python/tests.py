@@ -22,7 +22,7 @@ def user_get(user, url):
     try:
         return json.loads(d)
     except:
-        print 'could not parse: ' + d + '...'
+        print 'could not parse: ' + d[:100] + '...'
         dump(d)
         assert(0)
 
@@ -35,7 +35,7 @@ def user_post(user, url, body):
     try:
         return json.loads(d)
     except:
-        print 'could not parse: ' + d + '...'
+        print 'could not parse: ' + d[:100] + '...'
         dump(d)
         assert(0)
 
@@ -190,7 +190,7 @@ def main(url = ''):
         URL = url
     else:
         print "\n no url specified. Using default " + URL
-    #test1()
+    test1()
     test2()
 
 if __name__ == '__main__':
