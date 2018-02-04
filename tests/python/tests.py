@@ -1,9 +1,27 @@
 #!/usr/bin/env python
-import os, sys, json, requests
+import os, sys, json, requests, time, re
 from collections import defaultdict as ddict
 
 URL = 'http://homestead.test/api'
 
+class LatencyStats:
+    def __init__(self):
+        self.latencies = ddict(list)
+
+    def add(self, name, latency):
+        name = re.sub(r'\d+', '<N>', name)
+        self.latencies[name].append(latency)
+
+    def dump(self):
+        avg = {}
+        for k, values in self.latencies.iteritems():
+            avg[k] = sum(values) / len(values)
+        keys = sorted(avg.keys(), key=lambda k: -avg[k])
+        for k in keys:
+            print str(int(avg[k]*1000)).rjust(4) + ' ms   ' + k + ' [%d calls]' % len(self.latencies[k])
+
+LATENCY_STATS = LatencyStats()
+        
 def load_users():
     with open('users.json') as f:
         return json.loads(f.read())["users"]
@@ -17,8 +35,11 @@ def user_get(user, url):
     global URL
     print 'GET '+url
     headers = {'Authorization': 'Bearer '+user['token']}
+    t0 = time.time()
     r = requests.get(url = URL + '/' + url, headers=headers)
     d = r.content
+    t1 = time.time()
+    LATENCY_STATS.add('GET '+url, t1-t0)
     try:
         return json.loads(d)
     except:
@@ -30,8 +51,11 @@ def user_post(user, url, body):
     global URL
     print 'POST '+url
     headers = {'Authorization': 'Bearer '+user['token']}
+    t0 = time.time()
     r = requests.post(url = URL + '/' + url, headers=headers, data=json.dumps(body))
     d = r.content
+    t1 = time.time()
+    LATENCY_STATS.add('POST '+url, t1-t0)
     try:
         return json.loads(d)
     except:
@@ -192,6 +216,9 @@ def main(url = ''):
         print "\n no url specified. Using default " + URL
     test1()
     test2()
+
+    print "\n============= LATENCY STATUS ============\n"
+    LATENCY_STATS.dump()
 
 if __name__ == '__main__':
     main(*sys.argv[1:])
