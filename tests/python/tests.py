@@ -14,6 +14,7 @@ def dump(out):
 
 # generic API
 def user_get(user, url):
+    global URL
     print 'GET '+url
     headers = {'Authorization': 'Bearer '+user['token']}
     r = requests.get(url = URL + '/' + url, headers=headers)
@@ -26,6 +27,7 @@ def user_get(user, url):
         assert(0)
 
 def user_post(user, url, body):
+    global URL
     print 'POST '+url
     headers = {'Authorization': 'Bearer '+user['token']}
     r = requests.post(url = URL + '/' + url, headers=headers, data=json.dumps(body))
@@ -85,6 +87,7 @@ def batchvote_view(user, election):
     return user_get(user, url)
 
 def test1():
+    print "\n============= TEST 1 ============\n"
     users = load_users()
     userA = users[0]
     userB = users[1]
@@ -115,7 +118,8 @@ def test1():
     code = invite_status['code']
     electors = get_electors(userA, election)
     assert(len(electors) == 1)
-    codes = [inv['code'] for inv in acceptable(userB)]
+    acceptables = acceptable(userB)
+    codes = [inv['code'] for inv in acceptables]
     assert (code in codes)
     accept(userB, code)
     electors = get_electors(userA, election)
@@ -149,8 +153,45 @@ def test1():
     print election_result(userA, election)
     print election_result(userB, election)
 
-def main():
+def test2():
+    """
+    This tests one user voting on their own election.
+    """
+    print "\n============= TEST 2 ============\n"
+    users = load_users()
+    userA = users[0]
+    userB = users[1]
+
+    election = create_election(userA, 'Triceritops Rex')
+    invite_status = invite(userA, election, userA['email'])
+    code = invite_status['code']
+    accept(userA, code)
+
+    A = create_candidate(userA, election, 'candidate-A')
+    B = create_candidate(userA, election, 'candidate-B')
+    C = create_candidate(userA, election, 'candidate-C')
+    D = create_candidate(userA, election, 'candidate-D')
+
+    votes = [
+        {'candidate_id': A['id'], 'rank': 1},
+        {'candidate_id': B['id'], 'rank': 2},
+        {'candidate_id': C['id'], 'rank': 3},
+        {'candidate_id': D['id'], 'rank': 4},
+    ]
+    bv1 = batchvote(userA, election, votes)
+    results = election_result(userA, election)
+    result_names = [result['name'] for result in results['order']]
+    assert(result_names == [u'candidate-A', u'candidate-B', u'candidate-C', u'candidate-D'])
+    print result_names
+
+def main(url = ''):
+    global URL
+    if len(url) > 0:
+        URL = url
+    else:
+        print "\n no url specified. Using default " + URL
     test1()
+    test2()
 
 if __name__ == '__main__':
-    main()
+    main(*sys.argv[1:])
