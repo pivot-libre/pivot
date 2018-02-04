@@ -154,6 +154,9 @@ def test1():
     print election_result(userB, election)
 
 def test2():
+    """
+    This tests one user voting on their own election.
+    """
     print "\n============= TEST 2 ============\n"
     users = load_users()
     userA = users[0]
@@ -163,19 +166,23 @@ def test2():
     invite_status = invite(userA, election, userA['email'])
     code = invite_status['code']
     accept(userA, code)
+
     A = create_candidate(userA, election, 'candidate-A')
     B = create_candidate(userA, election, 'candidate-B')
     C = create_candidate(userA, election, 'candidate-C')
     D = create_candidate(userA, election, 'candidate-D')
-    batch = True
+
     votes = [
-        {'candidate_id': A['id'], 'rank': 2},
-        {'candidate_id': B['id'], 'rank': 1},
+        {'candidate_id': A['id'], 'rank': 1},
+        {'candidate_id': B['id'], 'rank': 2},
         {'candidate_id': C['id'], 'rank': 3},
-        {'candidate_id': C['id'], 'rank': 4},
+        {'candidate_id': D['id'], 'rank': 4},
     ]
     bv1 = batchvote(userA, election, votes)
-    print election_result(userA, election)
+    results = election_result(userA, election)
+    result_names = [result['name'] for result in results['order']]
+    assert(result_names == [u'candidate-A', u'candidate-B', u'candidate-C', u'candidate-D'])
+    print result_names
 
 def main(url = ''):
     global URL
@@ -183,7 +190,7 @@ def main(url = ''):
         URL = url
     else:
         print "\n no url specified. Using default " + URL
-    test1()
+    #test1()
     test2()
 
 if __name__ == '__main__':
