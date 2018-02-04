@@ -10,10 +10,27 @@ Before you start make sure you're running PHP >= 7.1 and have
 ```shell
 composer install                # Install PHP dependencies
 cp .env.example .env            # Create .env config file
-vim .env                        # Update database credentials
+vim .env                        # Update database credentials, add email service info
 php artisan key:generate        # Create application key
 php artisan migrate             # Run database migrations
 php artisan passport:install    # Create Oauth2 Tokens
+```
+
+## Tests
+
+The project has two ways of executing tests.
+
+PHPUnit tests can be executed simply by running `phpunit` on the command line at the root of the repository.
+
+Some integration tests are written in Python. The python script reads from tests/python/users.json. Create two users in the Pivot web UI, create personal access tokens, and then copy both users emails and tokens into the json file.
+
+At this point you are ready to run the script. The script accepts a single optional param - a url pointing to the /api endpoint of a running Pivot app. If no value is specified, a default local homestead url is assumed.
+
+Example:
+
+```shell
+cd tests/python
+python tests.py http://pivot.app/api
 ```
 
 ## Compiling Assets
