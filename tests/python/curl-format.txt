@@ -1,0 +1,10 @@
+\n\n
+      time_redirect:  %{time_redirect} [time taken for any redirection steps]\n
+    time_namelookup:  %{time_namelookup} [time until name resolution (DNS) is complete]\n
+       time_connect:  %{time_connect} [time until TCP connection is setup]\n
+    time_appconnect:  %{time_appconnect} [time until SSL is setup]\n
+   time_pretransfer:  %{time_pretransfer} [time until server can start computing result]\n
+ time_starttransfer:  %{time_starttransfer} [time until the server is ready to send the first byte]\n
+                      ----------\n
+         time_total:  %{time_total}\n
+\n

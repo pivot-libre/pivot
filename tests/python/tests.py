@@ -1,8 +1,6 @@
 #!/usr/bin/env python
-import os, sys, json, requests, time, re
+import os, sys, json, requests, time, re, argparse
 from collections import defaultdict as ddict
-
-URL = 'http://homestead.test/api'
 
 class LatencyStats:
     def __init__(self):
@@ -21,9 +19,17 @@ class LatencyStats:
             print str(int(avg[k]*1000)).rjust(4) + ' ms   ' + k + ' [%d calls]' % len(self.latencies[k])
 
 class API:
-    def __init__(self):
+    def __init__(self, curltrace):
         self.latency_stats = LatencyStats()
-    
+        self.curl = open(curltrace, 'w') if curltrace else None
+
+    def __enter__(self):
+        return self
+        
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.curl:
+            self.curl.close()
+        
     def load_users(self):
         with open('users.json') as f:
             return json.loads(f.read())["users"]
@@ -33,18 +39,40 @@ class API:
             f.write(out)
 
     def dump_stats(self):
+        print "\n============= LATENCY STATUS ============\n"
         self.latency_stats.dump()
 
+    def dump_curl(self, method, headers, url, data=None):
+        if not self.curl:
+            return
+        h = ''
+        for k,v in headers.iteritems():
+            h += '-H "%s: %s"' % (k,v)
+        cmd = 'curl -X %s %s %s' % (method, URL + '/' + url, h)
+        if data:
+            cmd += ' -d \'%s\'' % data
+        cmd += ' -w "@curl-format.txt" -L -v'
+        
+        self.curl.write(cmd + '\n\n')
+        self.curl.flush()
+        
     # generic API
     def user_get(self, user, url):
         global URL
         print 'GET '+url
         headers = {'Authorization': 'Bearer '+user['token']}
+
+        # add curl equivalent to trace
+        self.dump_curl('GET', headers, url)
+
+        # issue request and record latency
         t0 = time.time()
         r = requests.get(url = URL + '/' + url, headers=headers)
         d = r.content
         t1 = time.time()
         self.latency_stats.add('GET '+url, t1-t0)
+
+        # dump response to file if there was an error
         try:
             return json.loads(d)
         except:
@@ -56,11 +84,19 @@ class API:
         global URL
         print 'POST '+url
         headers = {'Authorization': 'Bearer '+user['token']}
+        data = json.dumps(body)
+
+        # add curl equivalent to trace
+        self.dump_curl('POST', headers, url, data)
+
+        # issue request and record latency
         t0 = time.time()
-        r = requests.post(url = URL + '/' + url, headers=headers, data=json.dumps(body))
+        r = requests.post(url = URL + '/' + url, headers=headers, data=data)
         d = r.content
         t1 = time.time()
         self.latency_stats.add('POST '+url, t1-t0)
+
+        # dump response to file if there was an error
         try:
             return json.loads(d)
         except:
@@ -138,12 +174,10 @@ def test1(api):
 
     # electors
     invite_status = api.invite(userA, election, userA['email'])
-    print 'invite_status: %s' % str(invite_status)
     code = invite_status['code']
     print code
     api.accept(userA, code)
     invite_status = api.invite(userA, election, userB['email'])
-    print 'invite_status: %s' % str(invite_status)
     code = invite_status['code']
     electors = api.get_electors(userA, election)
     assert(len(electors) == 1)
@@ -213,18 +247,20 @@ def test2(api):
     assert(result_names == [u'candidate-A', u'candidate-B', u'candidate-C', u'candidate-D'])
     print result_names
 
-def main(url = ''):
+def main(url, curltrace):
     global URL
     if len(url) > 0:
         URL = url
     else:
         print "\n no url specified. Using default " + URL
-    api = API()
-    test1(api)
-    test2(api)
-
-    print "\n============= LATENCY STATUS ============\n"
-    api.dump_stats()
+    with API(curltrace=curltrace) as api:
+        test1(api)
+        test2(api)
+        api.dump_stats()
 
 if __name__ == '__main__':
-    main(*sys.argv[1:])
+    parser = argparse.ArgumentParser(description='Run some tests.')
+    parser.add_argument('--url', help='where to direct API calls', default='http://homestead.test/api')
+    parser.add_argument('--curltrace', help='dumps a curl trace to given file', default='')
+    args = parser.parse_args()
+    main(url=args.url, curltrace=args.curltrace)
