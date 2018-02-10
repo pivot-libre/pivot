@@ -162,17 +162,8 @@ class InviteController extends Controller
     public function accept(Request $request)
     {
         $code = $request->json()->get('code');
-
         $invite = Auth::user()->accept($code);
-
-        $election = $invite->elector->election;
-
-        return redirect()->route(
-            'election.invite.show', [
-                'election' => $election,
-                'invite' => $invite,
-            ]
-        );
+        return $invite;
     }
 
     public function acceptable(Request $request)

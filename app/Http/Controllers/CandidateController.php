@@ -92,13 +92,7 @@ class CandidateController extends Controller
         $candidate->election_id = $election->id;
         $candidate->save();
 
-        return redirect()->route(
-            'election.candidate.show',
-            [
-                'election' => $election,
-                'candidate' => $candidate,
-            ]
-        );
+        return $candidate;
     }
 
     /**

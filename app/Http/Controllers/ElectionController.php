@@ -77,7 +77,7 @@ class ElectionController extends Controller
         $election->creator()->associate($creator);
         $election->save();
 
-        return redirect()->route('election.show', ['id' => $election->id]);
+        return $election;
     }
 
     /**
