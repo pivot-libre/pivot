@@ -46,8 +46,13 @@ class Election extends Model
 
     public function send_invite_email($email, $code)
     {
+        // don't even try if the mail driver is not configured
+        if (env('MAIL_DRIVER', null) == null) {
+            return 'mail driver not configured';
+        }
+
         $msg = 'Your Pivot Libre code is '.$code;
-        
+
         try {
             Mail::raw($msg, function ($message) use ($email) {
                 $name = 'Elector';

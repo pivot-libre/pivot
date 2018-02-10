@@ -29,4 +29,5 @@ Route::resource('election.candidate.rank', 'CandidateRankController', ['only' =>
 Route::resource('election.result', 'ResultController', ['only' => ['index']]);
 Route::resource('election.invite', 'InviteController', ['only' => ['index', 'show', 'store', 'destroy']]);
 Route::post('/invite/accept', 'InviteController@accept')->name('invite.accept');
-Route::post('/invite/acceptable', 'InviteController@acceptable')->name('invite.acceptable');
+Route::post('/invite/acceptable', 'InviteController@acceptable')->name('invite.acceptable'); // TODO: remove this (uses GET instead)
+Route::get('/invite/acceptable', 'InviteController@acceptable')->name('invite.acceptable');

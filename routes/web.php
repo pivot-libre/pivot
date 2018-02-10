@@ -13,17 +13,12 @@
 
 Route::get('/', function () {
   return view('myElections');
-    // return view('welcome');
 });
 
 Auth::routes();
 
 Route::get('/profile', 'ProfileController@index');
 Route::get('/profile/accept', 'ProfileController@accept');
-Route::get('test', function () {
-  return "Hello";
-  // return view('new_account');
-});
 Route::get('/ballot/{election}', function ($election) {
     return view('ballot', ['election' => $election]);
 });
