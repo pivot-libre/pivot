@@ -49,7 +49,7 @@ class API:
             return json.loads(d)
         except:
             print 'could not parse: ' + d[:100] + '...'
-            dump(d)
+            self.dump(d)
             assert(0)
 
     def user_post(self, user, url, body):
@@ -65,7 +65,7 @@ class API:
             return json.loads(d)
         except:
             print 'could not parse: ' + d[:100] + '...'
-            dump(d)
+            self.dump(d)
             assert(0)
 
     # pivot API wrappers
@@ -101,7 +101,7 @@ class API:
 
     def acceptable(self, user):
         url = 'invite/acceptable'
-        return self.user_post(user, url, {})
+        return self.user_get(user, url)
 
     def election_result(self, user, election):
         url = 'election/%d/result' % election['id']
