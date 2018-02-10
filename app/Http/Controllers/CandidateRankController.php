@@ -39,14 +39,7 @@ class CandidateRankController extends Controller
         $rank->rank = $request->json()->get('rank');
         $rank->save();
 
-        return redirect()->route(
-            'election.candidate.rank.show',
-            [
-                'election' => $election,
-                'candidate' => $candidate,
-                'rank' => $rank
-            ]
-        );
+        return $rank;
     }
 
     public function show(Election $election, Candidate $candidate, CandidateRank $rank)
