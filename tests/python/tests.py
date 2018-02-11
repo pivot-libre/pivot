@@ -191,8 +191,6 @@ def test1(api):
     api.accept(userB, code)
     electors = api.get_electors(userA, election)
     assert(len(electors) == 2)
-    electors = api.get_electors(userB, election)
-    assert(len(electors) == 2)
 
     # verify B can now see it after being added
     len3B = len(api.get_elections(userB))
@@ -262,6 +260,8 @@ def test3(api):
 
     election = api.create_election(userA, 'test3-election')
     api.add_elector(election, userA, userB)
+    print api.get_electors(userA, election)
+    print api.get_electors(userB, election)
     
 def main(url, curltrace):
     with API(url=url, curltrace=curltrace) as api:

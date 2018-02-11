@@ -15,11 +15,24 @@ class ElectionPolicy
      *
      * @param  \App\User  $user
      * @param  \App\Election  $election
-     * @return mixed
+     * @return bool
      */
     public function view(User $user, Election $election)
     {
-        return $election->creator->is($user) || $election->electors->contains($user);
+        return $this->is_admin($election, $user) || $this->is_elector($election, $user);
+    }
+
+    /**
+     * Determine whether the user can view electors associated with the election.
+     *
+     * @param  \App\User  $user
+     * @param  \App\Election  $election
+     * @return bool
+     */
+    public function view_electors(User $user, Election $election)
+    {
+        // TODO: should electors be able to see other electors?
+        return $this->is_admin($election, $user) || $this->is_elector($election, $user);
     }
 
     /**
@@ -27,7 +40,7 @@ class ElectionPolicy
      *
      * @param  \App\User  $user
      * @param  \App\Election  $election
-     * @return mixed
+     * @return bool
      */
     public function update(User $user, Election $election)
     {
@@ -39,10 +52,34 @@ class ElectionPolicy
      *
      * @param  \App\User  $user
      * @param  \App\Election  $election
-     * @return mixed
+     * @return bool
      */
     public function delete(User $user, Election $election)
     {
         return $election->creator->is($user);
+    }
+
+    /**
+     * Determine whether the user is an election admin
+     *
+     * @param  \App\User  $user
+     * @param  \App\Election  $election
+     * @return bool
+     */
+    public function is_admin(Election $election, User $user)
+    {
+        return $election->creator->is($user);
+    }
+
+    /**
+     * Determine whether the user is an election admin
+     *
+     * @param  \App\User  $user
+     * @param  \App\Election  $election
+     * @return bool
+     */
+    public function is_elector(Election $election, User $user)
+    {
+        return $election->electors->contains($user);
     }
 }
