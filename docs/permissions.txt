@@ -1,0 +1,75 @@
+This doc gives an overview of permissions necessary to make various
+API calls.  This is subject to change, so the following only applies
+to pivot as of the following commit:
+
+commit 3576e0a597caf559c2353d5799cb5fbb4f2edd13 (HEAD -> master, origin/master)
+Author: tylerharter <tylerharter@gmail.com>
+Date:   Sun Feb 11 17:28:12 2018 -0600
+
+We have several concepts:
+ - users
+ - roles
+ - capabilities
+ - interfaces
+
+Each user may have different roles with respect to different
+elections.  For example, a user might be an admin of one election, a
+voter in another, and invited in a third.  A user may have multiple
+roles in the same election (e.g., an admin and an elector).
+
+Each role is associated with election capabilities.  Permission to
+call a given API endpoint is associated with at most one capability.
+
+The following APIs (defined in pivot/routes/api.php) are associated
+with the following election capabilities:
+
+API                                      Election Capability
+================================================================================
+CandidateController.destroy              <update>
+CandidateController.index                <view>
+CandidateController.show                 <view>
+CandidateController.store                <update>
+CandidateRankController.batchvote        <vote>
+CandidateRankController.batchvote_view   <vote>
+ElectionController.destroy               <delete>
+ElectionController.index                 <NONE>
+ElectionController.show                  <view>
+ElectionController.store                 <NONE>
+ElectionController.update                <update>
+ElectorController.destroy                <update>
+ElectorController.index                  <view_electors>
+ElectorController.show                   <view_electors>
+InviteController.accept                  <become_elector>
+InviteController.acceptable              <NONE>
+InviteController.destroy                 <update>
+InviteController.index                   <update>
+InviteController.show                    <update>
+InviteController.store                   <update>
+
+Note that three of the above calls require no capability.  For
+example, anybody can call ElectionController.store to create a new
+election.  As a matter of style, any handler not associated with a
+capability should begin with an "// auth note: ..." comment to explain
+why capability-based access is not necessary.
+
+The policy that decides which capabilities a role grants are defined
+programatically (in "pivot/app/Policies/ElectionPolicy.php").  For
+easy reference, the following shows what roles entail access to each
+capability.
+
+Election Capability       Roles
+================================================================================
+view                      is_admin OR is_elector
+pview_electors            is_admin OR is_elector
+view_results              is_admin OR is_elector
+vote                      is_elector
+update                    is_admin
+delete                    is_admin
+become_elector            is_invited
+
+Note that some of the decisions in the above table are not obvious.
+For example, should electors be able to see the other electors that
+are part of an election (view_electors capability)?  Should electors
+be able to tally votes (view_results capabilitiy)?  The current
+policies may evolve based on further discussion, or we may make them
+configurable if necessary.
