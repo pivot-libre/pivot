@@ -28,8 +28,9 @@ class ElectionController extends Controller
      */
     public function index()
     {
-        $id = Auth::id();
+        // auth note: viewing your own elections requires no special privilege
         $user = Auth::user();
+        $id = Auth::id();
 
         // TODO: add more election metadata:
         // - number of people who voted (X of Y)
@@ -70,11 +71,12 @@ class ElectionController extends Controller
      */
     public function store(Request $request)
     {
-        $creator = Auth::user();
+        // auth note: creating your own elections requires no special privilege
+        $user = Auth::user();
 
         $election = new Election();
         $election->name = $request->json()->get('name');
-        $election->creator()->associate($creator);
+        $election->creator()->associate($user);
         $election->save();
 
         return $election;
@@ -111,7 +113,6 @@ class ElectionController extends Controller
 
         return $election;
     }
-
 
     /**
      * Update the specified resource in storage.

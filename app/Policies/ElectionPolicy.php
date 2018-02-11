@@ -23,17 +23,6 @@ class ElectionPolicy
     }
 
     /**
-     * Determine whether the user can create elections.
-     *
-     * @param  \App\User  $user
-     * @return mixed
-     */
-    public function create(User $user)
-    {
-        return true;
-    }
-
-    /**
      * Determine whether the user can update the election.
      *
      * @param  \App\User  $user
