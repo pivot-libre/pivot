@@ -121,7 +121,7 @@ class ResultController extends Controller
      */
     public function index(Election $election)
     {
-        $this->authorize('view', $election);
+        $this->authorize('view_results', $election);
         
         $electionId = $election->getKey();
         
