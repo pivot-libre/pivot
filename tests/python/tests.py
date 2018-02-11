@@ -19,8 +19,9 @@ class LatencyStats:
             print str(int(avg[k]*1000)).rjust(4) + ' ms   ' + k + ' [%d calls]' % len(self.latencies[k])
 
 class API:
-    def __init__(self, curltrace):
+    def __init__(self, url, curltrace):
         self.latency_stats = LatencyStats()
+        self.url = url
         self.curl = open(curltrace, 'w') if curltrace else None
 
     def __enter__(self):
@@ -48,7 +49,7 @@ class API:
         h = ''
         for k,v in headers.iteritems():
             h += '-H "%s: %s"' % (k,v)
-        cmd = 'curl -X %s %s %s' % (method, URL + '/' + url, h)
+        cmd = 'curl -X %s %s %s' % (method, self.url + '/' + url, h)
         if data:
             cmd += ' -d \'%s\'' % data
         cmd += ' -w "@curl-format.txt" -L -v'
@@ -58,7 +59,6 @@ class API:
         
     # generic API
     def user_get(self, user, url):
-        global URL
         print 'GET '+url
         headers = {'Authorization': 'Bearer '+user['token']}
 
@@ -67,7 +67,7 @@ class API:
 
         # issue request and record latency
         t0 = time.time()
-        r = requests.get(url = URL + '/' + url, headers=headers)
+        r = requests.get(url = self.url + '/' + url, headers=headers)
         d = r.content
         t1 = time.time()
         self.latency_stats.add('GET '+url, t1-t0)
@@ -81,7 +81,6 @@ class API:
             assert(0)
 
     def user_post(self, user, url, body):
-        global URL
         print 'POST '+url
         headers = {'Authorization': 'Bearer '+user['token']}
         data = json.dumps(body)
@@ -91,7 +90,7 @@ class API:
 
         # issue request and record latency
         t0 = time.time()
-        r = requests.post(url = URL + '/' + url, headers=headers, data=data)
+        r = requests.post(url = self.url + '/' + url, headers=headers, data=data)
         d = r.content
         t1 = time.time()
         self.latency_stats.add('POST '+url, t1-t0)
@@ -150,6 +149,11 @@ class API:
     def batchvote_view(self, user, election):
         url = 'election/%d/batchvote' % election['id']
         return self.user_get(user, url)
+
+    def add_elector(self, election, admin, user):
+        invite_status = self.invite(admin, election, user['email'])
+        code = invite_status['code']
+        self.accept(user, code)
 
 def test1(api):
     print "\n============= TEST 1 ============\n"
@@ -247,15 +251,23 @@ def test2(api):
     assert(result_names == [u'candidate-A', u'candidate-B', u'candidate-C', u'candidate-D'])
     print result_names
 
+def test3(api):
+    """
+    This tests authorization of various API calls
+    """
+    print "\n============= TEST 3 ============\n"
+    users = api.load_users()
+    userA = users[0]
+    userB = users[1]
+
+    election = api.create_election(userA, 'test3-election')
+    api.add_elector(election, userA, userB)
+    
 def main(url, curltrace):
-    global URL
-    if len(url) > 0:
-        URL = url
-    else:
-        print "\n no url specified. Using default " + URL
-    with API(curltrace=curltrace) as api:
+    with API(url=url, curltrace=curltrace) as api:
         test1(api)
         test2(api)
+        test3(api)
         api.dump_stats()
 
 if __name__ == '__main__':
