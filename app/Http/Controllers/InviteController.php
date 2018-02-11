@@ -124,7 +124,7 @@ class InviteController extends Controller
      */
     public function show(Election $election, Invite $invite)
     {
-        $this->authorize('view', $election);
+        $this->authorize('update', $election);
 
         return $invite;
     }

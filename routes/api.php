@@ -17,7 +17,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::resource('election', 'ElectionController', ['only' => ['index', 'store', 'show', 'update', 'delete']]);
+Route::resource('election', 'ElectionController', ['only' => ['index', 'store', 'show', 'update', 'destroy']]);
 
 Route::resource('election.candidate', 'CandidateController', ['only' => ['index', 'show', 'store', 'destroy']]);
 
