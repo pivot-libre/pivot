@@ -42,7 +42,7 @@ class ElectorController extends Controller
      */
     public function index(Election $election)
     {
-        $this->authorize('view', $election);
+        $this->authorize('view_electors', $election);
 
         return $election->electors;
     }
@@ -80,7 +80,7 @@ class ElectorController extends Controller
      */
     public function show(Election $election, User $user)
     {
-        $this->authorize('view', $election);
+        $this->authorize('view_electors', $election);
 
         if ($election->electors->contains($user)) {
             return $user;
