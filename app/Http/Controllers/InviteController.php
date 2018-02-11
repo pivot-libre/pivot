@@ -86,6 +86,7 @@ class InviteController extends Controller
     public function store(Request $request, Election $election)
     {
         $this->authorize('update', $election);
+
         $email = $request->json()->get('email');
         $invite = $election->invite($email);
         return $invite;
@@ -162,12 +163,16 @@ class InviteController extends Controller
     public function accept(Request $request)
     {
         $code = $request->json()->get('code');
+        $election = Invite::where('code', $code)->firstOrFail()->elector->election;
+        $this->authorize('become_elector', $election);
+
         $invite = Auth::user()->accept($code);
         return $invite;
     }
 
     public function acceptable(Request $request)
     {
+        // auth note: viewing your own invitations requires no special privilege
         $invites = Auth::user()->acceptable();
         $results = array();
 

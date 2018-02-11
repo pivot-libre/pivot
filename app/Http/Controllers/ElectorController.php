@@ -98,7 +98,7 @@ class ElectorController extends Controller
      */
     public function destroy(Election $election, User $user)
     {
-        $this->authorize('delete', $election);
+        $this->authorize('update', $election);
 
         $electors = Elector::where([
             'election_id' => $election->id,

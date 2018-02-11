@@ -23,6 +23,7 @@ class API:
         self.latency_stats = LatencyStats()
         self.url = url
         self.curl = open(curltrace, 'w') if curltrace else None
+        self.next_should_fail = False
 
     def __enter__(self):
         return self
@@ -56,6 +57,9 @@ class API:
         
         self.curl.write(cmd + '\n\n')
         self.curl.flush()
+
+    def expect_fail(self):
+        self.next_should_fail = True
         
     # generic API
     def user_get(self, user, url):
@@ -74,11 +78,18 @@ class API:
 
         # dump response to file if there was an error
         try:
-            return json.loads(d)
+            return_data = json.loads(d)
         except:
-            print 'could not parse: ' + d[:100] + '...'
-            self.dump(d)
-            assert(0)
+            if self.next_should_fail:
+                self.next_should_fail = False
+                return
+            else:
+                print 'could not parse: ' + d[:100] + '...'
+                self.dump(d)
+                assert(0)
+        # no failure detected
+        assert(not self.next_should_fail)
+        return return_data
 
     def user_post(self, user, url, body):
         print 'POST '+url
@@ -97,12 +108,19 @@ class API:
 
         # dump response to file if there was an error
         try:
-            return json.loads(d)
+            return_data = json.loads(d)
         except:
-            print 'could not parse: ' + d[:100] + '...'
-            self.dump(d)
-            assert(0)
-
+            if self.next_should_fail:
+                self.next_should_fail = False
+                return
+            else:
+                print 'could not parse: ' + d[:100] + '...'
+                self.dump(d)
+                assert(0)
+        # no failure detected
+        assert(not self.next_should_fail)
+        return return_data
+                
     # pivot API wrappers
     def get_elections(self, user):
         return self.user_get(user, 'election')
@@ -251,7 +269,7 @@ def test2(api):
 
 def test3(api):
     """
-    This tests authorization of various API calls
+    This tests verifies that an elector can view other electors
     """
     print "\n============= TEST 3 ============\n"
     users = api.load_users()
@@ -261,13 +279,33 @@ def test3(api):
     election = api.create_election(userA, 'test3-election')
     api.add_elector(election, userA, userB)
     print api.get_electors(userA, election)
+    # an elector may view the list of electors
     print api.get_electors(userB, election)
-    
+
+def test4(api):
+    """
+    This verifies a user cannot accept an invitation not associated with their email
+    """
+    print "\n============= TEST 4 ============\n"
+    users = api.load_users()
+    userA = users[0]
+    userB = users[1]
+
+    election = api.create_election(userA, 'test4-election')
+    invite_status = api.invite(userA, election, userA['email'])
+    code = invite_status['code']
+
+    # it should not be possible to accept an invitation that was not sent to you,
+    # so this should fail
+    api.expect_fail()
+    api.accept(userB, code)
+
 def main(url, curltrace):
     with API(url=url, curltrace=curltrace) as api:
         test1(api)
         test2(api)
         test3(api)
+        test4(api)
         api.dump_stats()
 
 if __name__ == '__main__':
