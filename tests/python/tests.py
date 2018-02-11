@@ -120,13 +120,46 @@ class API:
         # no failure detected
         assert(not self.next_should_fail)
         return return_data
-                
+
+    def user_delete(self, user, url):
+        print 'DELETE '+url
+        headers = {'Authorization': 'Bearer '+user['token']}
+
+        # add curl equivalent to trace
+        self.dump_curl('DELETE', headers, url)
+
+        # issue request and record latency
+        t0 = time.time()
+        r = requests.delete(url = self.url + '/' + url, headers=headers)
+        d = r.content
+        t1 = time.time()
+        self.latency_stats.add('DELETE '+url, t1-t0)
+
+        # dump response to file if there was an error
+        try:
+            return_data = json.loads(d)
+        except:
+            if self.next_should_fail:
+                self.next_should_fail = False
+                return
+            else:
+                print 'could not parse: ' + d[:100] + '...'
+                self.dump(d)
+                assert(0)
+        # no failure detected
+        assert(not self.next_should_fail)
+        return return_data
+
     # pivot API wrappers
     def get_elections(self, user):
         return self.user_get(user, 'election')
 
     def create_election(self, user, name):
         return self.user_post(user, 'election', {"name": name})
+
+    def delete_election(self, user, election):
+        url = 'election/%d' % election['id']
+        return self.user_delete(user, url)
 
     def get_candidates(self, user, election):
         url = 'election/%d/candidate' % election['id']
@@ -300,12 +333,23 @@ def test4(api):
     api.expect_fail()
     api.accept(userB, code)
 
+def test5(api):
+    """
+    This verifies an admin can delete an election
+    """
+    print "\n============= TEST 5 ============\n"
+    users = api.load_users()
+    userA = users[0]
+    election = api.create_election(userA, 'test4-election')
+    print api.delete_election(userA, election)
+    
 def main(url, curltrace):
     with API(url=url, curltrace=curltrace) as api:
         test1(api)
         test2(api)
         test3(api)
         test4(api)
+        test5(api)
         api.dump_stats()
 
 if __name__ == '__main__':
