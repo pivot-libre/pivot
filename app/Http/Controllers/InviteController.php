@@ -179,6 +179,7 @@ class InviteController extends Controller
         foreach ($invites as $invite) {
             $election = $invite->elector->election;
             $row = array("election_name" => $election->name,
+                         "election_id" => $election->id,
                          "code" => $invite->code);
             $results[$invite->code] = $row;
         }

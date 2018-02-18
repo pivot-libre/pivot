@@ -1,149 +1,187 @@
 'use strict';
 
-var workspace = document.querySelector(".workspace")
-var mainheader = document.querySelector(".mainheader")
-mainheader.innerHTML = "Cast Ballot"
+//create a file-specific context via a function
+(function(piv) {
+var view = piv.view
+view.setHeader("Cast Ballot")
 
-anchorListDiv(workspace, "", {
+piv.anchorListDiv(view.workspace, "", {
     "Rank Candidates": "/ballot/" + election,
     "Review ballot": "/ballotReview/" + election
   }
 )
 
-removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
+piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
-var rankeditems = html(workspace, "ol", "", {"id": "rankeditems", "class": "itemlist incrementsCounter grabbable hasLabelFrame"});
-var unrankeditems = html(workspace, "ul", "", {"id": "unrankeditems", "class": "itemlist cursorPointer hasLabelFrame"});
-var drake = dragula([rankeditems, unrankeditems]);
-drake.on('drop', function (el) { onCandidateDrop(el); })
+piv.doOnEvents2(view.workspace, ["click"], function(e) {piv.evmanage.bubble(e)} )
 
-loadBallot(election, displayBallot, li1)
+view.rankeditems = piv.html(view.workspace, "ol", "", {"id": "rankeditems", "class": "itemlist incrementsCounter grabbable hasLabelFrame"});
+view.unrankeditems = piv.html(view.workspace, "ul", "", {"id": "unrankeditems", "class": "itemlist cursorPointer hasLabelFrame"});
 
-function li1(parent, uniq, description, cost, tie, isNew) {
-  var candidateLiAtts = {"class": "row1", "onclick": "candidateClick(this)", "data-id": uniq}
+piv.loadBallot(election, piv.displayBallot, li1)
+setUpDragHandling(view.rankeditems, view.unrankeditems)
+
+function li1(parent, id, description, cost, tie, isNew) {
+  var candidateLiAtts = {"class": "row1", "data-id": id}
+
   if ("new" == isNew) { candidateLiAtts["data-isNew"] = "new" }
   if (tie) { candidateLiAtts["data-tie"] = tie }
-  var box = html(parent, "li", "", candidateLiAtts);
+  var box = piv.html(parent, "li", "", candidateLiAtts)
 
-  div(box, "", "hidden1 text1", "new")
-  div(box, "", "text1square orderdisplay");
-  div(box, "", "grabbable text1", "^v");
-  div(box, "", "text1 w67", description);
-  html(box, "input", "", {"type": "checkbox", "class": "hidden2 text1square cursorPointer", "name": "ballotcheck", "id": "ballotcheck-" + uniq})
-  div(box, "", "hidden3 clickable1", "tie", {"onclick": "processSelected(event,tieSelected)"})
-  div(box, "", "hidden3 clickable1", "X", {"onclick": "processSelected(event,sendToEnd)"});
+  piv.div(box, "", "hidden1 text1", "new")
+  piv.div(box, "", "text1square orderdisplay");
+  piv.div(box, "", "grabbable text1", "^v");
+  piv.div(box, "", "text1 w67", description);
+  var checkbox = piv.html(box, "input", "", {"type": "checkbox", "class": "hidden2 text1square cursorPointer", "name": "ballotcheck", "id": "ballotcheck-" + id})
+  var tiebutton = piv.div(box, "", "hidden3 clickable1", "tie")
+  // piv.doOnEvents2(tiebutton, ["click"], tieSelected)
+
+  var xbutton = piv.div(box, "", "hidden3 clickable1", "X", "")
+
+  // piv.doOnEvents2(box, ["click"], candidateClick, [checkbox, tiebutton, xbutton])
+  piv.domeldata.set(box, id, "id")
+  piv.domeldata.set(checkbox, box, "box")
+  piv.boxlist = piv.boxlist || [];
+  piv.boxlist.push(box)
+  piv.evmanage.listen(box, "click", candidateClick, [box])
+  // piv.evmanage.listen(checkbox, "click", updateCheckedCandidateList, [id, box, checkbox])
+  piv.evmanage.listen(tiebutton, "click", tieSelected)
+  piv.evmanage.listen(xbutton, "click", sendToEnd)
 }
 
+function setUpDragHandling(rankeditems, unrankeditems) {
+  var tieCleanupNeeded = false, dragStartState = {}
+  var drake = dragula([rankeditems, unrankeditems])
 
-function markTieAtt(item, position) {
+  drake.on('drag', function (el) { onCandidateDrag(el) })
+  drake.on('drop', function (el) { onCandidateDrop(el) })
+
+  // saves off data that we will need on drop
+  function onCandidateDrag(domel) {
+    dragStartState.prevSibling = domel.previousElementSibling
+    dragStartState.nextSibling = domel.nextElementSibling
+    dragStartState.tieStatus = getTieStatus(domel)
+  }
+  function onCandidateDrop(domel) {
+    updateFormerSiblingTieStatuses(dragStartState.tieStatus, dragStartState.prevSibling, dragStartState.nextSibling)  // update the tie statuses for the element's former siblings
+    setTieStatusAfterDrop(domel)  // update the tie status based on where the element was dragged to
+    onReorder(domel)
+  }
+  function setTieStatusAfterDrop(domel) {
+    var tieStat = getTieStatus(domel.previousElementSibling)
+    if (!tieStat || "end" == tieStat) {
+      setTieStatus(domel, "none")
+      return
+    }
+    setTieStatus(domel, "middle")
+  }
+}
+
+function getTieStatus(domel) {
+  if (!domel) return null
+  return domel.getAttribute("data-tie")
+}
+function setTieStatus(domel, position) {
   if (position == "none") {
-    item.removeAttribute("data-tie");
+    domel.removeAttribute("data-tie")
   }
   else {
-    item.setAttribute("data-tie", position);
+    domel.setAttribute("data-tie", position)
   }
 }
-function onCandidateDrop(item) {
-  var previousItem, previousItemTieAtt;
 
-  //handle ties
-  previousItem = item.previousElementSibling;
-  if (previousItem) { previousItemTieAtt = previousItem.getAttribute("data-tie"); }
-  if (previousItemTieAtt == "start" || previousItemTieAtt == "middle") {
-    markTieAtt(item, "middle");
-  }
-  else { markTieAtt(item, "none"); }
+// noe - maybe needs some work (including everything that uses it). not sure how much I like this paradigm in general
+function updateFormerSiblingTieStatuses(tieStat, prevSibling, nextSibling) {
+  var sibling, sibTieStat
 
-  //do standard candidate move stuff
-  onCandidateMove(item);
-}
-function processSelected(event, processFunction) {
-  event.preventDefault();
-  event.stopPropagation();
-  var functionVars = {}, el, els = document.querySelectorAll("input:checked");
-  for (var i = 0; i < els.length; i++) {
-    processFunction(els[i], functionVars);
+  // don't need to do anything of the dragged item was in the middle of a tie or not part of a tie
+  if (!tieStat || "middle" == tieStat) return
+
+  // if the dragged element was the START of a tie, we need to update the NEXT element sibling
+  if ("start" == tieStat) {
+    sibling = nextSibling, sibTieStat = getTieStatus(sibling)
+    if ("end" == sibTieStat) {
+      setTieStatus(sibling, "none") // there were only two elements in this tie, so there is no tie anymore
+      return
+    }
+    if ("middle" == sibTieStat) {
+      setTieStatus(sibling, "start") // the next sibling becomes the new start for this tie
+      return
+    }
+    else return
   }
-  onCandidateMove();
+
+  // if the dragged element was the END of a tie, we need to update the PREVIOUS element sibling
+  sibling = prevSibling, sibTieStat = getTieStatus(sibling)
+  if ("start" == sibTieStat) {
+    setTieStatus(sibling, "none") // there were only two elements in this tie, so there is no tie anymore
+  }
+  else if ("middle" == sibTieStat) {
+    setTieStatus(sibling, "end") // the previous sibling becomes the new end for this tie
+  }
 }
-function tieSelected(el, vars) {
-  var item = el.parentElement, tieAtt = item.getAttribute("data-tie");
-  if (!vars.rankeditems) {
-    vars.rankeditems = document.getElementById("rankeditems");
-    if (!tieAtt) { markTieAtt(item, "start"); }
-    else if (tieAtt == "end") { markTieAtt(item, "middle"); }
+function getCheckedCandidates(uncheck) {
+  var candidates = [], checkbox, checkboxes = document.querySelectorAll("input:checked")
+
+  for (var i = 0; i < checkboxes.length; i++) {
+    checkbox = checkboxes[i]
+    candidates.push({
+      "box": piv.domeldata.get(checkbox, "box"),
+      "checkbox": checkbox
+    })
+    if (uncheck) checkbox.checked = false
+  }
+
+  return candidates
+}
+function tieSelected(box, checkbox, rankeditems, afterEl) {
+  var candidate, candidates = getCheckedCandidates("uncheck")
+  if (candidates.length < 1) return  //no need to do anything if there is only one candidate selected
+
+  // loop over all the candidates except the first and last and insert them after the first candidate
+  for (var i = 1; i < candidates.length; i++) {
+    candidate = candidates[i]
+    updateFormerSiblingTieStatuses( getTieStatus(candidate.box), candidate.box.previousElementSibling, candidate.box.nextElementSibling)
+    setTieStatus(candidate.box, "middle")
+    piv.insertAfter(candidate.box, candidates[i - 1].box)
+  }
+
+  // set the tie statuses of the first and last elements
+  var boxFirst = candidates[0].box, boxLast = candidates[candidates.length - 1].box
+  var tieAtt = getTieStatus(boxFirst)
+  if (!tieAtt) {
+    setTieStatus(boxFirst, "start")
+    setTieStatus(boxLast, "end")
+  }
+  else if ("end" == tieAtt) {
+    setTieStatus(boxFirst, "middle")
+    setTieStatus(boxLast, "end")
   }
   else {
-    insertAfter(item, vars.afterEl);
-    markTieAtt(item, "middle");
+    setTieStatus(boxLast, "middle")
   }
-  vars.afterEl = item;  //save off the item, so we can append after it on the next iteration
-  el.checked = false;
+  onReorder()
 }
-function removeCandidate(item) {
-  item.parentElement.removeChild(item)
-}
-function sendToEnd(el, vars) {
-  var item = el.parentElement
-  if (!vars.unrankeditems) { vars.unrankeditems = document.getElementById("unrankeditems"); }
-  //unckeck, remove tie attributes, and send to the end of the unranked list
-  el.checked = false;
-  markTieAtt(item, "none");
-  vars.unrankeditems.appendChild(item);
-}
-function candidateClick(el) {
-  var rankeditems = document.getElementById("rankeditems");
-  if (el.parentElement == rankeditems) { return; }  //no action when clicking a ranked item
+function sendToEnd() {
+  var box, candidates = getCheckedCandidates("uncheck")
 
-  rankeditems.appendChild(el);
-  onCandidateMove(el, rankeditems);
-}
-function markTieEnds() {
-  //noe - this doesn't account for cases where the last item is part of a tie. The behavior isn't too bad, though (it allows you to drag items onto the end of the tie), so I'm leaving it for now
-  var selector = "#rankeditems > .candidate[data-tie='middle'] + .candidate:not([data-tie='middle']):not([data-tie='end'])";
-  var itemsAfterTies = document.querySelectorAll(selector);
-  for (var i = 0; i < itemsAfterTies.length; i++) {
-    markTieAtt(itemsAfterTies[i].previousElementSibling, "end");
+  for (var i = 0; i < candidates.length; i++) {
+    box = candidates[i].box
+    updateFormerSiblingTieStatuses( getTieStatus(box), box.previousElementSibling, box.nextElementSibling)
+    setTieStatus(box, "none")
+    view.unrankeditems.appendChild(box);
   }
+  onReorder()
 }
-function markTieStarts() {
-  var selector = "#rankeditems > .candidate:not([data-tie='start']):not([data-tie='middle']) + [data-tie='middle']";
-  var itemsStartingTies = document.querySelectorAll(selector);
-  for (var i = 0; i < itemsStartingTies.length; i++) {
-    markTieAtt(itemsStartingTies[i], "start");
-  }
-  selector = "#rankeditems > [data-tie='middle']:first-child";
-  itemsStartingTies = document.querySelectorAll(selector);
-  for (var i = 0; i < itemsStartingTies.length; i++) {
-    markTieAtt(itemsStartingTies[i], "start");
-  }
+function candidateClick(box) {
+  if (this.eContext.log.length > 0) return  //quit if the user clicked one of the action buttons
+  if (box.parentElement == view.rankeditems) return   //no action when clicking a ranked item
+  view.rankeditems.appendChild(box);
+  onReorder(box);
 }
-function removeLoneTieItems() {
-  var nextSibling;
-  var selector = "#rankeditems > .candidate:not([data-tie]) + .candidate[data-tie]";
-  var itemsAlone = document.querySelectorAll(selector);
-  for (var i = 0; i < itemsAlone.length; i++) {
-    nextSibling = itemsAlone[i].nextElementSibling;
-    if (!nextSibling || !nextSibling.getAttribute("data-tie")) { markTieAtt(itemsAlone[i], "none"); }
-  }
-  selector = "#rankeditems > [data-tie]:first-child";
-  itemsAlone = document.querySelectorAll(selector);
-  for (var i = 0; i < itemsAlone.length; i++) {
-    nextSibling = itemsAlone[i].nextElementSibling;
-    if (!nextSibling || !nextSibling.getAttribute("data-tie")) { markTieAtt(itemsAlone[i], "none"); }
-  }
-}
-function cleanUpTies() {
-  // mergeIntoTies();
-  markTieStarts();
-  markTieEnds();
-  removeLoneTieItems();
-}
-function onCandidateMove(candidateEl, rankeditems) {
+function onReorder(candidateEl) {
   if (candidateEl) { candidateEl.removeAttribute("data-isNew")}
-  cleanUpTies();
-  rankeditems = rankeditems || document.getElementById("rankeditems");
-  updateInstructions(rankeditems.childElementCount);
+  updateInstructions(view.rankeditems.childElementCount);
   saveRankings();
 }
 function updateInstructions(rankeditemsCount) {
@@ -154,6 +192,7 @@ function updateInstructions(rankeditemsCount) {
   // }
   // header.innerHTML = "Select your " + ordinalSuffix(rankeditems.childElementCount + 1) + " choice";
 }
+
 var saveStatus = ""
 function saveRankings() {
   //if a save is already in progress, just record that we need to save again and quit
@@ -179,7 +218,7 @@ function finishSaveRankings(response) {
 }
 function updateStatusDisplay(newStatus) {
   var saveStatusDomEl = document.getElementById("saveStatusDomEl")
-  if (!saveStatusDomEl) { saveStatusDomEl = div(workspace, "saveStatusDomEl", "text1")}
+  if (!saveStatusDomEl) { saveStatusDomEl = piv.div(view.workspace, "saveStatusDomEl", "text1")}
   saveStatusDomEl.innerHTML = newStatus
 }
 function makeRankingsArray () {
@@ -194,6 +233,7 @@ function candidatesToArray(candidates, targetArray, isRanked) {
   var tieStat, isTiedWthPrevious, rank = 0
   for (var i = 0; i < candidates.length; i++) {
     var item = {};
+
     item.candidate_id = candidates[i].getAttribute("data-id");
 
     if (isRanked != "getRanking") {
@@ -202,7 +242,7 @@ function candidatesToArray(candidates, targetArray, isRanked) {
       continue
     }
 
-    tieStat = candidates[i].getAttribute("data-tie")
+    tieStat = getTieStatus(candidates[i])
     isTiedWthPrevious = ((tieStat == "middle") || (tieStat == "end"))
     if (isTiedWthPrevious) {item.rank = rank}
     else {item.rank = ++rank}
@@ -212,5 +252,8 @@ function candidatesToArray(candidates, targetArray, isRanked) {
 };
 function batchVote(electionId, candidateRanks) {
   if (!electionId) {return}
-  postToResource('/api/election/' + electionId + '/batchvote', candidateRanks, finishSaveRankings)
+  piv.postToResource('/api/election/' + electionId + '/batchvote', candidateRanks, finishSaveRankings)
 }
+
+// close the self-executing function and feed the piv library to it
+})(piv)

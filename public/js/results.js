@@ -1,21 +1,22 @@
 'use strict';
 
-var workspace = document.querySelector(".workspace")
-var mainheader = document.querySelector(".mainheader")
-mainheader.innerHTML = "Results"
+//create a file-specific context via a function
+(function(piv) {
 
-removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
+var view = piv.view
+view.setHeader("Results")
 
-var workspace = document.querySelector(".workspace")
-var edititems = html(workspace, "ol", "", {"id": "edititems", "class": "itemlist incrementsCounter"});
+piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
-getResource('/api/election/' + election + '/result', showElectionResults)
+var edititems = piv.html(view.workspace, "ol", "", {"id": "edititems", "class": "itemlist incrementsCounter"});
+
+piv.getResource('/api/election/' + election + '/result', showElectionResults)
 
 function displayCandidate(parent, description, cost, tie) {
   var candidateLiAtts = {"class": "row1"}
-  var box = html(parent, "li", "", candidateLiAtts);
-  div(box, "", "text1", "#");
-  div(box, "", "text1 w75", description);
+  var box = piv.html(parent, "li", "", candidateLiAtts);
+  piv.div(box, "", "text1", "#");
+  piv.div(box, "", "text1 w75", description);
 }
 function showElectionResults(results) {
   var candidateOrder = results.order
@@ -23,3 +24,6 @@ function showElectionResults(results) {
     displayCandidate(edititems, candidateOrder[key].name, "cost")
   }
 }
+
+// close the self-executing function and feed the piv library to it
+})(piv)
