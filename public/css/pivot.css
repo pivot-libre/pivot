@@ -77,6 +77,8 @@ a:hover,
 button:hover,
 input[type=submit]:hover,
 .clickable1:hover,
+a[href].hover1,
+.hover1,
 .orange1 {
   background-color: #fcb8a8;
 }
@@ -134,10 +136,6 @@ a.a1:hover,
   background-color: transparent;
 }
 .electionName,
-/* .candidateDetails, */
-/* .stepNavigator > a[href]::after, */
-/* .stepNavigator > a::before, */
-/* .stepNavigator > a[href]::after, */
 .text1,
 .white {
   background-color: white;
@@ -235,7 +233,7 @@ a,
   width: 33%;
 }
 .w25 {
-  width: 25%
+  width: 25%;
 }
 .itemlist {
   width: 100%;
@@ -337,10 +335,6 @@ ul li[data-isNew="new"] .hidden1 {
 }
 
 /* other stuff */
-.electionListing {
-  width: 100%;
-  padding: 6px;
-}
 label,
 input,
 .button2,
@@ -414,21 +408,22 @@ a {
   padding: 10px;
 }
 .text1,
-.textAlignLeft {
+.textLeft {
   text-align: left;
 }
 label,
-.textAlignRight {
+.textRight {
   text-align: right;
 }
 .text1square,
-.textAlignCenter {
+.textCenter {
   text-align: center;
 }
 .a1,
 .underline {
   text-decoration: underline;
 }
-.row1 {
-  padding: 4px 0px 4px 0px;
+.row1,
+.margin4p0p4p0p {
+  margin: 4px 0px 4px 0px;
 }

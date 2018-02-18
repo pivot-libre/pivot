@@ -3,7 +3,7 @@
 @section('content')
 
 
-                    <form class="w75 textAlignLeft" role="form" method="POST" action="{{ route('login') }}">
+                    <form class="w75 textLeft" role="form" method="POST" action="{{ route('login') }}">
                         {{ csrf_field() }}
 
                         <div class="row1{{ $errors->has('email') ? ' has-error' : '' }}">

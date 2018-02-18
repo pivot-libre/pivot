@@ -1,27 +1,32 @@
 'use strict';
 
-var workspace = document.querySelector(".workspace")
-var mainheader = document.querySelector(".mainheader")
-mainheader.innerHTML = "Review Ballot"
+//create a file-specific context via a function
+(function(piv) {
 
-anchorListDiv(workspace, "", {
+var view = piv.view
+view.setHeader("Review Ballot")
+
+piv.anchorListDiv(view.workspace, "", {
     "Rank Candidates": "/ballot/" + election,
     "Review ballot": "/ballotReview/" + election
   }
 )
 
-removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
+piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
-var rankeditems = html(workspace, "ol", "", {"id": "rankeditems", "class": "itemlist incrementsCounter"});
-var unrankeditems = html(workspace, "ol", "", {"id": "unrankeditems", "class": "itemlist"});
+var rankeditems = piv.html(view.workspace, "ol", "", {"id": "rankeditems", "class": "itemlist incrementsCounter"});
+var unrankeditems = piv.html(view.workspace, "ol", "", {"id": "unrankeditems", "class": "itemlist"});
 
-loadBallot(election, displayBallot, li1)
+piv.loadBallot(election, piv.displayBallot, li1)
 
 function li1(parent, uniq, description, cost, tie, isNew) {
   var candidateLiAtts = {"class": "row1"}
   if (tie) { candidateLiAtts["data-tie"] = tie }
-  var box = html(parent, "li", "", candidateLiAtts);
+  var box = piv.html(parent, "li", "", candidateLiAtts);
 
-  div(box, "", "text1square orderdisplay");
-  div(box, "", "text1 w75", description);
+  piv.div(box, "", "text1square orderdisplay");
+  piv.div(box, "", "text1 w75", description);
 }
+
+// close the self-executing function and feed the piv library to it
+})(piv)
