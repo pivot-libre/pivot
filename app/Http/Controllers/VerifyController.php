@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Mail;
 use App\Election;
-use App\Invite;
+use App\EmailVerification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,11 +22,21 @@ class VerifyController extends Controller
             return 'mail driver not configured';
         }
 
+        $email = $request->json()->get('email');
+
+        $verification = EmailVerification::where(['email' => $email])->first();
+        if (empty($verification))
+        {
+            $verification = new EmailVerification();
+            $verification->email = $email;
+        }
+        $verification->token = bin2hex(random_bytes(32));
+        $verification->save();
+
         try {
             // TODO: send a real code
-            $msg = 'Your Pivot Libre code is XXXX-XXXX-XXXX-XXXX';
+            $msg = 'Your Pivot Libre code is '.($verification->token);
 
-            $email = $request->json()->get('email');
             Mail::raw($msg, function ($message) use ($email) {
                 $name = $email;
                 $message->to($email, $name)->subject('Pivot Libre Email Confirmation');
