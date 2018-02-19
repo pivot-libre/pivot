@@ -60,7 +60,7 @@ capability.
 Election Capability       Roles
 ================================================================================
 view                      is_admin OR is_elector
-pview_electors            is_admin OR is_elector
+view_electors             is_admin OR is_elector
 view_results              is_admin OR is_elector
 vote                      is_elector
 update                    is_admin

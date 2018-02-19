@@ -46,4 +46,6 @@ Route::get('/electorate/{election}', function ($election) {
 Route::get('/results/{election}', function ($election) {
     return view('results', ['election' => $election]);
 });
-
+Route::get('/verify_email', function () {
+  return view('auth/verifyEmail');
+})->name('verify_email');
