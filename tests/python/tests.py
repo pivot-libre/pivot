@@ -340,9 +340,32 @@ def test5(api):
     print "\n============= TEST 5 ============\n"
     users = api.load_users()
     userA = users[0]
-    election = api.create_election(userA, 'test4-election')
+    election = api.create_election(userA, 'test5-election')
     print api.delete_election(userA, election)
-    
+
+def test6(api):
+    """
+    This checks for double invitations/accepts
+    """
+    print "\n============= TEST 6 ============\n"
+    users = api.load_users()
+    userA = users[0]
+    userB = users[1]
+    election = api.create_election(userA, 'test6-election')
+    # should not be able to create duplicate invites
+    invite1 = api.invite(userA, election, userB['email'])
+    invite2 = api.invite(userA, election, userB['email'])
+    assert(invite1['id'] == invite2['id'])
+    code = invite1['code']
+    print api.accept(userB, code)
+    api.expect_fail() # cannot accept twice
+    api.accept(userB, code)
+    # should not be able to create duplicate invites even after accepting a prior invite
+    invite3 = api.invite(userA, election, userB['email'])
+    assert(invite1['id'] == invite3['id'])
+    api.expect_fail() # cannot accept twice
+    api.accept(userB, code)
+
 def main(url, curltrace):
     with API(url=url, curltrace=curltrace) as api:
         test1(api)
@@ -350,6 +373,7 @@ def main(url, curltrace):
         test3(api)
         test4(api)
         test5(api)
+        test6(api)
         api.dump_stats()
 
 if __name__ == '__main__':
