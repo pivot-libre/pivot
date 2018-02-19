@@ -23,8 +23,6 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
-
         parent::boot();
     }
 
@@ -36,10 +34,8 @@ class RouteServiceProvider extends ServiceProvider
     public function map()
     {
         $this->mapApiRoutes();
-
         $this->mapWebRoutes();
-
-        //
+        $this->mapOpenRoutes();
     }
 
     /**
@@ -69,5 +65,19 @@ class RouteServiceProvider extends ServiceProvider
              ->middleware('api')
              ->namespace($this->namespace)
              ->group(base_path('routes/api.php'));
+    }
+
+    /**
+     * Define the "open" routes for the application.
+     *
+     * These routes require no prior authentication.
+     *
+     * @return void
+     */
+    protected function mapOpenRoutes()
+    {
+        Route::prefix('open')
+            ->namespace($this->namespace)
+            ->group(base_path('routes/open.php'));
     }
 }
