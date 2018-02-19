@@ -48,8 +48,9 @@ class RegisterController extends Controller
      */
     public function showRegistrationForm(Request $request)
     {
-        $invite = $request->input('invite', '');
-        return view('auth.register', ['invite' => $invite]);
+        $email = $request->input('email', '');
+        $token = $request->input('token', '');
+        return view('auth.register', ['email' => $email, 'token' => $token]);
     }
 
     /**
@@ -61,7 +62,6 @@ class RegisterController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            // 'invite' => 'string|max:255',
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
@@ -82,8 +82,8 @@ class RegisterController extends Controller
             'password' => bcrypt($data['password']),
         ]);
 
-        if (!empty($data['invite'])) {
-            $user->accept($data['invite']);
+        if (!empty($data['token'])) {
+            // TODO
         }
 
         return $user;

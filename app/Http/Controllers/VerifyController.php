@@ -7,6 +7,7 @@ use App\Election;
 use App\EmailVerification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 
 class VerifyController extends Controller
 {
@@ -34,8 +35,8 @@ class VerifyController extends Controller
         $verification->save();
 
         try {
-            // TODO: send a real code
-            $msg = 'Your Pivot Libre code is '.($verification->token);
+            $url = Config::get('app.url').'/register?token='.($verification->token).'&email='.($email);
+            $msg = 'Continue your registration here: '.$url;
 
             Mail::raw($msg, function ($message) use ($email) {
                 $name = $email;
