@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\User;
 use App\Http\Controllers\Controller;
+use App\EmailVerification;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
@@ -53,6 +54,19 @@ class RegisterController extends Controller
         return view('auth.register', ['email' => $email, 'token' => $token]);
     }
 
+    protected function verify_token(array $data)
+    {
+        // TODO: we should eventually require this to be non-empty for greater security
+        if (!empty($data['token'])) {
+            $verification = EmailVerification::where(['email' => $data['email']])->first();
+            if (empty($verification) or $verification->token != $data['token'])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    
     /**
      * Get a validator for an incoming registration request.
      *
@@ -76,15 +90,17 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        if (!$this->verify_token($data))
+        {
+            // TODO: create better error.  This fails in a very ugly way
+            return 'bad token';
+        }
+        
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
         ]);
-
-        if (!empty($data['token'])) {
-            // TODO
-        }
 
         return $user;
     }
