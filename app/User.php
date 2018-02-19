@@ -41,10 +41,9 @@ class User extends Authenticatable
      */
     public function accept($code)
     {
-        /** @todo #1 Prevent user from being multiple electors */
-
         $invite = Invite::where('code', $code)->firstOrFail();
 
+        assert($this->accepted_at == null); // should already have been checked
         $invite->elector->user()->associate($this);
         $invite->elector->save();
 

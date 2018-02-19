@@ -39,6 +39,7 @@ class Election extends Model
         return $this->hasMany('App\Candidate');
     }
 
+    // TODO: consider where this is used, and make sure the null filter an accepted_at is appropriate
     public function invites()
     {
         return $this->belongsToMany('App\Invite', 'electors')->whereNull('accepted_at');
@@ -66,7 +67,7 @@ class Election extends Model
 
     public function invite($email)
     {
-        $invite = $this->invites()->where(['email' => $email])->first();
+        $invite = $this->belongsToMany('App\Invite', 'electors')->where(['email' => $email])->first();
         $mail_error = null;
 
         if (empty($invite))
