@@ -10,15 +10,15 @@
                     <form class="form-horizontal" role="form" method="POST" action="{{ route('register') }}">
                         {{ csrf_field() }}
 
-                        <div class="form-group{{ $errors->has('invite') ? ' has-error' : '' }}">
-                            <label for="name" class="col-md-4 control-label">Invite Code (optional)</label>
+                        <div class="form-group{{ $errors->has('token') ? ' has-error' : '' }}">
+                            <label for="name" class="col-md-4 control-label">Verification Token</label>
 
                             <div class="col-md-6">
-                                <input id="name" type="text" class="form-control" name="invite" value="{{ $invite }}" autofocus>
+                                <input id="name" type="text" class="form-control" name="token" value="{{ $token }}" autofocus>
 
-                                @if ($errors->has('invite'))
+                                @if ($errors->has('token'))
                                     <span class="help-block">
-                                        <strong>{{ $errors->first('invite') }}</strong>
+                                        <strong>{{ $errors->first('token') }}</strong>
                                     </span>
                                 @endif
                             </div>
@@ -42,7 +42,7 @@
                             <label for="email" class="col-md-4 control-label">E-Mail Address</label>
 
                             <div class="col-md-6">
-                                <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" required>
+                                <input id="email" type="email" class="form-control" name="email" value="{{ $email }}" required>
 
                                 @if ($errors->has('email'))
                                     <span class="help-block">
