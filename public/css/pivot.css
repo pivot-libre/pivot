@@ -94,6 +94,8 @@ a.button1,
 a,
 .orange2 {
   background-color: #ff876d;
+  /* border: 1px solid white;
+  margin: 3px; */
 }
 /* .button1:active, */
 /* .button2:active, */
@@ -176,6 +178,7 @@ input[type=submit],
 .button1 a,
 a.button1,
 a,
+.text2,
 #maincolumn,
 .white {
   color: white;
@@ -200,9 +203,11 @@ a,
 }
 .mainheader {
   width: 100%;
-  font-size: 40px;
-  /* font-family: fantasy; */
   padding: 20px;
+  font-size: 30px;
+  font-weight: 500;
+  /* font-family: fantasy; */
+  text-transform: uppercase;
 }
 
 /* cssremove3 */
@@ -396,6 +401,10 @@ a {
   line-height: 41px;
   vertical-align: top;
 }
+.text2,
+.font15 {
+  font-size: 15px;
+}
 .grabbable,
 .text1square,
 .text1,
@@ -407,6 +416,11 @@ a {
 .padding10 {
   padding: 10px;
 }
+.text2,
+.paddingTop4 {
+  padding: 4px 0px 0px 0px;
+}
+.text2,
 .text1,
 .textLeft {
   text-align: left;
