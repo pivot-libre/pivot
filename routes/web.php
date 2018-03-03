@@ -17,13 +17,22 @@ Route::get('/profile', 'ProfileController@index');
 Route::get('/profile/accept', 'ProfileController@accept');
 
 
+Route::get('/', function () {
+  return view('myElections');
+});
+Route::get('/verify_email', function () {
+  return view('auth/verifyEmail');
+})->name('verify_email');
+
+
 // all routes that require authentication go in here, the user will be redirected to the login page,
 // and will then be directed to their initial target once they log in
 Route::group(['middleware' => 'auth'], function() {
   // Route::get('string', ['as' => 'user.add_event', 'uses' => 'UserController@addEvent']);
-  Route::get('/', function () {
-    return view('myElections');
-  });
+  // // maybe /myElections should be renamed to /elections. /elections is just a blank page currently
+  // Route::get('/elections', function () {
+  //     return view('elections');
+  // });
   Route::get('/myElections', function () {
     return view('myElections');
   });
@@ -45,15 +54,7 @@ Route::group(['middleware' => 'auth'], function() {
   Route::get('/results/{election}', function ($election) {
       return view('results', ['election' => $election]);
   });
+  Route::get('/ballotReview/{election}', function ($election) {
+      return view('ballotReview', ['election' => $election]);
+  });
 });
-
-Route::get('/ballotReview/{election}', function ($election) {
-    return view('ballotReview', ['election' => $election]);
-});
-// // maybe /myElections should be renamed to /elections
-// Route::get('/elections', function () {
-//     return view('elections');
-// });
-Route::get('/verify_email', function () {
-  return view('auth/verifyEmail');
-})->name('verify_email');
