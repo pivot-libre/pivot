@@ -39,7 +39,7 @@
         <a href="/create" class="button1">Create Election</a>
       </div><div class="rightMenu">
         @if (Auth::guest())
-        <a href="{{ route('login') }}" class="button1">Login</a>
+        <a href="{{ route('login') }}" class="button1">Log in</a>
         <a href="{{ route('register') }}" class="button1">Register</a>
         @else
         <div>Hi {{ Auth::user()->name }}, welcome to Pivot!</div>
