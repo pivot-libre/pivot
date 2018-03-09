@@ -1,26 +1,33 @@
 'use strict';
 
 //create a file-specific context via a function
-(function(piv) {
+(function(Piv) {
 
-var view = piv.view
-view.setHeader("Administer")
+// script-level variables
+var View = Piv.view
 
-piv.anchorListDiv(view.workspace, "", {
+// actions (do stuff)
+Piv.evmanage.setManager(View.workspace, ["click"])
+
+View.setHeader("Administer")
+
+Piv.anchorListDiv(View.workspace, "", {
     "Election details": "/administer/" + election,
     "Add/Edit candidates": "/candidates/" + election,
     "Manage electorate": "/electorate/" + election
   }
 )
 
-piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
+Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
-piv.getResource('/api/election/' + election, showElectionDetails)
+Piv.getResource('/api/election/' + election, showElectionDetails)
 
+// function definitions
 function showElectionDetails(details) {
-  var row = piv.div(view.workspace, "", "w100")
-  piv.div(row, "", "text1", "election name: " + details.name)
-  piv.div(row, "", "clickable1", "Delete Election", {"onclick": "deleteElection(" + details.id + ")"})
+  var row = Piv.div(View.workspace, "", "w100")
+  Piv.div(row, "", "text1", "election name: " + details.name)
+  // Piv.div(row, "", "clickable1", "Delete Election", {"onclick": "deleteElection(" + details.id + ")"})
+  Piv.div(row, "", "clickable1", "Delete Election", "", "click", deleteElection, [details.id])
 }
 function deleteElection(electionId) {
   if (!electionId) {return}

@@ -1,24 +1,26 @@
 'use strict';
 
 //create a file-specific context via a function
-(function(piv) {
+(function(Piv) {
 
-piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
+// script-level variables
+var View = Piv.view
+var VerifyEmailForm = Piv.html(View.workspace, "form", "", {"action": "javascript:;"})
 
-var view = piv.view
-view.setHeader("Verify Email")
+// actions (do stuff)
+Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
+View.setHeader("Verify Email")
 
-var verifyEmailForm = piv.html(view.workspace, "form", "", {"action": "javascript:;", "class": "createOrLogin"})
-verifyEmailForm.addEventListener("submit", function() {verifyEmail(verifyEmailForm)})
-piv.html(verifyEmailForm, "input", "", {"type": "text", "name": "email", "placeholder": "email"}).focus();
-piv.html(verifyEmailForm, "input", "", {"type": "submit", "value": "Verify"});
+VerifyEmailForm.addEventListener("submit", function() {verifyEmail(VerifyEmailForm)})
+Piv.html(VerifyEmailForm, "input", "", {"type": "text", "name": "email", "placeholder": "email"}).focus();
+Piv.html(VerifyEmailForm, "input", "", {"type": "submit", "value": "Verify"});
 
+// function definitions
 function verifyEmail(form) {
-    var email = form.elements.email.value;
-    axios.post('/open/send_verify_email', {"email": email})
-	.then(response => {
-	    alert(response.data);
-	});
+  var email = form.elements.email.value;
+  Piv.postToResource('/open/send_verify_email', {"email": email}, function(response) {
+    alert(response);
+  })
 }
 
 // close the self-executing function and feed the piv library to it

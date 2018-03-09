@@ -41,7 +41,7 @@
       <div class="w33"></div>
       <div>
           <button type="submit" class="">
-              Login
+              Log in
           </button>
 
           <a class="a1" href="{{ route('password.request') }}">
@@ -50,5 +50,14 @@
       </div>
     </div>
 </form>
+
+@endsection
+
+@section('scripts')
+
+<!-- <script src="{{ asset('js/dragula/dragula.js') }}"></script> -->
+<script src="{{ asset('js/pivotlib.js') }}"></script>
+<!-- <script src="{{ asset('js/pivotWorkspace.js') }}"></script> -->
+<script src="{{ asset('js/login.js') }}"></script>
 
 @endsection

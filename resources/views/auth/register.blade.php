@@ -9,7 +9,7 @@
         <label for="email" class="w33">E-Mail Address</label>
 
         <div class="w67">
-            <input id="email" type="email" class="w67" name="email" value="{{ $email }}" required>
+            <input id="email" type="email" class="w67" name="email" value="{{ $email }}" required autofocus>
 
         </div>
         @if ($errors->has('email'))
@@ -22,7 +22,7 @@
         <label for="name" class="w33">Verification Token</label>
 
         <div class="w67">
-            <input id="name" type="text" class="w67" name="token" value="{{ $token }}" autofocus>
+            <input id="name" type="text" class="w67" name="token" value="{{ $token }}">
 
         </div>
         @if ($errors->has('token'))
@@ -58,7 +58,7 @@
         <label for="name" class="w33">Name</label>
 
         <div class="w67">
-            <input id="name" type="text" class="w67" name="name" value="{{ old('name') }}" required autofocus>
+            <input id="name" type="text" class="w67" name="name" value="{{ old('name') }}" required>
 
         </div>
         @if ($errors->has('name'))
