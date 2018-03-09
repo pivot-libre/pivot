@@ -16,7 +16,7 @@ view.setHeader = function(text) {
 
 
 //load ballot
-var loadBallot = lib.loadBallot = function(electionId, onSuccessFunction, perCandidateFunc) {
+var loadBallot = lib.loadBallot = function(electionId, onSuccessFunction, perCandidateFunc, rankeditems, unrankeditems) {
   var onLoadBallotDataFunc = function(ballotDef, userRankings) {
     onSuccessFunction(ballotDef, userRankings, perCandidateFunc)
   }
@@ -57,20 +57,20 @@ var dispayCandidatesWithRank = lib.dispayCandidatesWithRank = function(rank, can
   for (var key in candidates) {
     candidate = candidates[key]
     //if not ranked, it goes in the unranked group
-    if (!rank || 0 == rank) { perCandidateFunc(unrankeditems, candidate.id, candidate.name, "", "", ("" == rank ? "new": "")); continue }
+    if (!rank || 0 == rank) { perCandidateFunc(unrankeditems, candidate.id, candidate.name, "", ("" == rank ? "new": "")); continue }
 
     //if length is 1, it is not a tie
-    if (1 == candidates.length) { perCandidateFunc(rankeditems, candidate.id, candidate.name, "", ""); continue }
+    if (1 == candidates.length) { perCandidateFunc(rankeditems, candidate.id, candidate.name); continue }
 
     //handle ties:
     //if length is greater than 1 and this is the first key, we are at the start of a tie
-    if (0 == key) { perCandidateFunc(rankeditems, candidate.id, candidate.name, "", "start", ""); continue }
+    if (0 == key) { perCandidateFunc(rankeditems, candidate.id, candidate.name, "start"); continue }
 
     //if this is not the last key, we are in the middle of a tie
-    if (key < candidates.length - 1) { perCandidateFunc(rankeditems, candidate.id, candidate.name, "", "middle", ""); continue }
+    if (key < candidates.length - 1) { perCandidateFunc(rankeditems, candidate.id, candidate.name, "middle"); continue }
 
     //if we've gotten this far, we must be at the end of a tie
-    perCandidateFunc(rankeditems, candidate.id, candidate.name, "", "end", "")
+    perCandidateFunc(rankeditems, candidate.id, candidate.name, "end")
   }
 }
 
@@ -78,7 +78,7 @@ var evmanage = lib.evmanage = {};
 (function(evmanage) {
   var handlers = {}
   evmanage.listen = function(domel, ename, func, args) {
-    domel.setAttribute("data-elisten", ename)
+    domel.setAttribute("data-elisten-" + ename, true)
     var domelDataKey = domeldata.getKey(domel)
     handlers[domelDataKey] = {}
     handlers[domelDataKey][ename] = {}
@@ -89,12 +89,11 @@ var evmanage = lib.evmanage = {};
     var currentTarget = e.target, etype = e.type, eContext = {}, log
     eContext.log = []
     do {
-      currentTarget = currentTarget.closest("[data-elisten=" + etype + "]")
+      currentTarget = currentTarget.closest("[data-elisten-" + etype + "]")
       if (currentTarget) {
         var func = handlers[domeldata.getKey(currentTarget)][etype].func
         var args = handlers[domeldata.getKey(currentTarget)][etype].args
         if (args) {
-          // console.log( JSON.stringify(eContext.log) )
           log = func.apply({"event": e, "domel": currentTarget, "eContext": eContext}, args)
         }
         else {
@@ -105,6 +104,21 @@ var evmanage = lib.evmanage = {};
       if (currentTarget && currentTarget === currentTarget) currentTarget = currentTarget.parentElement  //noe - hacky way to avoid an infinite loop
     }
     while (currentTarget != null);
+  }
+  // sets actual js event listeners
+  evmanage.setJsListeners = function(domel, evnames, evhandler, data) {
+    // if (arguments.length < 3) { return }
+    // var handler = function() { evhandler.call(domel, data) }
+    var handler = function(e) { evhandler.call(domel, e, data) }
+    for (var i = 0; i < evnames.length; i++) {
+      domel.addEventListener(evnames[i], handler)
+    }
+  }
+  evmanage.setManager = function(domel, evnames, handler) {
+    if (!evnames) return
+    domel == domel || document
+    handler = handler || function(e) { evmanage.bubble(e) }
+    evmanage.setJsListeners(domel , evnames, handler )
   }
 })(evmanage)
 
@@ -159,16 +173,19 @@ var domeldata = lib.domeldata = {};
   }
 })(domeldata)
 
-var div = lib.div = function(parent, id, classes, innerHtml, attributes, eventnames, dofunc, data) {
+var div = lib.div = function(parent, id, classes, innerHtml, attributes, evnames, evhandler, evargs) {
   attributes = attributes || {}
   if (id) attributes.id = id
   if (classes) attributes.class = classes
-  return html(parent, "div", innerHtml, attributes, eventnames, dofunc, data)
+  return html(parent, "div", innerHtml, attributes, evnames, evhandler, evargs)
 }
-var html = lib.html = function(parent, tag, innerHtml, attributes, eventnames, dofunc, data) {
+var html = lib.html = function(parent, tag, innerHtml, attributes, evnames, evhandler, evargs) {
   var i, attString, html, attribute
   html = document.createElement(tag)
-  if (eventnames) { doOnEvents(html, eventnames, dofunc, data) }
+
+  // if (evnames) { doOnEvents(html, evnames, evhandler, evargs) }
+  if (evnames) { evmanage.listen(html, evnames, evhandler, evargs) }
+
   html.innerHTML = (innerHtml || innerHtml === 0) ? innerHtml : ""
   for (attribute in attributes) {
     if (!attributes.hasOwnProperty(attribute)) continue
@@ -177,27 +194,19 @@ var html = lib.html = function(parent, tag, innerHtml, attributes, eventnames, d
   if (parent) parent.appendChild(html)
   return html
 }
-var doOnEvents = lib.doOnEvents = function(domel, eventnames, dofunc, data) {
-  // if (arguments.length < 3) { return }
-  var todofunc = function() { dofunc.call(domel, data) }
-  for (var i = 0; i < eventnames.length; i++) {
-    domel.addEventListener(eventnames[i], todofunc)
-  }
-}
-var doOnEvents2 = lib.doOnEvents2 = function(domel, eventnames, dofunc, data) {
-  var todofunc = function(e) { dofunc.call(domel, e, data) }
-  for (var i = 0; i < eventnames.length; i++) {
-    domel.addEventListener(eventnames[i], todofunc)
-  }
-}
 
 //helpers
-var removeHrefsForCurrentLoc = lib.removeHrefsForCurrentLoc = function() {
+var removeHrefsForCurrentLoc = lib.removeHrefsForCurrentLoc = function(removeContainer) {
+  var isUrlMatch = false
   var hrefEls = document.querySelectorAll("[href]")
   var currentHref = window.location.href
   for (var i = 0; i < hrefEls.length; i++) {
-    if (canonicalize(hrefEls[i].href) == currentHref) { hrefEls[i].removeAttribute("href") }
-    else if (window.location.pathname == "/" && window.location.protocol + "//" + window.location.host + "/myElections" == canonicalize(hrefEls[i].href)) { hrefEls[i].removeAttribute("href") }
+    isUrlMatch = (canonicalize(hrefEls[i].href) == currentHref) || (window.location.pathname == "/" && window.location.protocol + "//" + window.location.host + "/myElections" == canonicalize(hrefEls[i].href))
+
+    if (!isUrlMatch) continue  //skip this anchor if the url doesn't match
+
+    if (removeContainer) { hrefEls[i].parentElement.removeChild(hrefEls[i]) }
+    else { hrefEls[i].removeAttribute("href") }
   }
 }
 var anchorListDiv = lib.anchorListDiv = function(parent, classes, labelsAndHrefs) {
@@ -245,7 +254,7 @@ var getResource = lib.getResource = function(resource, onSuccess, onError) {
     })
     .catch(error => {
       if (onError) {onError(response.data); return}
-      console.log(error);
+      onAxiosError(resource, "", onSuccess, error)
     })
 }
 // postToResource('/api/election/2/invite', {"email": "nathan.eckberg@gmail.com"})
@@ -258,22 +267,27 @@ var postToResource = lib.postToResource = function(resource, payload, onSuccess,
     })
     .catch(error => {
       if (onError) {onError(response.data); return}
-      console.group("error");
-      console.log(resource);
-      console.log(payload);
-      console.log(onSuccess);
-      console.log(error);
-      console.groupEnd()
+      onAxiosError(resource, payload, onSuccess, error)
     })
 }
-var deleteResource = lib.deleteResource = function(resource) {
+var deleteResource = lib.deleteResource = function(resource, onSuccess, onError) {
   axios.delete(resource)
     .then(response => {
+      if (onSuccess) {onSuccess(response.data); return}
       console.log(response);
     })
     .catch(error => {
-      console.log(error);
+      if (onError) {onError(response.data); return}
+      onAxiosError(resource, "", onSuccess, error)
     })
+}
+var onAxiosError = function(resource, payload, onSuccess, error) {
+  console.group("error");
+  console.log(resource);
+  console.log(payload);
+  console.log(onSuccess);
+  console.log(error);
+  console.groupEnd()
 }
 
 var getMultResources = lib.getMultResources = function(resources, onSuccess, onFail) {

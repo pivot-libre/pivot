@@ -29,12 +29,11 @@ svg {
   width: 100%;
   height: 100%;
 }
-.button2,
 .button1Item,
 label:hover,
 button:hover,
 input[type=submit]:hover,
-.clickable1:hover,
+.clickable1:hover:not(.disabled),
 .cursorPointer {
   cursor: pointer;
 }
@@ -60,8 +59,6 @@ input[type=submit]:hover,
   fill: #444;
 }
 
-.button2:hover,
-/* .stepNavigator > a::after, */
 .button1Item:hover,
 .details,
 .button1 a[href]:hover,
@@ -76,14 +73,14 @@ a:hover,
 /* .stepNavigator > a::after, */
 button:hover,
 input[type=submit]:hover,
-.clickable1:hover,
+.clickable1:hover:not(.disabled),
 a[href].hover1,
 .hover1,
 .orange1 {
   background-color: #fcb8a8;
 }
 /* .grabbable, */
-.button2,
+.clickable1,
 .button1Item,
 .details,
 button,
@@ -97,13 +94,12 @@ a,
   /* border: 1px solid white;
   margin: 3px; */
 }
-/* .button1:active, */
-/* .button2:active, */
 .button1Item:active,
 a[href]:active,
 button:active,
 input[type=submit]:active,
 .clickable1:active,
+.clickable1.disabled,
 .opacity5 {
   opacity: .5;
 }
@@ -342,7 +338,7 @@ ul li[data-isNew="new"] .hidden1 {
 /* other stuff */
 label,
 input,
-.button2,
+.clickable1,
 .button1Item,
 .details,
 .text3,

@@ -1,30 +1,32 @@
 'use strict';
 
 //create a file-specific context via a function
-(function(piv) {
+(function(Piv) {
 
-piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
+//script-level variables
+var Email = document.getElementById("email")
+var GetTokenButton = document.getElementById("getTokenButton")
+var GetTokenStatus = document.getElementById("getTokenStatus")
+var GetTokenInstructions = document.getElementById("getTokenInstructions")
 
-var email = document.getElementById("email")
-var getTokenButton = document.getElementById("getTokenButton")
-var getTokenStatus = document.getElementById("getTokenStatus")
-var getTokenInstructions = document.getElementById("getTokenInstructions")
+Piv.removeHrefsForCurrentLoc("removeContainer")  //remove hrefs that link to the current page
 
-getTokenButton.addEventListener("click", function() {
-  console.log("getTokenButton")
-  getTokenStatus.innerHTML = "Sending email..."
-  verifyEmail(email.value, getTokenStatus, getTokenInstructions)
+Piv.view.setHeader("Register")
+
+GetTokenButton.addEventListener("click", function() {
+  GetTokenStatus.innerHTML = "Sending Email..."
+  verifyEmail(Email.value, GetTokenStatus, GetTokenInstructions)
 })
 
 function verifyEmail(email, statusEl, instructionsEl) {
-  piv.postToResource('/open/send_verify_email', {"email": email}, function(response) {
-    if ("confirmation email sent" == response) {
+  Piv.postToResource('/open/send_verify_email', {"email": email}, function(response) {
+    if ("confirmation Email sent" == response) {
       statusEl.innerHTML = "Token created!"
-      instructionsEl.innerHTML = "An email has been sent to " + email + " containing a verification token. Use the token from the email in the Verification Token field to continue with your registration."
+      instructionsEl.innerHTML = "An email has been sent to " + email + " containing a verification token. Use the token from the Email in the Verification Token field to continue with your registration."
     }
     else {
       statusEl.innerHTML = "Token not sent"
-      instructionsEl.innerHTML = "An issue occurred when generating the token. Check that you have supplied a valid email address."
+      instructionsEl.innerHTML = "An issue occurred when generating the token. Check that you have supplied a valid Email address."
     }
   })
 }

@@ -1,24 +1,27 @@
 'use strict';
 
 //create a file-specific context via a function
-(function(piv) {
+(function(Piv) {
 
-piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
+// script-level variables
+var View = Piv.view
+var NewElectionForm = Piv.html(View.workspace, "form", "", {"action": "javascript:;"})
 
-var view = piv.view
-view.setHeader("Create an Election")
+// actions (do stuff)
+Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
-var newElectionForm = piv.html(view.workspace, "form", "", {"action": "javascript:;", "class": "createOrLogin"})
-newElectionForm.addEventListener("submit", function() {createElection(newElectionForm)})
-piv.html(newElectionForm, "input", "", {"type": "text", "name": "electionName", "placeholder": "Election name"}).focus();
-piv.html(newElectionForm, "input", "", {"type": "submit", "value": "Create"});
+View.setHeader("Create an Election")
 
+NewElectionForm.addEventListener("submit", function() {createElection(NewElectionForm)})
+Piv.html(NewElectionForm, "input", "", {"type": "text", "name": "electionName", "placeholder": "Election name"}).focus();
+Piv.html(NewElectionForm, "input", "", {"type": "submit", "value": "Create"});
+
+// function definitions
 function createElection(form) {
   var name = form.elements.electionName.value
-  axios.post('/api/election', {"name": name})
-    .then(response => {
-      window.location.href = "/administer/" + response.data.id
-    });
+  Piv.postToResource('/api/election', {"name": name}, function(response) {
+    window.location.href = "/administer/" + response.id
+  })
 }
 
 // close the self-executing function and feed the piv library to it

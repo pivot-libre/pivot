@@ -1,98 +1,105 @@
 'use strict';
 
 //create a file-specific context via a function
-(function(piv) {
+(function(Piv) {
 
-var view = piv.view
-view.setHeader("Electorate")
+// script-level variables
+var View = Piv.view
+var Edititems
+var UnsentInvites = {}
+var DeletingInvites = {}
+var PendingInvites = {}
+var Containerdivs = {}
 
-piv.anchorListDiv(view.workspace, "", {
+// actions (do stuff)
+Piv.evmanage.setManager(View.workspace, ["click"])
+View.setHeader("Electorate")
+
+Piv.anchorListDiv(View.workspace, "", {
     "Election details": "/administer/" + election,
     "Add/Edit candidates": "/candidates/" + election,
     "Manage electorate": "/electorate/" + election
   }
 )
 
-piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
+Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
-var edititems = piv.html(view.workspace, "ol", "", {"id": "edititems", "class": "itemlist"})
-var containerdivs = {}
-containerdivs.electorate = piv.html(view.workspace, "ol", "", {"id": "electorateUl", "class": "itemlist hasLabelFrame"});
-containerdivs.pending = piv.html(view.workspace, "ul", "", {"id": "pendingUl", "class": "itemlist hasLabelFrame"});
-containerdivs.unsent = piv.html(view.workspace, "ul", "", {"id": "unsentUl", "class": "itemlist hasLabelFrame"});
+Edititems = Piv.html(View.workspace, "ol", "", {"id": "Edititems", "class": "itemlist"})
 
-piv.div(view.workspace, "AddCandidate", "button1Item", "+ New Invite", "", ["click"], addElector)
-piv.div(view.workspace, "SaveElection", "button1Item", "Save Invites", "", ["click"], saveElectorate)
+Containerdivs.electorate = Piv.html(View.workspace, "ol", "", {"id": "electorateUl", "class": "itemlist hasLabelFrame"});
+Containerdivs.pending = Piv.html(View.workspace, "ul", "", {"id": "pendingUl", "class": "itemlist hasLabelFrame"});
+Containerdivs.unsent = Piv.html(View.workspace, "ul", "", {"id": "unsentUl", "class": "itemlist hasLabelFrame"});
+
+Piv.div(View.workspace, "AddCandidate", "button1Item", "+ New Invite", "", ["click"], addElector)
+Piv.div(View.workspace, "SaveElection", "button1Item", "Save Invites", "", ["click"], saveElectorate)
 
 loadElectorateAndInvites(election, displayElectorateAndInvites)
 
-var unsentInvites = {}
-var deletingInvites = {}
-var pendingInvites = {}
+// function definitions
 function electorEl(parent, uniq, email, inviteStatus) {
   var checked
   var electorLiAtts = {"class": "w100"}
   if (uniq) { electorLiAtts["data-id"] = uniq }
-  var box = piv.html(parent, "li", "", electorLiAtts);
+  var box = Piv.html(parent, "li", "", electorLiAtts);
 
 
   if ("unsent" == inviteStatus) {
-    var lastInvite = Object.keys(unsentInvites)[Object.keys(unsentInvites).length - 1] || 0
-    var emailInput = piv.html(box, "input", "", {"type": "text", "name": "email", "class": "w50"});
-    unsentInvites[++lastInvite] = {"email": emailInput, "domel": box}
-    piv.div(box, "", "clickable1", "X", "", ["click"], removeInvite, {"domel": box, "inviteKey": lastInvite})
+    var lastInvite = Object.keys(UnsentInvites)[Object.keys(UnsentInvites).length - 1] || 0
+    var emailInput = Piv.html(box, "input", "", {"type": "text", "name": "email", "class": "w50"});
+    UnsentInvites[++lastInvite] = {"email": emailInput, "domel": box}
+    Piv.div(box, "", "clickable1", "X", "", ["click"], removeInvite, {"domel": box, "inviteKey": lastInvite})
   }
   else if ("pending" == inviteStatus) {
-    pendingInvites[email] = box
-    piv.div(box, "", "", email + "(" + uniq + ")", {"class": "w50 text1"});
-    piv.div(box, "", "clickable1", "X", "", ["click"], deleteInvite, {"domel": box, "code": uniq, "email": email})
+    PendingInvites[email] = box
+    Piv.div(box, "", "", email + "(" + uniq + ")", {"class": "w50 text1"});
+    Piv.div(box, "", "clickable1", "X", "", ["click"], deleteInvite, {"domel": box, "code": uniq, "email": email})
   }
   else {
-    piv.div(box, "", "", uniq + "(" + email + ")", {"class": "w50 text1"});
-    piv.div(box, "", "hidden clickable1", "X")
+    Piv.div(box, "", "", uniq + "(" + email + ")", {"class": "w50 text1"});
+    Piv.div(box, "", "hidden clickable1", "X")
   }
 }
 function deleteInvite(params) {
   params.domel.parentElement.removeChild(params.domel)
-  deletingInvites[params.email] = params.code
-  delete pendingInvites[params.email]
+  DeletingInvites[params.email] = params.code
+  delete PendingInvites[params.email]
 }
 function removeInvite(params) {
   params.domel.parentElement.removeChild(params.domel)
-  delete unsentInvites[params.inviteKey]
+  delete UnsentInvites[params.inviteKey]
 }
 function addElector() {
-  electorEl(containerdivs.unsent, "", "", "unsent")
+  electorEl(Containerdivs.unsent, "", "", "unsent")
 }
 function saveElectorate() {
   var invite, email
   //send new invites
-  for (var i in unsentInvites) {
-    if (!unsentInvites.hasOwnProperty(i)) continue
-    invite = unsentInvites[i]
+  for (var i in UnsentInvites) {
+    if (!UnsentInvites.hasOwnProperty(i)) continue
+    invite = UnsentInvites[i]
     email = invite.email.value
     invite.domel.parentElement.removeChild(invite.domel)
-    if (pendingInvites[email] || deletingInvites[email]) {  //prevent attempts to create duplicate invites or create invites for emails that are also being deleted in this request
-      delete unsentInvites[i]
+    if (PendingInvites[email] || DeletingInvites[email]) {  //prevent attempts to create duplicate invites or create invites for emails that are also being deleted in this request
+      delete UnsentInvites[i]
       continue
     }
-    pendingInvites[email] = true
-    piv.postToResource('/api/election/' + election + '/invite', {"email": email},
+    PendingInvites[email] = true
+    Piv.postToResource('/api/election/' + election + '/invite', {"email": email},
       function(data){
-        electorEl(containerdivs.pending, data.code, data.email, "pending")
+        electorEl(Containerdivs.pending, data.code, data.email, "pending")
       })
-    delete unsentInvites[i]
+    delete UnsentInvites[i]
   }
   //delete those marked for deletion
-  for (var i in deletingInvites) {
-    if (!deletingInvites.hasOwnProperty(i)) continue
-    piv.deleteResource('/api/election/' + election + '/invite/' + deletingInvites[i])
-    delete deletingInvites[i]
+  for (var i in DeletingInvites) {
+    if (!DeletingInvites.hasOwnProperty(i)) continue
+    Piv.deleteResource('/api/election/' + election + '/invite/' + DeletingInvites[i])
+    delete DeletingInvites[i]
   }
 }
 
 function loadElectorateAndInvites(electionId, onSuccessFunction) {
-  piv.getMultResources(['/api/election/' + electionId + '/elector', '/api/election/' + electionId + '/invite'], onSuccessFunction)
+  Piv.getMultResources(['/api/election/' + electionId + '/elector', '/api/election/' + electionId + '/invite'], onSuccessFunction)
 }
 
 function displayElectorateAndInvites(electorate, invites) {
@@ -104,7 +111,7 @@ function displayElectorate(electorate) {
   var elector
   for (var key in electorate) {
     elector = electorate[key]
-    electorEl(containerdivs.electorate, elector.name, elector.email)
+    electorEl(Containerdivs.electorate, elector.name, elector.email)
   }
 }
 
@@ -114,7 +121,7 @@ function displayInvites(invites) {
     invite = invites[key]
     code = invite.code
     email = invite.email
-    electorEl(containerdivs.pending, code, email, "pending")
+    electorEl(Containerdivs.pending, code, email, "pending")
   }
 }
 

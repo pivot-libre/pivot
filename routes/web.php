@@ -20,9 +20,9 @@ Route::get('/profile/accept', 'ProfileController@accept');
 Route::get('/', function () {
   return view('myElections');
 });
-Route::get('/verify_email', function () {
-  return view('auth/verifyEmail');
-})->name('verify_email');
+// Route::get('/verify_email', function () {
+//   return view('auth/verifyEmail');
+// })->name('verify_email');
 
 
 // all routes that require authentication go in here, the user will be redirected to the login page,
