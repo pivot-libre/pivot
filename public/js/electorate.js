@@ -30,8 +30,8 @@ Containerdivs.electorate = Piv.html(View.workspace, "ol", "", {"id": "electorate
 Containerdivs.pending = Piv.html(View.workspace, "ul", "", {"id": "pendingUl", "class": "itemlist hasLabelFrame"});
 Containerdivs.unsent = Piv.html(View.workspace, "ul", "", {"id": "unsentUl", "class": "itemlist hasLabelFrame"});
 
-Piv.div(View.workspace, "AddCandidate", "button1Item", "+ New Invite", "", ["click"], addElector)
-Piv.div(View.workspace, "SaveElection", "button1Item", "Save Invites", "", ["click"], saveElectorate)
+Piv.div(View.workspace, "AddCandidate", "button1Item", "+ New Invite", "", "click", addElector)
+Piv.div(View.workspace, "SaveElection", "button1Item", "Save Invites", "", "click", saveElectorate)
 
 loadElectorateAndInvites(election, displayElectorateAndInvites)
 
@@ -47,26 +47,26 @@ function electorEl(parent, uniq, email, inviteStatus) {
     var lastInvite = Object.keys(UnsentInvites)[Object.keys(UnsentInvites).length - 1] || 0
     var emailInput = Piv.html(box, "input", "", {"type": "text", "name": "email", "class": "w50"});
     UnsentInvites[++lastInvite] = {"email": emailInput, "domel": box}
-    Piv.div(box, "", "clickable1", "X", "", ["click"], removeInvite, {"domel": box, "inviteKey": lastInvite})
+    Piv.div(box, "", "clickable1", "X", "", "click", removeInvite, [box, lastInvite])
   }
   else if ("pending" == inviteStatus) {
     PendingInvites[email] = box
     Piv.div(box, "", "", email + "(" + uniq + ")", {"class": "w50 text1"});
-    Piv.div(box, "", "clickable1", "X", "", ["click"], deleteInvite, {"domel": box, "code": uniq, "email": email})
+    Piv.div(box, "", "clickable1", "X", "", "click", deleteInvite, [box, uniq, email])
   }
   else {
     Piv.div(box, "", "", uniq + "(" + email + ")", {"class": "w50 text1"});
     Piv.div(box, "", "hidden clickable1", "X")
   }
 }
-function deleteInvite(params) {
-  params.domel.parentElement.removeChild(params.domel)
-  DeletingInvites[params.email] = params.code
-  delete PendingInvites[params.email]
+function deleteInvite(domel, code, email) {
+  domel.parentElement.removeChild(domel)
+  DeletingInvites[email] = code
+  delete PendingInvites[email]
 }
-function removeInvite(params) {
-  params.domel.parentElement.removeChild(params.domel)
-  delete UnsentInvites[params.inviteKey]
+function removeInvite(domel, inviteKey) {
+  domel.parentElement.removeChild(domel)
+  delete UnsentInvites[inviteKey]
 }
 function addElector() {
   electorEl(Containerdivs.unsent, "", "", "unsent")
