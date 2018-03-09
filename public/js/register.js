@@ -26,7 +26,8 @@ function verifyEmail(email, statusEl, instructionsEl) {
     }
     else {
       statusEl.innerHTML = "Token not sent"
-      instructionsEl.innerHTML = "An issue occurred when generating the token. Check that you have supplied a valid Email address."
+      // instructionsEl.innerHTML = "An issue occurred when generating the token. Check that you have supplied a valid Email address."
+      instructionsEl.innerHTML = response
     }
   })
 }
