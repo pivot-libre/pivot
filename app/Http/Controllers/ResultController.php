@@ -27,6 +27,8 @@ class ResultController extends Controller
      */
     public function getCandidateRankCollection($electionId)
     {
+        // TODO: should we filter out electors who haven't indicated they are ready?
+
         /*
         SELECT 
             candidate_ranks.elector_id,

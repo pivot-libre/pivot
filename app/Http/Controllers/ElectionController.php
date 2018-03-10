@@ -127,6 +127,7 @@ class ElectionController extends Controller
     {
         $this->authorize('update', $election);
 
+        // TODO: should this reset voter ready indications?
         $election->name = $request->json()->get('name');
         $election->save();
 
@@ -150,7 +151,6 @@ class ElectionController extends Controller
         $this->authorize('delete', $election);
 
         $election->delete();
-
         return response()->json(new \stdClass());
     }
 

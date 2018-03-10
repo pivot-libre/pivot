@@ -23,6 +23,7 @@ Route::get('election/{election_id}/batchvote', 'ElectionController@batchvote_vie
 Route::get('election/{election_id}/get_ready', 'ElectionController@get_ready')->name('election.get_ready');
 Route::post('election/{election_id}/set_ready', 'ElectionController@set_ready')->name('election.set_ready');
 
+// TODO: allow update (e.g., to fix typos in candidate name?)
 Route::resource('election.candidate', 'CandidateController', ['only' => ['index', 'show', 'store', 'destroy']]);
 
 Route::resource('election.elector', 'ElectorController', ['only' => ['index', 'show', 'destroy'],
