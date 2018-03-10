@@ -45,6 +45,44 @@ class CandidateController extends Controller
     }
 
     /**
+     * Show a candidate from an election
+     *
+     * @SWG\Get(
+     *     tags={"Candidates"},
+     *     path="/election/{electionId}/candidate/{candidateId}",
+     *     summary="Get information about a candidate",
+     *     operationId="getCandidateById",
+     *     @SWG\Parameter(
+     *         name="electionId",
+     *         in="path",
+     *         description="Election to get",
+     *         required=true,
+     *         type="string",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="candidateId",
+     *         in="path",
+     *         description="Candidate to get",
+     *         required=true,
+     *         type="string",
+     *     ),
+     *     @SWG\Response(response="200", description="Success", @SWG\Schema(ref="#/definitions/Candidate")
+     *     ),
+     *     @SWG\Response(response="400", description="Bad Request")
+     * )
+     *
+     * @param Election $election
+     * @param Candidate $candidate
+     * @return Candidate
+     */
+    public function show(Election $election, Candidate $candidate)
+    {
+        $this->authorize('view', $election);
+
+        return $candidate;
+    }
+
+    /**
      * Add a new candidate for an election
      *
      * @SWG\Post(
@@ -87,49 +125,15 @@ class CandidateController extends Controller
     {
         $this->authorize('update', $election);
 
+        // bump election version, reseting voter indications
+        $election->ballot_version += 1;
+        $election->save();
+
+        // save new candidate
         $candidate = new Candidate();
         $candidate->name = $request->json()->get('name');
         $candidate->election_id = $election->id;
         $candidate->save();
-
-        return $candidate;
-    }
-
-    /**
-     * Show a candidate from an election
-     *
-     * @SWG\Get(
-     *     tags={"Candidates"},
-     *     path="/election/{electionId}/candidate/{candidateId}",
-     *     summary="Get information about a candidate",
-     *     operationId="getCandidateById",
-     *     @SWG\Parameter(
-     *         name="electionId",
-     *         in="path",
-     *         description="Election to get",
-     *         required=true,
-     *         type="string",
-     *     ),
-     *     @SWG\Parameter(
-     *         name="candidateId",
-     *         in="path",
-     *         description="Candidate to get",
-     *         required=true,
-     *         type="string",
-     *     ),
-     *     @SWG\Response(response="200", description="Success", @SWG\Schema(ref="#/definitions/Candidate")
-     *     ),
-     *     @SWG\Response(response="400", description="Bad Request")
-     * )
-     *
-     * @param Election $election
-     * @param Candidate $candidate
-     * @return Candidate
-     */
-    public function show(Election $election, Candidate $candidate)
-    {
-        $this->authorize('view', $election);
-
         return $candidate;
     }
 
@@ -175,8 +179,12 @@ class CandidateController extends Controller
     {
         $this->authorize('update', $election);
 
-        $candidate->delete();
+        // bump ballot version, reseting voter indications
+        $election->ballot_version += 1;
+        $election->save();
 
+        // delete candidate
+        $candidate->delete();
         return response()->json(new \stdClass());
     }
 }
