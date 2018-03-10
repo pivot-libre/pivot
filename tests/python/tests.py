@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, sys, json, requests, time, re, argparse
+import os, sys, json, requests, time, re, argparse, inspect, re
 from collections import defaultdict as ddict
 
 class LatencyStats:
@@ -215,7 +215,6 @@ class API:
         return self.user_post(user, url, {'approved_version': version})
 
 def test1(api):
-    print "\n============= TEST 1 ============\n"
     users = api.load_users()
     userA = users[0]
     userB = users[1]
@@ -281,7 +280,6 @@ def test2(api):
     """
     This tests one user voting on their own election.
     """
-    print "\n============= TEST 2 ============\n"
     users = api.load_users()
     userA = users[0]
     userB = users[1]
@@ -312,7 +310,6 @@ def test3(api):
     """
     This tests verifies that an elector can view other electors
     """
-    print "\n============= TEST 3 ============\n"
     users = api.load_users()
     userA = users[0]
     userB = users[1]
@@ -327,7 +324,6 @@ def test4(api):
     """
     This verifies a user cannot accept an invitation not associated with their email
     """
-    print "\n============= TEST 4 ============\n"
     users = api.load_users()
     userA = users[0]
     userB = users[1]
@@ -345,7 +341,6 @@ def test5(api):
     """
     This verifies an admin can delete an election
     """
-    print "\n============= TEST 5 ============\n"
     users = api.load_users()
     userA = users[0]
     election = api.create_election(userA, 'test5-election')
@@ -355,7 +350,6 @@ def test6(api):
     """
     This checks for double invitations/accepts
     """
-    print "\n============= TEST 6 ============\n"
     users = api.load_users()
     userA = users[0]
     userB = users[1]
@@ -378,13 +372,14 @@ def test7(api):
     """
     This tests exercises the API that votes use to finalize their ballot
     """
-    print "\n============= TEST 7 ============\n"
     users = api.load_users()
     userA = users[0]
     userB = users[1]
 
     election = api.create_election(userA, 'test3-election')
     api.add_elector(election, userA, userB)
+
+    # exercise flipping reading on/off
     ready = api.get_ready(userB, election)
     assert(ready['is_latest'] == False)
     assert(ready['approved_version'] == None)
@@ -406,20 +401,48 @@ def test7(api):
     assert(ready['approved_version'] == None)
     assert(ready['latest_version'] == 1)
 
-def main(url, curltrace):
+    # exercise readiness reset that happens when the admin modifies the election
+    ready = api.set_ready(userB, election, ready['latest_version'])
+    assert(ready['is_latest'] == True)
+    assert(ready['approved_version'] == 1)
+    assert(ready['latest_version'] == 1)
+    A = api.create_candidate(userA, election, 'candidate-A')
+    ready = api.get_ready(userB, election)
+    assert(ready['is_latest'] == False)
+    assert(ready['approved_version'] == 1)
+    assert(ready['latest_version'] == 2)
+    ready = api.set_ready(userB, election, ready['latest_version'])
+    assert(ready['is_latest'] == True)
+    assert(ready['approved_version'] == 2)
+    assert(ready['latest_version'] == 2)
+    ready = api.get_ready(userB, election)
+    assert(ready['is_latest'] == True)
+    assert(ready['approved_version'] == 2)
+    assert(ready['latest_version'] == 2)
+
+def main(url, curltrace, regex):
+    # scan this Python file for things that look like tests
+    tests_fns = []
+    predicate = lambda f: inspect.isfunction(f) and f.__module__ == __name__
+    for name, fn in inspect.getmembers(sys.modules[__name__], predicate = predicate):
+        if name.startswith('test'):
+            tests_fns.append(fn)
+    tests_fns.sort(key=lambda fn: fn.func_name)
+
+    # execute each test
     with API(url=url, curltrace=curltrace) as api:
-        test1(api)
-        test2(api)
-        test3(api)
-        test4(api)
-        test5(api)
-        test6(api)
-        test7(api)
+        for test_fn in tests_fns:
+            print "\n============= %s ============\n" % test_fn.func_name
+            if re.match(regex, test_fn.func_name):
+                test_fn(api)
+            else:
+                print 'SKIP '
         api.dump_stats()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run some tests.')
     parser.add_argument('--url', help='where to direct API calls', default='http://homestead.test/api')
     parser.add_argument('--curltrace', help='dumps a curl trace to given file', default='')
+    parser.add_argument('--regex', help='filter tests that run', default=r'.*')
     args = parser.parse_args()
-    main(url=args.url, curltrace=args.curltrace)
+    main(url=args.url, curltrace=args.curltrace, regex=args.regex)
