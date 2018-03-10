@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, sys, json, requests, time, re, argparse, inspect, re
+import os, sys, json, requests, time, re, argparse, inspect, re, random
 from collections import defaultdict as ddict
 
 class LatencyStats:
@@ -420,7 +420,67 @@ def test7(api):
     assert(ready['approved_version'] == 2)
     assert(ready['latest_version'] == 2)
 
-def main(url, curltrace, regex):
+def create_users(url):
+    from selenium import webdriver
+    from selenium.webdriver.common.keys import Keys
+    user_count = 2
+    users = {"users": []}
+
+    for i in range(1,user_count+1):
+        driver = webdriver.Chrome()
+        name = 'User %d' % i
+        email = 'user%d-%06d@pivot.vote' % (i, random.randint(0,999999))
+        password = 'abcabc'
+        driver.get(url + '/register')
+        driver.find_element_by_name("name").send_keys(email)
+        driver.find_element_by_name("email").send_keys(email)
+        driver.find_element_by_name("password").send_keys(password)
+        driver.find_element_by_name("password_confirmation").send_keys(password)
+        driver.find_element_by_name("password_confirmation").submit()
+        driver.get(url + '/profile')
+        driver.find_element_by_link_text('Create New Token').click()
+        time.sleep(3) # find better way to wait till field is visible
+        driver.find_element_by_name("name").send_keys("my token")
+
+        # Create Button
+        found_button = False
+        for btn in driver.find_elements_by_xpath("//button[contains(text(), 'Create')]"):
+            if btn.is_displayed():
+                found_button = True
+                btn.click()
+                break
+        assert(found_button)
+        
+        time.sleep(3)
+        print 'grab token'
+        found_code = False
+        for code in driver.find_elements_by_xpath("//code"):
+            if code.is_displayed():
+                found_code = True
+                token = code.text
+                break
+        assert(found_code)
+        print token
+
+        # Close Button
+        found_button = False
+        for btn in driver.find_elements_by_xpath("//button[contains(text(), 'Close')]"):
+            if btn.is_displayed():
+                found_button = True
+                btn.click()
+                break
+        assert(found_button)
+        driver.close()
+
+        users['users'].append({'email': email, 'token': token})
+
+    with open('users.json', 'w') as f:
+        f.write(json.dumps(users, indent=2, sort_keys=True))
+        
+def main(url, genusers, curltrace, regex):
+    if genusers:
+        create_users(url)
+    
     # scan this Python file for things that look like tests
     tests_fns = []
     predicate = lambda f: inspect.isfunction(f) and f.__module__ == __name__
@@ -430,7 +490,7 @@ def main(url, curltrace, regex):
     tests_fns.sort(key=lambda fn: fn.func_name)
 
     # execute each test
-    with API(url=url, curltrace=curltrace) as api:
+    with API(url=url+'/api', curltrace=curltrace) as api:
         for test_fn in tests_fns:
             print "\n============= %s ============\n" % test_fn.func_name
             if re.match(regex, test_fn.func_name):
@@ -441,8 +501,10 @@ def main(url, curltrace, regex):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run some tests.')
-    parser.add_argument('--url', help='where to direct API calls', default='http://homestead.test/api')
+    parser.set_defaults(genusers=False)
+    parser.add_argument('--url', help='where to direct API calls', default='http://homestead.test')
+    parser.add_argument('--genusers', help='generates users and tokens for use in tests', dest='genusers', action='store_true')
     parser.add_argument('--curltrace', help='dumps a curl trace to given file', default='')
     parser.add_argument('--regex', help='filter tests that run', default=r'.*')
     args = parser.parse_args()
-    main(url=args.url, curltrace=args.curltrace, regex=args.regex)
+    main(url=args.url, genusers=args.genusers, curltrace=args.curltrace, regex=args.regex)
