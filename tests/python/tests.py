@@ -84,7 +84,7 @@ class API:
                 self.next_should_fail = False
                 return
             else:
-                print 'could not parse: ' + d[:100] + '...'
+                print 'could not parse: ' + d[:100] + ' (%d bytes)...' % len(d)
                 self.dump(d)
                 assert(0)
         # no failure detected
@@ -114,7 +114,7 @@ class API:
                 self.next_should_fail = False
                 return
             else:
-                print 'could not parse: ' + d[:100] + '...'
+                print 'could not parse: ' + d[:100] + ' (%d bytes)...' % len(d)
                 self.dump(d)
                 assert(0)
         # no failure detected
@@ -143,7 +143,7 @@ class API:
                 self.next_should_fail = False
                 return
             else:
-                print 'could not parse: ' + d[:100] + '...'
+                print 'could not parse: ' + d[:100] + ' (%d bytes)...' % len(d)
                 self.dump(d)
                 assert(0)
         # no failure detected
@@ -205,6 +205,14 @@ class API:
         invite_status = self.invite(admin, election, user['email'])
         code = invite_status['code']
         self.accept(user, code)
+
+    def get_ready(self, user, election):
+        url = 'election/%d/get_ready' % election['id']
+        return self.user_get(user, url)
+
+    def set_ready(self, user, election, version):
+        url = 'election/%d/set_ready' % election['id']
+        return self.user_post(user, url, {'approved_version': version})
 
 def test1(api):
     print "\n============= TEST 1 ============\n"
@@ -366,6 +374,38 @@ def test6(api):
     api.expect_fail() # cannot accept twice
     api.accept(userB, code)
 
+def test7(api):
+    """
+    This tests exercises the API that votes use to finalize their ballot
+    """
+    print "\n============= TEST 7 ============\n"
+    users = api.load_users()
+    userA = users[0]
+    userB = users[1]
+
+    election = api.create_election(userA, 'test3-election')
+    api.add_elector(election, userA, userB)
+    ready = api.get_ready(userB, election)
+    assert(ready['is_latest'] == False)
+    assert(ready['approved_version'] == None)
+    assert(ready['latest_version'] == 1)
+    ready = api.set_ready(userB, election, ready['latest_version'])
+    assert(ready['is_latest'] == True)
+    assert(ready['approved_version'] == 1)
+    assert(ready['latest_version'] == 1)
+    ready = api.get_ready(userB, election)
+    assert(ready['is_latest'] == True)
+    assert(ready['approved_version'] == 1)
+    assert(ready['latest_version'] == 1)
+    ready = api.set_ready(userB, election, None)
+    assert(ready['is_latest'] == False)
+    assert(ready['approved_version'] == None)
+    assert(ready['latest_version'] == 1)
+    ready = api.get_ready(userB, election)
+    assert(ready['is_latest'] == False)
+    assert(ready['approved_version'] == None)
+    assert(ready['latest_version'] == 1)
+
 def main(url, curltrace):
     with API(url=url, curltrace=curltrace) as api:
         test1(api)
@@ -374,6 +414,7 @@ def main(url, curltrace):
         test4(api)
         test5(api)
         test6(api)
+        test7(api)
         api.dump_stats()
 
 if __name__ == '__main__':

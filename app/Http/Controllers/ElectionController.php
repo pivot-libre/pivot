@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Election;
+use App\Elector;
+use App\CandidateRank;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -150,5 +152,83 @@ class ElectionController extends Controller
         $election->delete();
 
         return response()->json(new \stdClass());
+    }
+
+    public function batchvote(Request $request, $election_id)
+    {
+        $election = Election::where('id', '=', $election_id)->firstOrFail();
+        $this->authorize('vote', $election);
+        
+        $elector = Elector::where('election_id', '=', $election_id)->
+                            where('user_id', '=', Auth::user()->id)->firstOrFail();
+
+        $ranks = array();
+
+        // iterate over list of rankings
+        foreach($request->json()->get('votes') as $vote) {
+            // TODO: check this is a valid candidate?
+            $candidate_id = $vote['candidate_id'];
+            $rank_num = $vote['rank'];
+
+            $rank = CandidateRank::firstOrNew(['elector_id' => $elector->id, 'candidate_id' => $candidate_id]);
+            $rank->elector_id = $elector->id;
+            $rank->candidate_id = $candidate_id;
+            $rank->rank = $rank_num;
+            $rank->save();
+
+            array_push($ranks, $rank);
+        }
+
+        return $ranks;
+    }
+
+    public function batchvote_view(Request $request, $election_id)
+    {
+        $election = Election::where('id', '=', $election_id)->firstOrFail();
+        $this->authorize('vote', $election);
+
+        $elector = Elector::where('election_id', '=', $election_id)->
+                            where('user_id', '=', Auth::user()->id)->firstOrFail();
+        return $elector->ranks;
+    }
+
+    // check whether vote is ready
+    public function get_ready(Request $request, $election_id)
+    {
+        $election = Election::where('id', '=', $election_id)->firstOrFail();
+        $this->authorize('vote', $election);
+        $elector = Elector::where('election_id', '=', $election_id)->
+                            where('user_id', '=', Auth::user()->id)->firstOrFail();
+
+        // what is the approval version, and is it current?
+        $approved_version = $elector->ballot_version_approved;
+        $latest_version = $election->ballot_version;
+        $is_latest = ($approved_version == $latest_version);
+
+        // return version status
+        return response()->json(array("approved_version" => $approved_version,
+                                      "latest_version" => $latest_version,
+                                      "is_latest" => $is_latest));
+    }
+
+    // mark vote ready
+    public function set_ready(Request $request, $election_id)
+    {
+        $election = Election::where('id', '=', $election_id)->firstOrFail();
+        $this->authorize('vote', $election);
+        $elector = Elector::where('election_id', '=', $election_id)->
+                            where('user_id', '=', Auth::user()->id)->firstOrFail();
+
+        // what is the approval version, and is it current?
+        $approved_version = $request->json()->get('approved_version');
+        $latest_version = $election->ballot_version;
+        $is_latest = ($approved_version == $latest_version);
+
+        // save version to elector, return version status
+        $elector->ballot_version_approved = $approved_version;
+        $elector->save();
+        return response()->json(array("approved_version" => $approved_version,
+                                      "latest_version" => $latest_version,
+                                      "is_latest" => $is_latest));
     }
 }
