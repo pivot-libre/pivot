@@ -423,11 +423,15 @@ def test7(api):
 def create_users(url):
     from selenium import webdriver
     from selenium.webdriver.common.keys import Keys
+    from selenium.webdriver.chrome.options import Options as ChromeOptions
     user_count = 2
     users = {"users": []}
 
     for i in range(1,user_count+1):
-        driver = webdriver.Chrome()
+        chrome_options = ChromeOptions()
+        chrome_options.add_argument("--headless")
+        driver = webdriver.Chrome(chrome_options=chrome_options)
+
         name = 'User %d' % i
         email = 'user%d-%06d@pivot.vote' % (i, random.randint(0,999999))
         password = 'abcabc'
