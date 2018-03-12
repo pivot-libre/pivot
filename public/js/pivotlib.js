@@ -25,6 +25,10 @@ var loadBallot = lib.loadBallot = function(electionId, onSuccessFunction, perCan
 var displayBallot = lib.displayBallot = function(ballotDefinition, rankedBallot, perCandidateFunc) {
   var candidate, sortedDefinitions = {}, sortedCandidates = {}
 
+  // make sure the containers are clear before adding candidates to them
+  while (rankeditems.lastChild) { rankeditems.removeChild(rankeditems.lastChild) }
+  while (unrankeditems.lastChild) { unrankeditems.removeChild(unrankeditems.lastChild) }
+
   //if the user hasn't looked at this ballot before, we can simply display the ballot definition
   if (0 == rankedBallot.length) { dispayCandidatesWithRank("", ballotDefinition, rankeditems, unrankeditems, perCandidateFunc); return}
 
