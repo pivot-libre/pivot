@@ -1,11 +1,11 @@
 'use strict';
 
 //create a file-specific context via a function
-(function(Piv, Dragula) {
+(function(Piv, Dragula, ElectionId) {
 
 // script-level variables
 var View = Piv.view
-var SaveStatusDomEl
+var SavedStatusDomel, ReviewedStatusDomels = {}
 var Rankeditems, Unrankeditems
 
 // actions (do stuff)
@@ -13,18 +13,57 @@ Piv.evmanage.setManager(View.workspace, ["click"])
 
 View.setHeader("Cast Ballot")
 
-Piv.anchorListDiv(View.workspace, "", {
-    "Rank Candidates": "/ballot/" + election,
-    "ReView ballot": "/ballotReview/" + election
-  }
-)
+// Piv.anchorListDiv(View.workspace, "", {
+//     "Rank Candidates": "/ballot/" + ElectionId,
+//     "Review ballot": "/ballotReview/" + ElectionId
+//   }
+// )
 
 Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
 Rankeditems = Piv.html(View.workspace, "ol", "", {"id": "rankeditems", "class": "itemlist incrementsCounter grabbable hasLabelFrame"});
 Unrankeditems = Piv.html(View.workspace, "ul", "", {"id": "unrankeditems", "class": "itemlist cursorPointer hasLabelFrame"});
 
-Piv.loadBallot(election, Piv.displayBallot, li1)
+
+ReviewedStatusDomels.div = Piv.div(View.workspace, "", "row1")
+ReviewedStatusDomels.checkbox = Piv.html(ReviewedStatusDomels.div, "input", "", {"id": "reviewedStatusCheckbox", "type": "checkbox", "class": "text1square cursorPointer"}, "click", function() {
+  if (ReviewedStatusDomels.checkbox.checked) {
+    if (ReviewedStatusDomels.messageDiv) {
+      ReviewedStatusDomels.messageDiv.parentElement.removeChild(ReviewedStatusDomels.messageDiv)
+      delete ReviewedStatusDomels.messageDiv
+    }
+    Piv.postToResource("/api/election/" + ElectionId + '/set_ready', {"approved_version": ReviewedStatusDomels.version}, function(response) {
+      if (!response.is_latest) {
+        ReviewedStatusDomels.checkbox.checked = false
+        Piv.loadBallot(ElectionId, Piv.displayBallot, li1)
+        ReviewedStatusDomels.messageDiv = Piv.div(ReviewedStatusDomels.div, "", "row1 text3", "The administrator has updated the ballot since loading the page. Please review again.")
+        ReviewedStatusDomels.version = response.latest_version
+      }
+    })
+  }
+  else {
+    Piv.postToResource("/api/election/" + ElectionId + '/set_ready', {"approved_version": null}, function(response) {
+    })
+  }
+})
+Piv.getResource("/api/election/" + ElectionId + '/get_ready', function(response) {
+  // if (!response.approved_version) {
+  //   ReviewedStatusDomels.div.innerHTML = "Unreviewed"
+  // }
+  // else if (!response.is_latest) {
+  //   ReviewedStatusDomels.div.innerHTML = "Ballot has changed since last reviewed and must be reviewed again"
+  // }
+  // else {
+  //   ReviewedStatusDomels.div.innerHTML = "Reviewed"
+  // }
+
+  ReviewedStatusDomels.version = response.latest_version
+  ReviewedStatusDomels.checkbox.checked = ReviewedStatusDomels.isApproved = response.is_latest
+})
+Piv.html(ReviewedStatusDomels.div, "label", "Reviewed", {"for": "reviewedStatusCheckbox"})
+
+
+Piv.loadBallot(ElectionId, Piv.displayBallot, li1)
 
 setUpDragHandling(Dragula, Rankeditems, Unrankeditems)
 
@@ -195,7 +234,7 @@ function onReorder(candidateEl) {
 function updateInstructions(rankeditemsCount) {
   // var header = document.getElementById("instructions");
   // if (document.getElementById("unrankeditems").childElementCount == 0) {
-  //   header.innerHTML = "You may continue sorting items. When satisfied, you can move on to the ReView step.";
+  //   header.innerHTML = "You may continue sorting items. When satisfied, you can move on to the Review step.";
   //   return;
   // }
   // header.innerHTML = "Select your " + ordinalSuffix(rankeditems.childElementCount + 1) + " choice";
@@ -225,8 +264,8 @@ function finishSaveRankings(response) {
   updateStatusDisplay("Saved!")
 }
 function updateStatusDisplay(newStatus) {
-  if (!SaveStatusDomEl) { SaveStatusDomEl = Piv.div(View.workspace, "", "row1 text3")}
-  SaveStatusDomEl.innerHTML = newStatus
+  if (!SavedStatusDomel) { SavedStatusDomel = Piv.div(View.workspace, "", "row1 text3") }
+  SavedStatusDomel.innerHTML = newStatus
 }
 function makeRankingsArray () {
   var rankings = [];
@@ -263,4 +302,4 @@ function batchVote(electionId, candidateRanks) {
 }
 
 // close the self-executing function and feed the piv library to it
-})(piv, dragula)
+})(piv, dragula, election)

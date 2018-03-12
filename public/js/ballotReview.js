@@ -7,11 +7,11 @@
 var View = Piv.view, Rankeditems, Unrankeditems
 
 // actions (do stuff)
-View.setHeader("ReView Ballot")
+View.setHeader("Review Ballot")
 
 Piv.anchorListDiv(View.workspace, "", {
     "Rank Candidates": "/ballot/" + election,
-    "ReView ballot": "/ballotReview/" + election
+    "Review ballot": "/ballotReview/" + election
   }
 )
 
