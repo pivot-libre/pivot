@@ -7,6 +7,7 @@ use App\Elector;
 use App\CandidateRank;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ElectionController extends Controller
 {
@@ -230,5 +231,41 @@ class ElectionController extends Controller
         return response()->json(array("approved_version" => $approved_version,
                                       "latest_version" => $latest_version,
                                       "is_latest" => $is_latest));
+    }
+
+    public function voter_stats(Request $request, $election_id)
+    {
+        $election = Election::where('id', '=', $election_id)->firstOrFail();
+        $this->authorize('view_voter_stats', $election);
+
+        $stats = array(
+            "outstanding_invites" => 0,
+            "approved_none" => 0,
+            "approved_current" => 0,
+            "approved_previous" => 0
+        );
+
+        $columns = DB::raw('count(*) AS elector_count, elections.ballot_version, electors.ballot_version_approved, (invites.accepted_at IS NOT NULL) AS accepted');
+        $query = Election::where('elections.id', '=', $election_id)
+                           ->join('electors', 'elections.id', '=', 'electors.election_id')
+                           ->join('invites', 'electors.invite_id', '=', 'invites.id')
+                           ->select($columns)
+                           ->groupBy('elections.ballot_version', 'electors.ballot_version_approved', 'accepted');
+
+        foreach ($query->get() as $row) {
+            $count = $row['elector_count'];
+
+            if (!$row->accepted) {
+                $stats['outstanding_invites'] += $count;
+            } else if ($row->ballot_version_approved == null) {
+                $stats['approved_none'] += $count;
+            } else if ($row->ballot_version_approved == $row->ballot_version) {
+                $stats['approved_current'] += $count;
+            } else {
+                $stats['approved_previous'] += $count;
+            }
+        }
+
+        return response()->json($stats);
     }
 }

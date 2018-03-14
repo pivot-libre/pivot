@@ -43,7 +43,7 @@ class User extends Authenticatable
     {
         $invite = Invite::where('code', $code)->firstOrFail();
 
-        assert($this->accepted_at == null); // should already have been checked
+        assert($invite->accepted_at == null); // should already have been checked
         $invite->elector->user()->associate($this);
         $invite->elector->save();
 
