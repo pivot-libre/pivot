@@ -214,6 +214,10 @@ class API:
         url = 'election/%d/set_ready' % election['id']
         return self.user_post(user, url, {'approved_version': version})
 
+    def voter_stats(self, user, election):
+        url = 'election/%d/voter_stats' % election['id']
+        return self.user_get(user, url)
+
 def test1(api):
     users = api.load_users()
     userA = users[0]
@@ -376,7 +380,7 @@ def test7(api):
     userA = users[0]
     userB = users[1]
 
-    election = api.create_election(userA, 'test3-election')
+    election = api.create_election(userA, 'test7-election')
     api.add_elector(election, userA, userB)
 
     # exercise flipping reading on/off
@@ -419,6 +423,36 @@ def test7(api):
     assert(ready['is_latest'] == True)
     assert(ready['approved_version'] == 2)
     assert(ready['latest_version'] == 2)
+
+def test8(api):
+    """
+    This tests voter readiness stats
+    """
+    users = api.load_users()
+    userA = users[0]
+    userB = users[1]
+    # create election
+    election = api.create_election(userA, 'test8-election')
+    stats = api.voter_stats(userA, election)
+    assert(sum(stats.values()) == 0)
+    # invite
+    invite_status = api.invite(userA, election, userB['email'])
+    code = invite_status['code']
+    stats = api.voter_stats(userA, election)
+    assert(stats['outstanding_invites'] == 1 and sum(stats.values()) == 1)
+    # accept
+    api.accept(userB, code)
+    stats = api.voter_stats(userA, election)
+    assert(stats['approved_none'] == 1 and sum(stats.values()) == 1)
+    # mark ready
+    ready = api.get_ready(userB, election)
+    api.set_ready(userB, election, ready['latest_version'])
+    stats = api.voter_stats(userA, election)
+    assert(stats['approved_current'] == 1 and sum(stats.values()) == 1)
+    # modify ballot
+    api.create_candidate(userA, election, 'candidate-A')
+    stats = api.voter_stats(userA, election)
+    assert(stats['approved_previous'] == 1 and sum(stats.values()) == 1)
 
 def create_users(url):
     from selenium import webdriver

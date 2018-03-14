@@ -49,6 +49,19 @@ class ElectionPolicy
     }
 
     /**
+     * Determine whether the user can view stats about the election
+     *
+     * @param  \App\User  $user
+     * @param  \App\Election  $election
+     * @return bool
+     */
+    public function view_voter_stats(User $user, Election $election)
+    {
+        // TODO: should electors be able to view results?
+        return $this->is_admin($election, $user) || $this->is_elector($election, $user);
+    }
+
+    /**
      * Determine whether the user can vote on the election.
      *
      * @param  \App\User  $user
