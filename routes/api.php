@@ -38,3 +38,5 @@ Route::resource('election.invite', 'InviteController', ['only' => ['index', 'sho
 Route::post('/invite/acceptable', 'InviteController@acceptable')->name('invite.acceptable'); // TODO: remove this (use GET instead)
 Route::get('/invite/acceptable', 'InviteController@acceptable')->name('invite.acceptable');
 Route::post('/invite/accept', 'InviteController@accept')->name('invite.accept');
+
+Route::post('/delete_account', 'AccountController@delete_account')->name('account.delete');

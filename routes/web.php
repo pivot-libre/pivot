@@ -57,4 +57,7 @@ Route::group(['middleware' => 'auth'], function() {
   Route::get('/ballotReview/{election}', function ($election) {
       return view('ballotReview', ['election' => $election]);
   });
+  Route::get('/delete_account', function () {
+      return view('deleteAccount');
+  });
 });
