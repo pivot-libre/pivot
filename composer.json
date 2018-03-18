@@ -17,7 +17,7 @@
         "laravel/passport": "^3.0",
         "laravel/tinker": "~1.0",
         "pivot-libre/tideman": "@dev",
-	"aws/aws-sdk-php": "~3.0"
+	"aws/aws-sdk-php": "~3.0",
 	"guzzlehttp/guzzle": "~6.0"
     },
     "require-dev": {
