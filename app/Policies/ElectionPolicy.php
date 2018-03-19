@@ -49,7 +49,7 @@ class ElectionPolicy
     }
 
     /**
-     * Determine whether the user can view stats about the election
+     * Determine whether the user can view stats the state voters are in
      *
      * @param  \App\User  $user
      * @param  \App\Election  $election
@@ -57,8 +57,21 @@ class ElectionPolicy
      */
     public function view_voter_stats(User $user, Election $election)
     {
-        // TODO: should electors be able to view results?
+        // TODO: should electors be able to view stats?
         return $this->is_admin($election, $user) || $this->is_elector($election, $user);
+    }
+
+    /**
+     * Determine whether the user can view voters in the election
+     *
+     * @param  \App\User  $user
+     * @param  \App\Election  $election
+     * @return bool
+     */
+    public function view_voter_details(User $user, Election $election)
+    {
+        // TODO: should electors be able to view list of other electors?
+        return $this->is_admin($election, $user);
     }
 
     /**
