@@ -268,4 +268,49 @@ class ElectionController extends Controller
 
         return response()->json($stats);
     }
+
+    public function voter_details(Request $request, $election_id)
+    {
+        $election = Election::where('id', '=', $election_id)->firstOrFail();
+        $this->authorize('view_voter_details', $election);
+
+        $stats = array(
+            "outstanding_invites" => array(),
+            "approved_none" => array(),
+            "approved_current" => array(),
+            "approved_previous" => array()
+        );
+
+        $query = Election::where('elections.id', '=', $election_id)
+                           ->join('electors', 'elections.id', '=', 'electors.election_id')
+                           ->join('invites', 'electors.invite_id', '=', 'invites.id')
+                           ->leftJoin('users', 'electors.user_id', '=', 'users.id')
+                           ->select('users.name',
+                                    'users.email',
+                                    'invites.email AS invite_email',
+                                    'invites.accepted_at',
+                                    'elections.ballot_version',
+                                    'electors.ballot_version_approved');
+
+        foreach ($query->get() as $row) {
+            $key = null;
+            if ($row->accepted_at == null) {
+                $key = 'outstanding_invites';
+            } else if ($row->ballot_version_approved == null) {
+                $key = 'approved_none';
+            } else if ($row->ballot_version_approved == $row->ballot_version) {
+                $key = 'approved_current';
+            } else {
+                $key = 'approved_previous';
+            }
+
+            $name = $row->name;
+            $email = $row->email != null ? $row->email : $row->invite_email;
+            # name may be null if invite hasn't been accepted.  Caller
+            # should expect this.
+            array_push($stats[$key], array("name" => $name, "email" => $email));
+        }
+
+        return response()->json($stats);
+    }
 }

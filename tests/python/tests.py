@@ -218,6 +218,10 @@ class API:
         url = 'election/%d/voter_stats' % election['id']
         return self.user_get(user, url)
 
+    def voter_details(self, user, election):
+        url = 'election/%d/voter_details' % election['id']
+        return self.user_get(user, url)
+
 def test1(api):
     users = api.load_users()
     userA = users[0]
@@ -431,28 +435,45 @@ def test8(api):
     users = api.load_users()
     userA = users[0]
     userB = users[1]
+
+    def verify_voterB_status(expected_status):
+        stats = api.voter_stats(userA, election)
+        details = api.voter_details(userA, election) # TODO
+        for key in ['outstanding_invites', 'approved_none', 'approved_current', 'approved_previous']:
+            count = stats.pop(key)
+            voters = details.pop(key)
+            if key == expected_status:
+                assert(count == 1)
+                assert(len(voters) == 1)
+                assert(voters[0]['email'] == userB['email'])
+                assert('name' in voters[0])
+            else:
+                assert(count == 0)
+                assert(len(voters) == 0)
+        assert(len(stats) == 0)
+        assert(len(details) == 0)
+    
     # create election
     election = api.create_election(userA, 'test8-election')
-    stats = api.voter_stats(userA, election)
-    assert(sum(stats.values()) == 0)
+    verify_voterB_status(None)
+    
     # invite
     invite_status = api.invite(userA, election, userB['email'])
     code = invite_status['code']
-    stats = api.voter_stats(userA, election)
-    assert(stats['outstanding_invites'] == 1 and sum(stats.values()) == 1)
+    verify_voterB_status('outstanding_invites')
+
     # accept
     api.accept(userB, code)
-    stats = api.voter_stats(userA, election)
-    assert(stats['approved_none'] == 1 and sum(stats.values()) == 1)
+    verify_voterB_status('approved_none')
+    
     # mark ready
     ready = api.get_ready(userB, election)
     api.set_ready(userB, election, ready['latest_version'])
-    stats = api.voter_stats(userA, election)
-    assert(stats['approved_current'] == 1 and sum(stats.values()) == 1)
+    verify_voterB_status('approved_current')
+
     # modify ballot
     api.create_candidate(userA, election, 'candidate-A')
-    stats = api.voter_stats(userA, election)
-    assert(stats['approved_previous'] == 1 and sum(stats.values()) == 1)
+    verify_voterB_status('approved_previous')
 
 def create_users(url):
     from selenium import webdriver
@@ -470,7 +491,7 @@ def create_users(url):
         email = 'user%d-%06d@pivot.vote' % (i, random.randint(0,999999))
         password = 'abcabc'
         driver.get(url + '/register')
-        driver.find_element_by_name("name").send_keys(email)
+        driver.find_element_by_name("name").send_keys(name)
         driver.find_element_by_name("email").send_keys(email)
         driver.find_element_by_name("password").send_keys(password)
         driver.find_element_by_name("password_confirmation").send_keys(password)
