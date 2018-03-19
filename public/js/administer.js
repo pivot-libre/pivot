@@ -20,14 +20,26 @@ Piv.anchorListDiv(View.workspace, "", {
 
 Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
-Piv.getResource('/api/election/' + election, showElectionDetails)
+Piv.getMultResources(['/api/election/' + election, '/api/election/' + election + '/voter_stats'], showElectionDetails)
+// Piv.getResource('/api/election/' + election, showElectionDetails)
+// Piv.getResource('/api/election/' + election + '/voter_stats',
+//   function(response){
+//     console.log(response)
+//   }
+// )
 
 // function definitions
-function showElectionDetails(details) {
-  var row = Piv.div(View.workspace, "", "w100")
-  Piv.div(row, "", "text1", "election name: " + details.name)
-  // Piv.div(row, "", "clickable1", "Delete Election", {"onclick": "deleteElection(" + details.id + ")"})
-  Piv.div(row, "", "clickable1", "Delete Election", "", "click", deleteElection, [details.id])
+function showElectionDetails(details, stats) {
+  Piv.div(View.workspace, "", "text3 row1", "Election name: " + details.name)
+
+  // stats
+  Piv.div(View.workspace, "", "text3 row1", "Outstanding invites: " + stats.outstanding_invites)
+  Piv.div(View.workspace, "", "text3 row1", "Approved ballots: " + stats.approved_current)
+  Piv.div(View.workspace, "", "text3 row1", "Unapproved ballots: " + stats.approved_none)
+  Piv.div(View.workspace, "", "text3 row1", "Previously approved ballots: " + stats.approved_previous)
+
+  //delete button
+  Piv.div(View.workspace, "", "clickable1", "Delete Election", "", "click", deleteElection, [details.id])
 }
 function deleteElection(electionId) {
   if (!electionId) {return}
