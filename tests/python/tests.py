@@ -173,6 +173,10 @@ class API:
         url = 'election/%d/candidate' % election['id']
         return self.user_post(user, url, {"name": name})
 
+    def delete_candidate(self, user, election, candidate):
+        url = 'election/%d/candidate/%d' % (election['id'], candidate['id'])
+        return self.user_delete(user, url)
+
     def set_rank(self, user, election, candidate, rank):
         url = 'election/%d/candidate/%d/rank' % (election['id'], candidate['id'])
         return self.user_post(user, url, {"rank": rank})
@@ -347,11 +351,19 @@ def test4(api):
 
 def test5(api):
     """
-    This verifies an admin can delete an election
+    This verifies an admin can delete an candidates and  elections
     """
     users = api.load_users()
     userA = users[0]
+    userB = users[1]
     election = api.create_election(userA, 'test5-election')
+    A = api.create_candidate(userA, election, 'candidate-A')
+    api.add_elector(election, userA, userB)
+    votes = [
+        {'candidate_id': A['id'], 'rank': 1},
+    ]
+    api.batchvote(userB, election, votes)
+    print api.delete_candidate(userA, election, A)
     print api.delete_election(userA, election)
 
 def test6(api):

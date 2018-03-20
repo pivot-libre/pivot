@@ -150,9 +150,9 @@ class ElectionController extends Controller
     public function destroy(Election $election)
     {
         $this->authorize('delete', $election);
-
-        $election->delete();
-        return response()->json(new \stdClass());
+        $id = $election->id;
+        $del = $election->delete();
+        return response()->json(array("delete" => $del, "id" => $id));
     }
 
     public function batchvote(Request $request, $election_id)
