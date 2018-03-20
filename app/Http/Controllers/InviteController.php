@@ -173,15 +173,17 @@ class InviteController extends Controller
     public function acceptable(Request $request)
     {
         // auth note: viewing your own invitations requires no special privilege
-        $invites = Auth::user()->acceptable();
         $results = array();
+        $invites = Auth::user()->acceptable();
 
         foreach ($invites as $invite) {
-            $election = $invite->elector->election;
-            $row = array("election_name" => $election->name,
-                         "election_id" => $election->id,
-                         "code" => $invite->code);
-            $results[$invite->code] = $row;
+            if ($invite->elector != null) {
+                $election = $invite->elector->election;
+                $row = array("election_name" => $election->name,
+                             "election_id" => $election->id,
+                             "code" => $invite->code);
+                $results[$invite->code] = $row;
+            }
         }
 
         return array_values($results);
