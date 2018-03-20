@@ -156,8 +156,10 @@ class ElectionPolicy
     public function is_invited(Election $election, User $user)
     {
         foreach ($user->acceptable() as $invite) {
-            if ($invite->elector->election->id == $election->id) {
-                return true;
+            if ($invite->elector != null) {
+                if ($invite->elector->election->id == $election->id) {
+                    return true;
+                }
             }
         }
         return false;
