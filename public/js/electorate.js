@@ -36,26 +36,29 @@ Piv.div(View.workspace, "SaveElection", "button1Item", "Save Invites", "", "clic
 loadElectorateAndInvites(election, displayElectorateAndInvites)
 
 // function definitions
-function electorEl(parent, uniq, email, inviteStatus) {
-  var checked
+function electorEl(parent, uniq, email, status) {
+  var checked, statusString
   var electorLiAtts = {"class": "w100"}
   if (uniq) { electorLiAtts["data-id"] = uniq }
   var box = Piv.html(parent, "li", "", electorLiAtts);
 
 
-  if ("unsent" == inviteStatus) {
+  if ("unsent" == status) {
     var lastInvite = Object.keys(UnsentInvites)[Object.keys(UnsentInvites).length - 1] || 0
-    var emailInput = Piv.html(box, "input", "", {"type": "text", "name": "email", "class": "w50"});
+    var emailInput = Piv.html(box, "input", "", {"type": "text", "name": "email", "class": "w75"});
     UnsentInvites[++lastInvite] = {"email": emailInput, "domel": box}
     Piv.div(box, "", "clickable1", "X", "", "click", removeInvite, [box, lastInvite])
   }
-  else if ("pending" == inviteStatus) {
+  else if ("outstanding_invite" == status) {
     PendingInvites[email] = box
-    Piv.div(box, "", "", email + "(" + uniq + ")", {"class": "w50 text1"});
+    Piv.div(box, "", "", email + " (" + uniq + ")", {"class": "w75 text1"});
     Piv.div(box, "", "clickable1", "X", "", "click", deleteInvite, [box, uniq, email])
   }
   else {
-    Piv.div(box, "", "", uniq + "(" + email + ")", {"class": "w50 text1"});
+    if ("approved_current" == status) { statusString = "ballot ready" }
+    else if ("approved_previous" == status) { statusString = "requires re-approval" }
+    else { statusString = "ballot not reviewed" }
+    Piv.div(box, "", "", uniq + " - " + email + " (" + statusString + ")", {"class": "w75 text1"});
     Piv.div(box, "", "hidden clickable1", "X")
   }
 }
@@ -86,7 +89,7 @@ function saveElectorate() {
     PendingInvites[email] = true
     Piv.postToResource('/api/election/' + election + '/invite', {"email": email},
       function(data){
-        electorEl(Containerdivs.pending, data.code, data.email, "pending")
+        electorEl(Containerdivs.pending, data.code, data.email, "outstanding_invite")
       })
     delete UnsentInvites[i]
   }
@@ -99,29 +102,35 @@ function saveElectorate() {
 }
 
 function loadElectorateAndInvites(electionId, onSuccessFunction) {
-  Piv.getMultResources(['/api/election/' + electionId + '/elector', '/api/election/' + electionId + '/invite'], onSuccessFunction)
+  Piv.getMultResources([
+    '/api/election/' + electionId + '/voter_details',
+    '/api/election/' + electionId + '/invite',
+    // '/api/election/' + electionId + '/elector',
+  ], onSuccessFunction)
 }
 
-function displayElectorateAndInvites(electorate, invites) {
-  displayElectorate(electorate)
+function displayElectorateAndInvites(electors, invites) {
+  displayElectorGroup(Containerdivs.electorate, electors.approved_current, "approved_current")
+  displayElectorGroup(Containerdivs.electorate, electors.approved_previous, "approved_previous")
+  displayElectorGroup(Containerdivs.electorate, electors.approved_none, "approved_none")
+  // displayElectorGroup(Containerdivs.pending, electors.outstanding_invites, "outstanding_invite")
   displayInvites(invites)
 }
-function displayElectorate(electorate) {
-  if (!electorate.length) return
+function displayElectorGroup(container, electors, status) {
+  if (!electors.length) return
   var elector
-  for (var key in electorate) {
-    elector = electorate[key]
-    electorEl(Containerdivs.electorate, elector.name, elector.email)
+  for (var key in electors) {
+    elector = electors[key]
+    electorEl(container, elector.name || "", elector.email, status)
   }
 }
-
 function displayInvites(invites) {
   var invite, code, email
   for (var key in invites) {
     invite = invites[key]
     code = invite.code
     email = invite.email
-    electorEl(Containerdivs.pending, code, email, "pending")
+    electorEl(Containerdivs.pending, code, email, "outstanding_invite")
   }
 }
 
