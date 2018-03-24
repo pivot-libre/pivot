@@ -177,6 +177,7 @@ class CandidateController extends Controller
      */
     public function destroy(Election $election, Candidate $candidate)
     {
+        // TODO: does this allow deletion of candidates in other elections?
         $this->authorize('update', $election);
 
         // bump ballot version, reseting voter indications

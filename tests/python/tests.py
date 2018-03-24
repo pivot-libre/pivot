@@ -205,6 +205,14 @@ class API:
         url = 'election/%d/batchvote' % election['id']
         return self.user_get(user, url)
 
+    def batch_candidates(self, user, election, candidates):
+        url = 'election/%d/batch_candidates' % election['id']
+        return self.user_post(user, url, {'candidates': candidates})
+
+    def batch_candidates_view(self, user, election):
+        url = 'election/%d/batch_candidates' % election['id']
+        return self.user_get(user, url)
+
     def add_elector(self, election, admin, user):
         invite_status = self.invite(admin, election, user['email'])
         code = invite_status['code']
@@ -487,6 +495,62 @@ def test8(api):
     api.create_candidate(userA, election, 'candidate-A')
     verify_voterB_status('approved_previous')
 
+def test9(api):
+    """
+    This tests candidate batch edit/view APIs
+    """
+    users = api.load_users()
+    userA = users[0]
+    userB = users[1]
+
+    # create election
+    election = api.create_election(userA, 'test9-election')
+    api.add_elector(election, userA, userB)
+
+    set1 = ['candidate-A', 'candidate-B']
+    set2 = ['candidate-C', 'candidate-D']
+
+    for name in set1:
+        api.create_candidate(userA, election, name)
+
+    # test simple batch view
+    candidates = sorted(api.batch_candidates_view(userA, election), key=lambda c: c['name'])
+    names = set([c['name'] for c in candidates])
+    assert(len(names) == len(set1))
+    for name in set1:
+        assert(name in names)
+
+    # test simple batch edit
+    candidates[0]['name'] = set1[0] = 'candidate-A2'
+    candidates = sorted(api.batch_candidates(userA, election, candidates), key=lambda c: c['name'])
+    names = set([c['name'] for c in candidates])
+    assert(len(names) == len(set1))
+    for name in set1:
+        assert(name in names)
+
+    # test batch view after edits
+    candidates = sorted(api.batch_candidates_view(userA, election), key=lambda c: c['name'])
+    names = set([c['name'] for c in candidates])
+    assert(len(names) == len(set1))
+    for name in set1:
+        assert(name in names)
+
+    # test simple batch insert
+    for name in set2:
+        candidates.append({'name': name})
+    candidates = sorted(api.batch_candidates(userA, election, candidates), key=lambda c: c['name'])
+    names = set([c['name'] for c in candidates])
+    assert(len(names) == len(set1+set2))
+    for name in set1+set2:
+        assert(name in names)
+
+    # test batch view after inserts
+    candidates = sorted(api.batch_candidates_view(userA, election), key=lambda c: c['name'])
+    names = set([c['name'] for c in candidates])
+    assert(len(names) == len(set1+set2))
+    for name in set1+set2:
+        assert(name in names)
+        
 def create_users(url):
     from selenium import webdriver
     from selenium.webdriver.common.keys import Keys

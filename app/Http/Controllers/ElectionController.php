@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Election;
+use App\Candidate;
 use App\Elector;
 use App\CandidateRank;
 use Illuminate\Http\Request;
@@ -312,5 +313,41 @@ class ElectionController extends Controller
         }
 
         return response()->json($stats);
+    }
+
+    public function batch_candidates(Request $request, $election_id)
+    {
+        $election = Election::where('id', '=', $election_id)->firstOrFail();
+        $this->authorize('update', $election);
+
+        # loop over input, looking for edits and inserts (we do not support batch delete)
+        $candidates = $request->json()->get('candidates');
+        foreach ($candidates as $candidate) {
+            $save = false;
+            $row = null;
+
+            if (array_key_exists('id', $candidate)) {
+                // edit
+                $row = Candidate::where('id', '=', $candidate['id'])
+                                ->where('election_id', '=', $election_id)
+                                ->firstOrFail();
+            } else {
+                // insert
+                $row = new Candidate();
+                $row->election_id = $election_id;
+            }
+
+            $row->name = $candidate['name'];
+            $row->save();
+        }
+
+        return $election->candidates;
+    }
+
+    public function batch_candidates_view(Request $request, $election_id)
+    {
+        $election = Election::where('id', '=', $election_id)->firstOrFail();
+        $this->authorize('view', $election);
+        return $election->candidates;
     }
 }
