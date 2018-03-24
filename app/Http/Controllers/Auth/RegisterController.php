@@ -56,15 +56,20 @@ class RegisterController extends Controller
 
     protected function verify_token(array $data)
     {
-        // TODO: we should eventually require this to be non-empty for greater security
-        if (!empty($data['token'])) {
-            $verification = EmailVerification::where(['email' => $data['email']])->first();
-            if (empty($verification) or $verification->token != $data['token'])
-            {
-                return false;
+        if (config('app.debug')) {
+            if (empty($data['token'])) {
+                // empty tokens are allowed in debug mode, for ease of testing
+                return true;
             }
         }
-        return true;
+
+        $verification = EmailVerification::where(['email' => $data['email']])->first();
+        if ($verification->token == $data['token'])
+        {
+            return true;
+        }
+
+        return false;
     }
     
     /**
