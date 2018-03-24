@@ -24,6 +24,8 @@ Route::get('election/{election_id}/get_ready', 'ElectionController@get_ready')->
 Route::post('election/{election_id}/set_ready', 'ElectionController@set_ready')->name('election.set_ready');
 Route::get('election/{election_id}/voter_stats', 'ElectionController@voter_stats')->name('election.voter_stats');
 Route::get('election/{election_id}/voter_details', 'ElectionController@voter_details')->name('election.voter_details');
+Route::post('election/{election_id}/batch_candidates', 'ElectionController@batch_candidates')->name('election.batch_candidates');
+Route::get('election/{election_id}/batch_candidates', 'ElectionController@batch_candidates_view')->name('election.batch_candidates_view');
 
 // TODO: allow update (e.g., to fix typos in candidate name?)
 Route::resource('election.candidate', 'CandidateController', ['only' => ['index', 'show', 'store', 'destroy']]);
