@@ -26,8 +26,7 @@ var displayBallot = lib.displayBallot = function(ballotDefinition, rankedBallot,
   var candidate, sortedDefinitions = {}, sortedCandidates = {}
 
   // make sure the containers are clear before adding candidates to them
-  while (rankeditems.lastChild) { rankeditems.removeChild(rankeditems.lastChild) }
-  while (unrankeditems.lastChild) { unrankeditems.removeChild(unrankeditems.lastChild) }
+  removeAllChildren(rankeditems)
 
   //if the user hasn't looked at this ballot before, we can simply display the ballot definition
   if (0 == rankedBallot.length) { dispayCandidatesWithRank("", ballotDefinition, rankeditems, unrankeditems, perCandidateFunc); return}
@@ -84,7 +83,7 @@ var evmanage = lib.evmanage = {};
   evmanage.listen = function(domel, ename, func, args) {
     domel.setAttribute("data-elisten-" + ename, true)
     var domelDataKey = domeldata.getKey(domel)
-    handlers[domelDataKey] = {}
+    handlers[domelDataKey] = handlers[domelDataKey] || {}
     handlers[domelDataKey][ename] = {}
     handlers[domelDataKey][ename].func = func
     handlers[domelDataKey][ename].args = args
@@ -190,7 +189,9 @@ var html = lib.html = function(parent, tag, innerHtml, attributes, evnames, evha
   // if (evnames) { doOnEvents(html, evnames, evhandler, evargs) }
   if (evnames) { evmanage.listen(html, evnames, evhandler, evargs) }
 
-  html.innerHTML = (innerHtml || innerHtml === 0) ? innerHtml : ""
+  if (innerHtml instanceof Element) { html.appendChild(innerHtml) }
+  else { html.innerHTML = (innerHtml || innerHtml === 0) ? innerHtml : "" }
+
   for (attribute in attributes) {
     if (!attributes.hasOwnProperty(attribute)) continue
     html.setAttribute(attribute, attributes[attribute])
@@ -294,22 +295,22 @@ var onAxiosError = function(resource, payload, onSuccess, error) {
   console.groupEnd()
 }
 
-var getMultResources = lib.getMultResources = function(resources, onSuccess, onFail) {
+var httpMultiple = lib.httpMultiple = function(method, resources, payloads, onSuccess, onFail) {
 
   var exFuncAry = function() {
-    var getFuncReturns = []
-    for (var i in resources) { getFuncReturns.push( axios.get(resources[i]) ) }
-    return getFuncReturns
+    var funcReturns = []
+    for (var i in resources) { funcReturns.push( axios[method](resources[i], payloads[i]) ) }
+    return funcReturns
   }
 
   //default onSuccess and onFail functions
   onSuccess = onSuccess || function() {
-    console.group("getMultResources:");
+    console.group("httpMultiple:");
     for (var i in arguments) { console.log(arguments[i]) }
     console.groupEnd()
   };
   onFail = onFail || function(error) {
-      console.group("getMultResources error:");
+      console.group("httpMultiple error:");
       console.log(error);
       console.groupEnd()
   }
@@ -325,6 +326,15 @@ var getMultResources = lib.getMultResources = function(resources, onSuccess, onF
     .catch(onFail);
 }
 
+var getMultResources = lib.getMultResources = function(resources, onSuccess, onFail) {
+  httpMultiple("get", resources, "", onSuccess, onFail)
+}
+var postToMultResources = lib.postToMultResources = function(resources, payloads, onSuccess, onFail) {
+  httpMultiple("post", resources, payloads, onSuccess, onFail)
+}
+var deleteMultResources = lib.deleteMultResources = function(resources, onSuccess, onFail) {
+  httpMultiple("delete", resources, "", onSuccess, onFail)
+}
 
 var hasClass = lib.hasClass = function(el, className) {
   if (el.classList)
@@ -352,6 +362,9 @@ var getStyle = lib.getStyle = function(className) {
             (classes[x].cssText) ? console.log(classes[x].cssText) : console.log(classes[x].style.cssText);
         }
     }
+}
+var removeAllChildren = lib.removeAllChildren = function(domel) {
+  while (domel.lastChild) { domel.removeChild(domel.lastChild) }
 }
 
 //feed our object to the function so that we can populate it with properties
