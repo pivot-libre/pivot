@@ -37,7 +37,7 @@ Route::resource('election.elector', 'ElectorController', ['only' => ['index', 's
 // TODO: get rid of election result, moving call to election controller
 Route::resource('election.result', 'ResultController', ['only' => ['index']]);
 
-Route::resource('election.invite', 'InviteController', ['only' => ['index', 'show', 'store', 'destroy']]);
+Route::resource('election.invite', 'InviteController', ['only' => ['index', 'store', 'destroy']]);
 Route::post('/invite/acceptable', 'InviteController@acceptable')->name('invite.acceptable'); // TODO: remove this (use GET instead)
 Route::get('/invite/acceptable', 'InviteController@acceptable')->name('invite.acceptable');
 Route::post('/invite/accept', 'InviteController@accept')->name('invite.accept');

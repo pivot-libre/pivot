@@ -29,6 +29,7 @@ class Election extends Model
         return $this->belongsTo('App\User', 'creator_id');
     }
 
+    // TODO: why are we return Users from a function named electors?
     public function electors()
     {
         return $this->belongsToMany('App\User', 'electors');
@@ -39,20 +40,14 @@ class Election extends Model
         return $this->hasMany('App\Candidate');
     }
 
-    // TODO: consider where this is used, and make sure the null filter an accepted_at is appropriate
-    public function invites()
-    {
-        return $this->belongsToMany('App\Invite', 'electors')->whereNull('accepted_at');
-    }
-
-    public function send_invite_email($email, $code)
+    public function send_invite_email($email)
     {
         // don't even try if the mail driver is not configured
         if (env('MAIL_DRIVER', null) == null) {
             return 'mail driver not configured';
         }
 
-        $msg = 'Your Pivot Libre code is '.$code;
+        $msg = 'You have been invited to an election';
 
         try {
             Mail::raw($msg, function ($message) use ($email) {
@@ -67,26 +62,19 @@ class Election extends Model
 
     public function invite($email)
     {
-        $invite = $this->belongsToMany('App\Invite', 'electors')->where(['email' => $email])->first();
+        $elector = $this->hasMany('App\Elector')->where(['invite_email' => $email])->first();
         $mail_error = null;
 
-        if (empty($invite))
+        if (empty($elector))
         {
-            $invite = new Invite();
-            $invite->code = bin2hex(random_bytes(4));
-            $invite->email = $email;
-            $invite->save();
-
             $elector = new Elector();
             $elector->election()->associate($this);
-            $elector->invite()->associate($invite);
+            $elector->invite_email = $email;
             $elector->save();
 
-            $mail_error = $this->send_invite_email($email, $invite->code);
+            $mail_error = $this->send_invite_email($email);
         }
 
-        $result = $invite->toArray();
-        $result['mail_error'] = $mail_error;
-        return $result;
+        return $elector;
     }
 }
