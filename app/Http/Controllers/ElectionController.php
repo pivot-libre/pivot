@@ -246,10 +246,9 @@ class ElectionController extends Controller
             "approved_previous" => 0
         );
 
-        $columns = DB::raw('count(*) AS elector_count, elections.ballot_version, electors.ballot_version_approved, (invites.accepted_at IS NOT NULL) AS accepted');
+        $columns = DB::raw('count(*) AS elector_count, elections.ballot_version, electors.ballot_version_approved, (electors.invite_accepted_at IS NOT NULL) AS accepted');
         $query = Election::where('elections.id', '=', $election_id)
                            ->join('electors', 'elections.id', '=', 'electors.election_id')
-                           ->join('invites', 'electors.invite_id', '=', 'invites.id')
                            ->select($columns)
                            ->groupBy('elections.ballot_version', 'electors.ballot_version_approved', 'accepted');
 
@@ -284,18 +283,17 @@ class ElectionController extends Controller
 
         $query = Election::where('elections.id', '=', $election_id)
                            ->join('electors', 'elections.id', '=', 'electors.election_id')
-                           ->join('invites', 'electors.invite_id', '=', 'invites.id')
                            ->leftJoin('users', 'electors.user_id', '=', 'users.id')
                            ->select('users.name',
                                     'users.email',
-                                    'invites.email AS invite_email',
-                                    'invites.accepted_at',
+                                    'electors.invite_email',
+                                    'electors.invite_accepted_at',
                                     'elections.ballot_version',
                                     'electors.ballot_version_approved');
 
         foreach ($query->get() as $row) {
             $key = null;
-            if ($row->accepted_at == null) {
+            if ($row->invite_accepted_at == null) {
                 $key = 'outstanding_invites';
             } else if ($row->ballot_version_approved == null) {
                 $key = 'approved_none';

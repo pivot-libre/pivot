@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Election;
-use App\Invite;
+use App\Elector;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -88,45 +89,12 @@ class InviteController extends Controller
         $this->authorize('update', $election);
 
         $email = $request->json()->get('email');
-        $invite = $election->invite($email);
-        return $invite;
-    }
+        $elector = $election->invite($email);
 
-    /**
-     * Display the specified resource.
-     *
-     * @SWG\Get(
-     *     tags={"Invites"},
-     *     path="/election/{electionId}/invite/{code}",
-     *     summary="Get information about an invite",
-     *     operationId="getInviteByCode",
-     *     @SWG\Parameter(
-     *         name="electionId",
-     *         in="path",
-     *         description="Election to get",
-     *         required=true,
-     *         type="string",
-     *     ),
-     *     @SWG\Parameter(
-     *         name="code",
-     *         in="path",
-     *         description="Invite to get",
-     *         required=true,
-     *         type="string",
-     *     ),
-     *     @SWG\Response(response="200", description="Success", @SWG\Schema(ref="#/definitions/Invite")
-     *     ),
-     *     @SWG\Response(response="400", description="Bad Request")
-     * )
-     *
-     * @param  \App\Invite  $invite
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Election $election, Invite $invite)
-    {
-        $this->authorize('update', $election);
-
-        return $invite;
+        # we don't really use codes anymore, but we use the election ID for it so
+        # that we don't break the client side (cleanup later, by using election_id on client?)
+        $code = (string)$election->id;
+        return response()->json(array("id" => $elector->id, "code" => $code, "election_id" => $election->id));
     }
 
     /**
@@ -162,28 +130,43 @@ class InviteController extends Controller
      */
     public function accept(Request $request)
     {
-        $code = $request->json()->get('code');
-        $election = Invite::where('code', $code)->firstOrFail()->elector->election;
-        $this->authorize('become_elector', $election);
+        // auth note: if an elector exists for the given election with
+        // invite_email matching the user's email, then the user has
+        // the right to accept the "invite"
 
-        $invite = Auth::user()->accept($code);
-        return $invite;
+        # TODO(tylerharter): clean this up?  Putting election_id in "code" variable is silly
+        $election_id = (int)$request->json()->get('code');
+        $user = Auth::user();
+        $email = $user->email;
+
+        $elector = Elector::where('invite_email', $email)->where('election_id', $election_id)->firstOrFail();
+
+        if ($elector->invite_accepted_at == null)
+        {
+            $elector->user()->associate($user);
+            $elector->invite_accepted_at = Carbon::now();
+            $elector->save();
+        }
+
+        # hack, because eloquent reformats dates after a save
+        $elector = Elector::find($elector->id);
+        return $elector;
     }
 
     public function acceptable(Request $request)
     {
         // auth note: viewing your own invitations requires no special privilege
+        $user = Auth::user();
         $results = array();
-        $invites = Auth::user()->acceptable();
+        $electors = Elector::where('invite_email', $user->email)->where('invite_accepted_at', null)->get();
 
-        foreach ($invites as $invite) {
-            if ($invite->elector != null) {
-                $election = $invite->elector->election;
-                $row = array("election_name" => $election->name,
-                             "election_id" => $election->id,
-                             "code" => $invite->code);
-                $results[$invite->code] = $row;
-            }
+        foreach ($electors as $elector) {
+            $election = $elector->election;
+            $code = (string)$election->id;
+            $row = array("election_name" => $election->name,
+                         "election_id" => $election->id,
+                         "code" => $code);
+            $results[$code] = $row;
         }
 
         return array_values($results);

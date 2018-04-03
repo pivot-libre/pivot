@@ -387,14 +387,21 @@ def test6(api):
     invite2 = api.invite(userA, election, userB['email'])
     assert(invite1['id'] == invite2['id'])
     code = invite1['code']
-    print api.accept(userB, code)
-    api.expect_fail() # cannot accept twice
-    api.accept(userB, code)
+    # multiple accepts should return the same first timestamp
+    accept1 = api.accept(userB, code)
+    print accept1
+    accept2 = api.accept(userB, code)
+    print accept1
+    print accept2
+    assert(accept1['id'] == accept2['id'])
+    print accept1['invite_accepted_at'], accept2['invite_accepted_at']
+    assert(accept1['invite_accepted_at'] == accept2['invite_accepted_at'])
     # should not be able to create duplicate invites even after accepting a prior invite
     invite3 = api.invite(userA, election, userB['email'])
     assert(invite1['id'] == invite3['id'])
-    api.expect_fail() # cannot accept twice
-    api.accept(userB, code)
+    accept3 = api.accept(userB, code)
+    assert(accept1['id'] == accept3['id'])
+    assert(accept1['invite_accepted_at'] == accept3['invite_accepted_at'])
 
 def test7(api):
     """
