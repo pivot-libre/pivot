@@ -1,4 +1,5 @@
 'use strict';
+console.log("pivotlib.js")
 
 // initialize the object for our library
 var piv = piv = piv || {};  //(need the ; in order to do this syntax)
@@ -365,6 +366,59 @@ var getStyle = lib.getStyle = function(className) {
 }
 var removeAllChildren = lib.removeAllChildren = function(domel) {
   while (domel.lastChild) { domel.removeChild(domel.lastChild) }
+}
+
+var makeVobjectCollection = lib.makeVobjectCollection = function() {
+  var collection = {}
+  collection.list = []
+  collection.indexes = {}
+  collection.push = function(vobject, status) {
+    status = (status || vobject.status) || "current"
+    vobject.index = collection.list.push(vobject) - 1
+    vobject.status = status
+    lib.setTreeData(collection, ["indexes", status, vobject.index], vobject)
+    return vobject.index
+  }
+  collection.status = function(vobject, status) {
+    if (!status) return vobject.status  //don't do anything if the status is unchanged
+    if (status == vobject.status) return status  //don't do anything if the status is the same as before
+    delete collection.indexes[vobject.status][vobject.index]  //delete the entry for this vobject in the old index
+    lib.setTreeData(collection, ["indexes", status, vobject.index], vobject)  //add an entry for this vobject in the new index
+    vobject.status = status  //update the status field on the vobject
+    return status
+  }
+  collection.reset = function() {
+    collection.list = []
+    collection.indexes = {}
+  }
+  collection.length = function(status) {
+    if (!status) return collection.list.length
+    if (!collection.indexes[status]) return undefined
+    return Object.keys(collection.indexes[status]).length
+  }
+  return collection
+}
+
+var setTreeData = lib.setTreeData = function(obj, keys, value, push) {
+  var keyName, key, keysLength = keys.length
+  if (!obj) obj = {}
+  var objCursor = obj;  //keep our reference to the original obj
+  //make sure all of the keys are populated (except for the last one, since we can set that directly afterwards)
+  for (key = 0; key < keysLength - 1; key++) {
+    keyName = keys[key];
+    if (!objCursor[keyName]) {objCursor[keyName] = {};}
+    objCursor = objCursor[keyName];
+  }
+
+  //set the actual value on the last key
+  //check if we are wanting to just set the value, or if we want to push to an array
+  if ("push" != push) {objCursor[keys[key]] = value; return obj;}
+
+  //if an array doesn't already exist, create it
+  if (!Array.isArray(objCursor[keys[key]])) {objCursor[keys[key]] = [];}
+  objCursor[keys[key]].push(value);
+
+  return obj;
 }
 
 //feed our object to the function so that we can populate it with properties
