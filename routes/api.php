@@ -18,7 +18,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::resource('election', 'ElectionController', ['only' => ['index', 'store', 'show', 'update', 'destroy']]);
-Route::post('election/{election_id}/batchvote', 'ElectionController@batchvote')->name('election.batchvote');
+Route::post('election/{election_id}/batchvote', 'ElectionController@batchVote')->name('election.batchvote');
 Route::get('election/{election_id}/batchvote', 'ElectionController@batchvote_view')->name('election.batchvote_view');
 Route::get('election/{election_id}/get_ready', 'ElectionController@get_ready')->name('election.get_ready');
 Route::post('election/{election_id}/set_ready', 'ElectionController@set_ready')->name('election.set_ready');

@@ -156,8 +156,12 @@ class ElectionController extends Controller
         return response()->json(array("delete" => $del, "id" => $id));
     }
 
-    public function batchvote(Request $request, $election_id)
+    public function batchVote(Request $request, $election_id)
     {
+        $this->validate($request, [
+            'votes.*.candidate_id' => 'required|exists:candidates,id',
+            'votes.*.rank' => 'required|integer'
+        ]);
         $election = Election::where('id', '=', $election_id)->firstOrFail();
         $this->authorize('vote', $election);
         
@@ -166,20 +170,25 @@ class ElectionController extends Controller
 
         $ranks = array();
 
-        // iterate over list of rankings
-        foreach($request->json()->get('votes') as $vote) {
-            // TODO: check this is a valid candidate?
-            $candidate_id = $vote['candidate_id'];
-            $rank_num = $vote['rank'];
+        // iterate over list of rankings and create/update candidate ranks in a transaction.
+        DB::transaction(function () use ($request, $elector){
+            foreach($request->json()->get('votes') as $vote) {
+                $candidate_id = $vote['candidate_id'];
+                $rank_num = $vote['rank'];
 
-            $rank = CandidateRank::firstOrNew(['elector_id' => $elector->id, 'candidate_id' => $candidate_id]);
-            $rank->elector_id = $elector->id;
-            $rank->candidate_id = $candidate_id;
-            $rank->rank = $rank_num;
-            $rank->save();
+                $rank = CandidateRank::updateOrCreate(
+                    [
+                        'elector_id' => $elector->id,
+                        'candidate_id' => $candidate_id
+                    ],
+                    [
+                        'rank' => $rank_num
+                    ]
+                );
+                array_push($ranks, $rank);
+            }
+        });
 
-            array_push($ranks, $rank);
-        }
 
         return $ranks;
     }
