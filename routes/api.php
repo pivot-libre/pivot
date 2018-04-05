@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,7 +32,7 @@ Route::get('election/{election_id}/batch_candidates', 'ElectionController@batch_
 Route::resource('election.candidate', 'CandidateController', ['only' => ['index', 'show', 'store', 'destroy']]);
 
 Route::resource('election.elector', 'ElectorController', ['only' => ['index', 'show', 'destroy'],
-    'parameters' => ['elector' => 'user'],
+                                                          'parameters' => ['elector' => 'user'],
 ]);
 
 // TODO: get rid of election result, moving call to election controller

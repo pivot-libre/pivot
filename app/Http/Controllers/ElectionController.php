@@ -158,28 +158,37 @@ class ElectionController extends Controller
 
     public function batchvote(Request $request, $election_id)
     {
-        $election = Election::where('id', '=', $election_id)->firstOrFail();
+        $this->validate($request, [
+            'votes.*.candidate_id' => 'required|exists:candidates,id',
+            'votes.*.rank' => 'required|integer'
+        ]);
+        /** @var Election $election */
+        $election = Election::findOrFail($election_id);
         $this->authorize('vote', $election);
-        
-        $elector = Elector::where('election_id', '=', $election_id)->
-                            where('user_id', '=', Auth::user()->id)->firstOrFail();
 
-        $ranks = array();
+        $elector = $election->electors()->where('user_id', Auth::id())->firstOrFail();
 
-        // iterate over list of rankings
-        foreach($request->json()->get('votes') as $vote) {
-            // TODO: check this is a valid candidate?
-            $candidate_id = $vote['candidate_id'];
-            $rank_num = $vote['rank'];
+        $ranks = [];
 
-            $rank = CandidateRank::firstOrNew(['elector_id' => $elector->id, 'candidate_id' => $candidate_id]);
-            $rank->elector_id = $elector->id;
-            $rank->candidate_id = $candidate_id;
-            $rank->rank = $rank_num;
-            $rank->save();
+        // iterate over list of rankings and create/update candidate ranks in a transaction.
+        DB::transaction(function () use (&$ranks, $request, $elector){
+            foreach($request->json()->get('votes') as $vote) {
+                $candidate_id = $vote['candidate_id'];
+                $rank_num = $vote['rank'];
 
-            array_push($ranks, $rank);
-        }
+                $rank = CandidateRank::updateOrCreate(
+                    [
+                        'elector_id' => $elector->id,
+                        'candidate_id' => $candidate_id
+                    ],
+                    [
+                        'rank' => $rank_num
+                    ]
+                );
+                $ranks[] = $rank;
+            }
+        });
+
 
         return $ranks;
     }
@@ -190,7 +199,7 @@ class ElectionController extends Controller
         $this->authorize('vote', $election);
 
         $elector = Elector::where('election_id', '=', $election_id)->
-                            where('user_id', '=', Auth::user()->id)->firstOrFail();
+        where('user_id', '=', Auth::user()->id)->firstOrFail();
         return $elector->ranks;
     }
 
@@ -200,7 +209,7 @@ class ElectionController extends Controller
         $election = Election::where('id', '=', $election_id)->firstOrFail();
         $this->authorize('vote', $election);
         $elector = Elector::where('election_id', '=', $election_id)->
-                            where('user_id', '=', Auth::user()->id)->firstOrFail();
+        where('user_id', '=', Auth::user()->id)->firstOrFail();
 
         // what is the approval version, and is it current?
         $approved_version = $elector->ballot_version_approved;
@@ -219,7 +228,7 @@ class ElectionController extends Controller
         $election = Election::where('id', '=', $election_id)->firstOrFail();
         $this->authorize('vote', $election);
         $elector = Elector::where('election_id', '=', $election_id)->
-                            where('user_id', '=', Auth::user()->id)->firstOrFail();
+        where('user_id', '=', Auth::user()->id)->firstOrFail();
 
         // what is the approval version, and is it current?
         $approved_version = $request->json()->get('approved_version');
@@ -248,9 +257,9 @@ class ElectionController extends Controller
 
         $columns = DB::raw('count(*) AS elector_count, elections.ballot_version, electors.ballot_version_approved, (electors.invite_accepted_at IS NOT NULL) AS accepted');
         $query = Election::where('elections.id', '=', $election_id)
-                           ->join('electors', 'elections.id', '=', 'electors.election_id')
-                           ->select($columns)
-                           ->groupBy('elections.ballot_version', 'electors.ballot_version_approved', 'accepted');
+            ->join('electors', 'elections.id', '=', 'electors.election_id')
+            ->select($columns)
+            ->groupBy('elections.ballot_version', 'electors.ballot_version_approved', 'accepted');
 
         foreach ($query->get() as $row) {
             $count = $row['elector_count'];
@@ -282,14 +291,14 @@ class ElectionController extends Controller
         );
 
         $query = Election::where('elections.id', '=', $election_id)
-                           ->join('electors', 'elections.id', '=', 'electors.election_id')
-                           ->leftJoin('users', 'electors.user_id', '=', 'users.id')
-                           ->select('users.name',
-                                    'users.email',
-                                    'electors.invite_email',
-                                    'electors.invite_accepted_at',
-                                    'elections.ballot_version',
-                                    'electors.ballot_version_approved');
+            ->join('electors', 'elections.id', '=', 'electors.election_id')
+            ->leftJoin('users', 'electors.user_id', '=', 'users.id')
+            ->select('users.name',
+                'users.email',
+                'electors.invite_email',
+                'electors.invite_accepted_at',
+                'elections.ballot_version',
+                'electors.ballot_version_approved');
 
         foreach ($query->get() as $row) {
             $key = null;
@@ -327,8 +336,8 @@ class ElectionController extends Controller
             if (array_key_exists('id', $candidate)) {
                 // edit
                 $row = Candidate::where('id', '=', $candidate['id'])
-                                ->where('election_id', '=', $election_id)
-                                ->firstOrFail();
+                    ->where('election_id', '=', $election_id)
+                    ->firstOrFail();
             } else {
                 // insert
                 $row = new Candidate();

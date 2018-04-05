@@ -131,6 +131,6 @@ class ElectionPolicy
      */
     public function is_elector(Election $election, User $user)
     {
-        return $election->electors->contains($user);
+        return $election->electors()->where('user_id', $user->id)->exists();
     }
 }

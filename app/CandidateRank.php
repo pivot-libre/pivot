@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CandidateRank extends Model
 {
-    protected $fillable = ['election_id', 'candidate_id'];
+    protected $fillable = ['election_id', 'candidate_id', 'rank', 'elector_id'];
 
     public function elector()
     {
