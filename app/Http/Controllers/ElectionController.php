@@ -195,7 +195,7 @@ class ElectionController extends Controller
 
     public function batchvote_view(Request $request, $election_id)
     {
-        $election = Election::where('id', '=', $election_id)->firstOrFail();
+        $election = Election::findOrFail($election_id);
         $this->authorize('vote', $election);
 
         $elector = Elector::where('election_id', '=', $election_id)->
