@@ -262,12 +262,14 @@ def test1(api):
     invite_status = api.invite(userA, election, userB['email'])
     code = invite_status['code']
     electors = api.get_electors(userA, election)
+    print(electors)
     assert(len(electors) == 1)
     acceptables = api.acceptable(userB)
     codes = [inv['code'] for inv in acceptables]
     assert (code in codes)
     api.accept(userB, code)
     electors = api.get_electors(userA, election)
+    print(electors)
     assert(len(electors) == 2)
 
     # verify B can now see it after being added

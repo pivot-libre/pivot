@@ -18,6 +18,25 @@ class ElectionTest extends TestCase
     use DatabaseTransactions;
 
     /** @test */
+    public function can_get_a_election()
+    {
+        $user = factory(User::class)->create();
+
+        $election = factory(Election::class)->create();
+
+        /** @var Elector $elector */
+        $elector = factory(Elector::class)->create([
+            'user_id' => $user->id,
+            'election_id' => $election->id,
+        ]);
+
+        $response = $this->actingAs($user, 'api')->getJson("api/election/{$election->id}");
+
+        $response->assertStatus(200);
+        $this->assertInstanceOf(Election::class, $response->getOriginalContent());
+    }
+
+    /** @test */
     public function can_batch_vote()
     {
         $user = factory(User::class)->create();

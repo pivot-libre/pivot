@@ -33,6 +33,9 @@ class Election extends Model
         return $this->belongsTo(User::class, 'creator_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany|Elector
+     */
     public function electors()
     {
         return $this->hasMany(Elector::class);
@@ -65,7 +68,7 @@ class Election extends Model
 
     public function invite($email)
     {
-        $elector = $this->hasMany('App\Elector')->where(['invite_email' => $email])->first();
+        $elector = $this->electors()->where(['invite_email' => $email])->first();
         $mail_error = null;
 
         if (empty($elector))
