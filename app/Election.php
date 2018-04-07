@@ -2,10 +2,14 @@
 
 namespace App;
 
-use Mail;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property Collection electors
+ */
 class Election extends Model
 {
     use SoftDeletes;
@@ -26,18 +30,20 @@ class Election extends Model
 
     public function creator()
     {
-        return $this->belongsTo('App\User', 'creator_id');
+        return $this->belongsTo(User::class, 'creator_id');
     }
 
-    // TODO: why are we return Users from a function named electors?
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany|Elector
+     */
     public function electors()
     {
-        return $this->belongsToMany('App\User', 'electors');
+        return $this->hasMany(Elector::class);
     }
 
     public function candidates()
     {
-        return $this->hasMany('App\Candidate');
+        return $this->hasMany(Candidate::class);
     }
 
     public function send_invite_email($email)
@@ -62,7 +68,7 @@ class Election extends Model
 
     public function invite($email)
     {
-        $elector = $this->hasMany('App\Elector')->where(['invite_email' => $email])->first();
+        $elector = $this->electors()->where(['invite_email' => $email])->first();
         $mail_error = null;
 
         if (empty($elector))

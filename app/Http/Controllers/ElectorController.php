@@ -44,7 +44,7 @@ class ElectorController extends Controller
     {
         $this->authorize('view_electors', $election);
 
-        return $election->electors;
+        return $election->electors()->accepted()->get();
     }
 
     /**
@@ -75,18 +75,14 @@ class ElectorController extends Controller
      * )
      *
      * @param  \App\Election $election
-     * @param  \App\User $user
      * @return \Illuminate\Http\Response
      */
-    public function show(Election $election, User $user)
+    public function show(Election $election, $elector_id)
     {
         $this->authorize('view_electors', $election);
 
-        if ($election->electors->contains($user)) {
-            return $user;
-        }
-
-        abort(404, 'Not Found');
+        $elector = $election->electors()->accepted()->whereKey($elector_id)->firstOrFail();
+        return $elector;
     }
 
     /**
