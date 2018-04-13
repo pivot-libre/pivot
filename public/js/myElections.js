@@ -15,11 +15,7 @@ Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
 View.setHeader("My Elections")
 
-// noe - tyler added a GET API for acceptable, so we should switch to using getMultResources at some point
-// Piv.postToResource('/api/invite/acceptable', {}, invites)
-// Piv.getResource('/api/election/', showElections)
-// Piv.getResource('/api/invite/acceptable', invites)
-Piv.getMultResources(["/api/election/", "/api/invite/acceptable"], showAllMyElections)
+Piv.http.get(["/api/election/", "/api/invite/acceptable"], showAllMyElections)
 
 
 function showAllMyElections(elections, invitesData) {
@@ -36,54 +32,39 @@ function showAllMyElections(elections, invitesData) {
   }
 }
 
-// function showElections(myElections, d2) {
-//   console.log(myElections)
-//   console.log(d2)
-//   return
-//   var electn
-//   for (var key in myElections) {
-//     electn = myElections[key]
-//     showElection(ElectionsDomel, electn.name, electn.id, electn.can_vote, "canViewResults", electn.can_edit)
-//   }
-//   HasShowElectionsRun = true
-//   if (InvitesData) {
-//     invites(InvitesData)
-//     console.log("called invites from showElections")
-//   }
-// }
 function showElection(container, name, id, canVote, canViewResults, canEdit, inviteCode) {
   var thisElection = MyElectionsView.elections[id] = {}
-  var hiddenStyle = "visibility:hidden;", hiddenAttObj = {"style": hiddenStyle, "class": "margin4p0p4p0p"}, resultsButton, defaultHref = "", defaultButton = ""
+  var hiddenStyle = "visibility:hidden;", hiddenAttObj = {"style": hiddenStyle}, resultsButton, defaultHref = "", defaultButton = ""
   // var displayNoneStyle = "display:none;", displayNoneAttObj = {"style": displayNoneStyle, "class": "margin4p0p4p0p"}
 
-  container = Piv.html(container, "li", "", {"class": "w100"})
+  container = Piv.html(container, "li", "", {"class": "w100 row2"})
 
   if (canEdit) {
-    defaultHref = "administer/" + id
+    defaultHref = "candidates/" + id
     // Piv.html(container.actions1, "a", "Administer", {"href": defaultHref, "class": "margin4p0p4p0p"})
-    defaultButton = Piv.html(container, "a", "Administer", {"href": defaultHref, "class": "margin4p0p4p0p"})
+    defaultButton = Piv.html(container, "a", "Administer", {"href": defaultHref})
   }
   // else { Piv.html(container.actions1, "a", "Administer", hiddenAttObj) }
   else { Piv.html(container, "a", "Administer", hiddenAttObj) }
 
   if (canVote || inviteCode) {
     defaultHref = "ballot/" + id
-    defaultButton = Piv.html(container, "a", "Vote", {"href": defaultHref, "class": "margin4p0p4p0p"})
+    defaultButton = Piv.html(container, "a", "Vote", {"href": defaultHref})
     if (inviteCode) addEventAcceptToButton(id, inviteCode, defaultButton)
   }
   else { thisElection.voteButton = Piv.html(container, "a", "Vote", hiddenAttObj) }
 
-  var nameButton = thisElection.nameButton = Piv.html(container, "a", name, {"class": "w50 text1 margin4p0p4p0p", "href": defaultHref});
+  var nameButton = thisElection.nameButton = Piv.html(container, "a", name, {"class": "w50 text1", "href": defaultHref});
   if (inviteCode) addEventAcceptToButton(id, inviteCode, nameButton)
 
   // if (canViewResults) { resultsButton = Piv.html(container.actions2, "a", "View Results", {"href": "results/" + id, "style": displayNoneStyle, "class": "margin4p0p4p0p"}) }
-  if (canViewResults) { resultsButton = Piv.html(container, "a", "View Results", {"href": "results/" + id, "style": hiddenStyle, "class": "margin4p0p4p0p"}) }
+  if (canViewResults) { resultsButton = Piv.html(container, "a", "View Results", {"href": "results/" + id, "style": hiddenStyle}) }
   // else { resultsButton = Piv.html(container.actions2, "a", "View Results", displayNoneAttObj) }
   else {resultsButton = Piv.html(container, "a", "View Results", hiddenAttObj) }
 
   if (defaultButton) { linkElsOnHover(defaultButton, nameButton, "hover1") }
 
-  Piv.getResource('/api/election/' + id + '/result', function() { resultsButton.style.visibility = null })  //noe revert
+  Piv.http.get(["/api/election/" + id + "/result"], function() { resultsButton.style.visibility = null })  //noe revert
 
 }
 function linkElsOnHover(el1, el2, hoverclass) {
@@ -120,7 +101,7 @@ function addEventAcceptToButton(electionId, code, button) {
   button.removeAttribute("style")
   button.setAttribute("href", "ballot/" + electionId)
   button.addEventListener("click", function() {
-    Piv.postToResource('/api/invite/accept', {"code": code})
+    Piv.http.post(["/api/invite/accept"], [{"code": code}])
   })
 }
 // close the self-executing function and feed the piv library to it

@@ -11,30 +11,32 @@ var Rankeditems, Unrankeditems
 // actions (do stuff)
 Piv.evmanage.setManager(View.workspace, ["click"])
 
-View.setHeader("Cast Ballot")
-
-// Piv.anchorListDiv(View.workspace, "", {
-//     "Rank Candidates": "/ballot/" + ElectionId,
-//     "Review ballot": "/ballotReview/" + ElectionId
-//   }
-// )
+View.setHeader("Cast Ballot", ElectionId)
 
 Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
-Rankeditems = Piv.html(View.workspace, "ol", "", {"id": "rankeditems", "class": "itemlist incrementsCounter grabbable hasLabelFrame"});
-Unrankeditems = Piv.html(View.workspace, "ul", "", {"id": "unrankeditems", "class": "itemlist cursorPointer hasLabelFrame"});
+Piv.div(View.workspace, "", "textRight w75", Piv.div("", "", "clickable1", "Tie Selected", "", "click", tieSelected))
+// Rankeditems = Piv.table(View.workspace, "", {"id": "rankeditems", "class": "itemlist incrementsCounter grabbable hasLabelFrame w100"})
+Rankeditems = Piv.div("", "", "", "", {"id": "rankeditems", "class": "incrementsCounter grabbable hasLabelFrame w100"})
+Piv.div(View.workspace, "", "w100 marginB1", Piv.div("", "", "w75", Rankeditems))
+// Unrankeditems = Piv.table(View.workspace, "", {"id": "unrankeditems", "class": "cursorPointer hasLabelFrame"})
+Unrankeditems = Piv.div("", "", "", "", {"id": "unrankeditems", "class": "cursorPointer hasLabelFrame w100"})
+Piv.div(View.workspace, "", "w100 marginB1", Piv.div("", "", "w75", Unrankeditems))
 
+// Rankeditems = Piv.html(View.workspace, "ol", "", {"id": "rankeditems", "class": "itemlist incrementsCounter grabbable hasLabelFrame"});
+// Unrankeditems = Piv.html(View.workspace, "ul", "", {"id": "unrankeditems", "class": "itemlist cursorPointer hasLabelFrame"});
 
-ReviewedStatusDomels.div = Piv.div(View.workspace, "", "row1")
-ReviewedStatusDomels.checkbox = Piv.html(ReviewedStatusDomels.div, "input", "", {"id": "reviewedStatusCheckbox", "type": "checkbox", "class": "text1square cursorPointer"}, "click", function() {
-  if (ReviewedStatusDomels.checkbox.checked) {
+ReviewedStatusDomels.div = Piv.div(View.workspace, "", "textRight w75")
+var reviewedButton = Piv.html(ReviewedStatusDomels.div, "label", "", {"class": "clickable1"})
+ReviewedStatusDomels.checkbox = Piv.checkbox(reviewedButton, "reviewedStatusCheckbox", "", "16px", "", {"class": "marginR1"}, function() {
+  if (ReviewedStatusDomels.checkbox.input.checked) {
     if (ReviewedStatusDomels.messageDiv) {
       ReviewedStatusDomels.messageDiv.parentElement.removeChild(ReviewedStatusDomels.messageDiv)
       delete ReviewedStatusDomels.messageDiv
     }
-    Piv.postToResource("/api/election/" + ElectionId + '/set_ready', {"approved_version": ReviewedStatusDomels.version}, function(response) {
+    Piv.http.post(["/api/election/" + ElectionId + "/set_ready"], [{"approved_version": ReviewedStatusDomels.version}], function(response) {
       if (!response.is_latest) {
-        ReviewedStatusDomels.checkbox.checked = false
+        ReviewedStatusDomels.checkbox.input.checked = false
         Piv.loadBallot(ElectionId, Piv.displayBallot, li1)
         ReviewedStatusDomels.messageDiv = Piv.div(ReviewedStatusDomels.div, "", "row1 text3", "The administrator has updated the ballot since loading the page. Please review again.")
         ReviewedStatusDomels.version = response.latest_version
@@ -42,26 +44,17 @@ ReviewedStatusDomels.checkbox = Piv.html(ReviewedStatusDomels.div, "input", "", 
     })
   }
   else {
-    Piv.postToResource("/api/election/" + ElectionId + '/set_ready', {"approved_version": null}, function(response) {
+    Piv.http.post(["/api/election/" + ElectionId + "/set_ready"], [{"approved_version": null}], function(response) {
     })
   }
 })
-Piv.getResource("/api/election/" + ElectionId + '/get_ready', function(response) {
-  // if (!response.approved_version) {
-  //   ReviewedStatusDomels.div.innerHTML = "Unreviewed"
-  // }
-  // else if (!response.is_latest) {
-  //   ReviewedStatusDomels.div.innerHTML = "Ballot has changed since last reviewed and must be reviewed again"
-  // }
-  // else {
-  //   ReviewedStatusDomels.div.innerHTML = "Reviewed"
-  // }
-
+Piv.http.get(["/api/election/" + ElectionId + "/get_ready"], function(response) {
   ReviewedStatusDomels.version = response.latest_version
-  ReviewedStatusDomels.checkbox.checked = ReviewedStatusDomels.isApproved = response.is_latest
+  ReviewedStatusDomels.checkbox.input.checked = ReviewedStatusDomels.isApproved = response.is_latest
 })
-Piv.html(ReviewedStatusDomels.div, "label", "Reviewed", {"for": "reviewedStatusCheckbox"})
-
+// Piv.html(ReviewedStatusDomels.div, "label", "Reviewed", {"for": "reviewedStatusCheckbox", "class": "label0"})
+Piv.div(reviewedButton, "", "", "Reviewed")
+// Piv.div(View.workspace, "", "textRight w75", )
 
 Piv.loadBallot(ElectionId, Piv.displayBallot, li1)
 
@@ -69,31 +62,36 @@ setUpDragHandling(Dragula, Rankeditems, Unrankeditems)
 
 // function definitions
 function li1(parent, id, description, tie, isNew) {
-  var candidateLiAtts = {"class": "row1", "data-id": id}
+  var candidateLiAtts = {"class": "row1 triggerHoverOpacity75", "data-id": id}
 
   if ("new" == isNew) { candidateLiAtts["data-isNew"] = "new" }
   if (tie) { candidateLiAtts["data-tie"] = tie }
-  var box = Piv.html(parent, "li", "", candidateLiAtts)
+  // var box = Piv.html(parent, "li", "", candidateLiAtts)
+  var box = Piv.html(parent, "div", "", candidateLiAtts)
 
-  Piv.div(box, "", "hidden1 text1", "new")
+  // Piv.div(box, "", "hidden1 text1", "new")
   Piv.div(box, "", "text1square orderdisplay");
-  Piv.div(box, "", "grabbable text1", "^v");
-  Piv.div(box, "", "text1 w67", description);
-  var checkbox = Piv.html(box, "input", "", {"type": "checkbox", "class": "hidden2 text1square cursorPointer", "name": "ballotcheck", "id": "ballotcheck-" + id})
-  var tiebutton = Piv.div(box, "", "hidden3 clickable1", "tie")
-  // Piv.doOnEvents2(tiebutton, ["click"], tieSelected)
+  // Piv.div(box, "", "grabbable text1 hoverOpacity75", "::", {"style": "width:21px"});
+  Piv.div(box, "", "grabbable text1 hoverOpacity75", "::", {"width": "21px"});
+  var descriptionBox = Piv.div(box, "", "text1 w67 hoverOpacity75")
+  Piv.div(descriptionBox, "", "display_none_1 text4 marginR1", "new")
+  Piv.div(descriptionBox, "", "", description)
+  // var checkbox = Piv.html(box, "input", "", {"type": "checkbox", "class": "hidden2 text1square cursorPointer", "name": "ballotcheck", "id": "ballotcheck-" + id})
+  // var tiebutton = Piv.div(box, "", "hidden3 clickable1", "tie")
+  // var tiebutton = Piv.div(box, "", "clickable2", "tie")
 
-  var xbutton = Piv.div(box, "", "hidden3 clickable1", "X", "")
+  // var xbutton = Piv.div(box, "", "hidden3 clickable1", "X", "")
+  var xbutton = Piv.div(box, "", "clickable2 hidden1", "X", {"width": "21px"})
+  var checkbox = Piv.checkbox(box, "ballotcheck-" + id, "ballotcheck", "20px", "", {"class": "hidden1", "width": "21px"})
 
-  // Piv.doOnEvents2(box, ["click"], candidateClick, [checkbox, tiebutton, xbutton])
   Piv.domeldata.set(box, id, "id")
-  Piv.domeldata.set(checkbox, box, "box")
+  // Piv.domeldata.set(checkbox, box, "box")
+  Piv.domeldata.set(checkbox.input, box, "box")
   Piv.boxlist = Piv.boxlist || [];
   Piv.boxlist.push(box)
   Piv.evmanage.listen(box, "click", candidateClick, [box])
-  // Piv.evmanage.listen(checkbox, "click", updateCheckedCandidateList, [id, box, checkbox])
-  Piv.evmanage.listen(tiebutton, "click", tieSelected)
-  Piv.evmanage.listen(xbutton, "click", sendToEnd)
+  // Piv.evmanage.listen(tiebutton, "click", tieSelected)
+  Piv.evmanage.listen(xbutton, "click", sendToEnd, [box])
 }
 
 function setUpDragHandling(dragula, rankeditems, unrankeditems) {
@@ -168,7 +166,7 @@ function updateFormerSiblingTieStatuses(tieStat, prevSibling, nextSibling) {
   }
 }
 function getCheckedCandidates(uncheck) {
-  var candidates = [], checkbox, checkboxes = document.querySelectorAll("input:checked")
+  var candidates = [], checkbox, checkboxes = Rankeditems.querySelectorAll("input:checked")
 
   for (var i = 0; i < checkboxes.length; i++) {
     checkbox = checkboxes[i]
@@ -209,15 +207,18 @@ function tieSelected(box, checkbox, rankeditems, afterEl) {
   }
   onReorder()
 }
-function sendToEnd() {
+function sendSelectedToEnd() {
   var box, candidates = getCheckedCandidates("uncheck")
 
   for (var i = 0; i < candidates.length; i++) {
-    box = candidates[i].box
-    updateFormerSiblingTieStatuses( getTieStatus(box), box.previousElementSibling, box.nextElementSibling)
-    setTieStatus(box, "none")
-    Unrankeditems.appendChild(box);
+    sendToEnd(candidates[i].box)
   }
+  onReorder()
+}
+function sendToEnd(box) {
+  updateFormerSiblingTieStatuses( getTieStatus(box), box.previousElementSibling, box.nextElementSibling)
+  setTieStatus(box, "none")
+  Unrankeditems.appendChild(box);
   onReorder()
 }
 function candidateClick(box) {
@@ -251,7 +252,7 @@ function saveRankings() {
   updateStatusDisplay("Saving...")
   var candidateRanks = {}
   candidateRanks.votes = makeRankingsArray()
-  batchVote(election, candidateRanks)
+  batchVote(ElectionId, candidateRanks)
   return "saving"
 }
 function finishSaveRankings(response) {
@@ -269,8 +270,8 @@ function updateStatusDisplay(newStatus) {
 }
 function makeRankingsArray () {
   var rankings = [];
-  candidatesToArray(document.querySelectorAll("#rankeditems li"), rankings, "getRanking");
-  candidatesToArray(document.querySelectorAll("#unrankeditems li"), rankings);
+  candidatesToArray(Rankeditems.querySelectorAll("[data-id]"), rankings, "getRanking");
+  candidatesToArray(Unrankeditems.querySelectorAll("[data-id]"), rankings);
 
   return rankings
 }
@@ -298,7 +299,7 @@ function candidatesToArray(candidates, targetArray, isRanked) {
 };
 function batchVote(electionId, candidateRanks) {
   if (!electionId) {return}
-  Piv.postToResource('/api/election/' + electionId + '/batchvote', candidateRanks, finishSaveRankings)
+  Piv.http.post(["/api/election/" + electionId + "/batchvote"], [candidateRanks], finishSaveRankings)
 }
 
 // close the self-executing function and feed the piv library to it

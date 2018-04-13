@@ -1,11 +1,10 @@
 'use strict';
 
 //create a file-specific context via a function
-(function(Piv, Dragula) {
+(function(Piv, Dragula, ElectionId) {
 
 // script-level variables
 var View = Piv.view
-var Election = election
 var SaveCandidatesButton, RevertChangesButton
 var OriginalCandidatesFromServer, SaveInProgress
 var CandidateDirectory = Piv.makeVobjectCollection()
@@ -16,33 +15,33 @@ var Edititems
 // actions (do stuff)
 Piv.evmanage.setManager(View.workspace, ["click", "keyup", "paste"])
 
-View.setHeader("Candidates")
+View.setHeader("Candidates", ElectionId)
 
 Piv.anchorListDiv(View.workspace, "", {
-    "Election details": "/administer/" + election,
-    "Add/Edit candidates": "/candidates/" + election,
-    "Manage electorate": "/electorate/" + election
+    "Add/Edit candidates": "/candidates/" + ElectionId,
+    "Manage electorate": "/electorate/" + ElectionId,
+    "Election details": "/administer/" + ElectionId
   }
 )
 
 Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
 Edititems = Piv.html(View.workspace, "ol", "", {"id": "edititems", "class": "itemlist incrementsCounter"})
-Dragula([Edititems])
+// Dragula([Edititems])
 // Drake.on('drop', function (el) { onCandidateDrop(el); })
 
-Piv.div(View.workspace, "", "clickable1", "+ Add Candidates", "", "click", addCandidate);
+Piv.div(View.workspace, "", "clickable1", "+ New Candidate", "", "click", addCandidate);
 RevertChangesButton = Piv.div(View.workspace, "", "clickable1 disabled", "Revert Changes", "", "click", revertChanges);
-SaveCandidatesButton = Piv.div(View.workspace, "", "clickable1 disabled", "Save Election", "", "click", saveCandidates, [election]);
+SaveCandidatesButton = Piv.div(View.workspace, "", "clickable1 disabled", "Save", "", "click", saveCandidates, [ElectionId]);
 
-loadCandidates(Election, displayCandidates)
+loadCandidates(ElectionId, displayCandidates)
 
 // function definitions
 function loadCandidates(electionId, onSuccessFunction) {
   if (!electionId) return
   // (candidate and batch_candidates are the same)
-  // Piv.getResource('/api/election/' + electionId + "/candidate", onSuccessFunction)
-  Piv.getResource("/api/election/" + electionId + "/batch_candidates", onSuccessFunction)
+  // Piv.http.get1('/api/election/' + electionId + "/candidate", onSuccessFunction)
+  Piv.http.get(["/api/election/" + electionId + "/batch_candidates"], onSuccessFunction)
 }
 function revertChanges() {
   if (SaveInProgress) {
@@ -74,12 +73,13 @@ function displayCandidate(parent, id, name, status) {
   if (id) { candidateLiAtts["data-id"] = id}
 
   var box = vobject.domel = Piv.html(parent, "li", "", candidateLiAtts);
-  Piv.div(box, "", "grabbable", "#");
-  Piv.div(box, "", "grabbable", "^v");
-  var input = vobject.name = Piv.html(box, "input", "", {"class": "text1 w75", "type": "text", "value": (name || ""), "placeholder": "Candidate name/description"});
+  Piv.div(box, "", "text1square orderdisplay");
+  // Piv.div(box, "", "grabbable", "#");
+  // Piv.div(box, "", "grabbable", "^v");
+  var input = vobject.name = Piv.html(box, "input", "", {"class": "textInput1 w75", "type": "text", "value": (name || ""), "placeholder": "Candidate name/description"});
   Piv.evmanage.listen(input, "keyup", onNameChange, [vobject])
   Piv.evmanage.listen(input, "paste", onNameChange, [vobject])
-  Piv.div(box, "", "clickable1", "X", "", "click", removeCandidate, [vobject]);
+  Piv.div(box, "", "clickable2", "X", "", "click", removeCandidate, [vobject]);
 
   return vobject
 }
@@ -150,7 +150,10 @@ function saveCandidates(electionId) {
   }
   if (deleteResources.length > 0) {
     SaveCandidatesButton.innerHTML = "Deleting..."
-    Piv.deleteMultResources(deleteResources, function() {
+    Piv.http.delete(deleteResources, function(response) {
+      for (var i in CandidateDirectory.indexes.deleted) {
+        CandidateDirectory.remove(CandidateDirectory.indexes.deleted[i])
+      }
       // for (var i = 0; i < arguments.length; i++) {
       // }
       saveCandidateList(electionId, innerHtml)
@@ -173,10 +176,12 @@ function saveCandidateList(electionId, innerHtml) {
   if (newAndChangedCandidates.length < 1) {
     SaveInProgress = false
     SaveCandidatesButton.innerHTML = innerHtml
-    // loadCandidates(Election, displayCandidates)  //re-load candidates so that we reset OriginalCandidatesFromServer and ensure that we have the latest list
+    // loadCandidates(ElectionId, displayCandidates)  //re-load candidates so that we reset OriginalCandidatesFromServer and ensure that we have the latest list
+    // resetCandidates()
+    updateSaveButton()
     return
   }
-  Piv.postToResource("/api/election/" + electionId + "/batch_candidates", {"candidates": newAndChangedCandidates}, function(candidates) {
+  Piv.http.post(["/api/election/" + electionId + "/batch_candidates"], [{"candidates": newAndChangedCandidates}], function(candidates) {
     displayCandidates(candidates)
     SaveInProgress = false
     SaveCandidatesButton.innerHTML = innerHtml
@@ -184,4 +189,4 @@ function saveCandidateList(electionId, innerHtml) {
 }
 
 // close the self-executing function and feed libraries to it
-})(piv, dragula)
+})(piv, dragula, election)

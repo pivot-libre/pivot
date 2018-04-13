@@ -2,7 +2,7 @@ body {
   box-sizing: border-box;
   margin: 0;
   padding: 5px;
-  font-family: "Alegreya Sans",sans-serif;
+  font-family: "Raleway","Alegreya Sans",sans-serif;
   font-size: 0px;
   text-decoration: none;
   height: 100%;
@@ -23,7 +23,7 @@ div, ol, ul, li, a, img, form, label, input, iframe, button {
   background-size: cover;
   border: none;
   list-style: none;
-  font-family: "Alegreya Sans",sans-serif;
+  font-family: "Raleway","Alegreya Sans",sans-serif;
 }
 svg {
   width: 100%;
@@ -34,6 +34,7 @@ label:hover,
 button:hover,
 input[type=submit]:hover,
 .clickable1:hover:not(.disabled),
+.clickable2:hover:not(.disabled),
 .cursorPointer {
   cursor: pointer;
 }
@@ -79,6 +80,11 @@ a[href].hover1,
 .orange1 {
   background-color: #fcb8a8;
 }
+.textInput1,
+.text3,
+.bgNone {
+  background: none;
+}
 /* .grabbable, */
 .clickable1,
 .button1Item,
@@ -99,9 +105,15 @@ a[href]:active,
 button:active,
 input[type=submit]:active,
 .clickable1:active,
+.clickable2:active,
 .clickable1.disabled,
+.clickable2.disabled,
 .opacity5 {
   opacity: .5;
+}
+.triggerHoverOpacity75:hover .hoverOpacity75,
+.hoverOpacity75:hover {
+  opacity: .75;
 }
 
 #topNav a:not([href]),
@@ -135,7 +147,7 @@ a.a1:hover,
 }
 .electionName,
 .text1,
-.white {
+.bgwhite {
   background-color: white;
 }
 
@@ -144,6 +156,10 @@ a.a1:hover,
 .grey1 {
   color: #5d5d5d;
 }
+.text4,
+.background-color4 {
+  background-color: #77dd76;
+}
 .electorChecks,
 .red1 {
   color: #d53e3e;
@@ -151,6 +167,7 @@ a.a1:hover,
 .orange1 {
   color: #fcb8a8;
 }
+.clickable2:hover:not(.disabled),
 .orange2 {
   color: #ff876d;
 }
@@ -171,10 +188,13 @@ a.a1:hover,
 button,
 input[type=submit],
 .clickable1,
+.clickable2,
 .button1 a,
 a.button1,
 a,
 .text2,
+.text4,
+.textInput1,
 #maincolumn,
 .white {
   color: white;
@@ -236,14 +256,9 @@ a,
 .w25 {
   width: 25%;
 }
-.itemlist {
-  width: 100%;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  margin-top: 10px;
-  min-height: 50px;
+.hasLabelFrame {
+  padding: 25px 0px 0px 0px;
 }
-
 .hasLabelFrame::before {
   content: "";
   position: absolute;
@@ -252,27 +267,24 @@ a,
   right: 0;
   bottom: 0;
   /*border: 2px solid #aaaaaa;*/
-  border: 2px solid #fff;
+  /* border: 2px solid #fff; */
 }
 .hasLabelFrame::after {
   content: "Unranked (tied for last)";
   position: absolute;
-  font-size: 17px;
-  top: -7px;
+  font-size: 20px;
+  top: 0px;
   left: 10px;
-  padding: 0 5px 0 5px;
+  /* padding: 0 5px 0 5px; */
 }
 #rankeditems::after {
   content: "Ranked";
 }
-#electorateUl::after {
-  content: "Current Electorate";
+#electorate::after {
+  content: "Electors";
 }
-#pendingUl::after {
-  content: "Pending Invites";
-}
-#unsentUl::after {
-  content: "Unsent Invites";
+#invites::after {
+  content: "Invites";
 }
 /* cssremove1 */
 .grabbable,
@@ -299,28 +311,37 @@ li.gu-mirror > .rankingTools {
   visibility: hidden;
   transition: visibility 0s linear 0s !important;
 }
+
+/* div[data-isNew="new"] .hidden1, */
+/* ul li[data-isNew="new"] .hidden1 { */
+.incrementsCounter .hidden1,
 ol .hidden2:checked,
 ol .hidden2:checked ~ .hidden3,
-ol li:hover .hidden2,
-ul li[data-isNew="new"] .hidden1 {
+ol li:hover .hidden2 {
   visibility: visible;
+}
+.display_none_1 {
+  display: none;
+}
+div[data-isNew="new"] .display_none_1 {
+  display: inline-block;
 }
 
 /* rank counting (FUNCTIONAL) */
 /* increment the rank with each candidate by default */
-.incrementsCounter > li {
+.incrementsCounter > * {
   counter-increment: rank;
 }
 /* do not increment the rank for gu-transit items that fall after a tied item, nor the ranks for items within a tie that fall after a gu-transit item, since they might not be coming from a tie */
-.incrementsCounter > li[data-tie] + .gu-transit,
-.incrementsCounter > li.gu-transit + [data-tie="middle"],
-.incrementsCounter > li.gu-transit + [data-tie="end"],
-.incrementsCounter > li[data-tie] + [data-tie] {
+.incrementsCounter > [data-tie] + .gu-transit,
+.incrementsCounter > .gu-transit + [data-tie="middle"],
+.incrementsCounter > .gu-transit + [data-tie="end"],
+.incrementsCounter > [data-tie] + [data-tie] {
   counter-increment: none;
 }
-.incrementsCounter > li[data-tie] + [data-tie="start"]:not(.gu-transit),
+.incrementsCounter > [data-tie] + [data-tie="start"]:not(.gu-transit),
 /* increment the rank for gu-transit items that fall right after the end of a tie */
-.incrementsCounter > li[data-tie="end"] + .gu-transit {
+.incrementsCounter > [data-tie="end"] + .gu-transit {
   counter-increment: rank;
 }
 /* actually show the count */
@@ -331,26 +352,30 @@ ul li[data-isNew="new"] .hidden1 {
   left: 0;
   right: 0;
 }
-.incrementsCounter > li .orderdisplay::before {
+.incrementsCounter .orderdisplay::before {
   content: counter(rank);
 }
 
 /* other stuff */
-label,
+.label0,
+/* label, */
 input,
-.clickable1,
 .button1Item,
 .details,
+.textInput1,
 .text3,
 button,
 input[type=submit],
 .clickable1,
+.clickable2,
 .button1 a,
 a.button1,
 a {
   text-decoration: none;
   font-size: 20px;
   padding: 10px;
+  margin: 0 2px 0 2px;
+  border-radius: .15em;
   transition: all .25s;
 }
 .electionName {
@@ -408,10 +433,24 @@ a {
 .font20 {
   font-size: 20px;
 }
+.text4,
+.font16 {
+  font-size: 16px;
+}
+.text4 {
+  border-radius: 10px;
+}
 /* .grabbable, */
 .text1,
 .padding10 {
   padding: 10px;
+}
+.text4,
+.padding-sides-small {
+  padding: 0px 5px 0px 5px;
+}
+.padding-top-med {
+  padding: 15px 0px 0px 0px;
 }
 .text2,
 .paddingTop4 {
@@ -422,7 +461,6 @@ a {
 .textLeft {
   text-align: left;
 }
-label,
 .textRight {
   text-align: right;
 }
@@ -434,7 +472,102 @@ label,
 .underline {
   text-decoration: underline;
 }
+.row2 {
+  margin: 0px 0px 4px 0px;
+}
+.row2:last-child {
+  margin: 0;
+}
 .row1,
 .margin4p0p4p0p {
   margin: 4px 0px 4px 0px;
+}
+.marginB1 {
+  margin: 0px 0px 6px 0px;
+}
+.marginR1 {
+  margin: 0px 6px 0px 0px;
+}
+.row-spacing1 {
+  border-spacing: 0px 8px;
+}
+.table {
+  display: table;
+  table-layout: fixed;
+  /* border-collapse: collapse; */
+}
+.table > * {
+  display: table-row;
+}
+.table > * > * {
+  display: table-cell;
+}
+.textInput1 {
+  border-bottom: 1px solid white;
+  /* border-left: 1px solid white; */
+  font-weight: 200;
+}
+.textInput1::selection {
+  background-color: #ff876d;
+}
+.textInput1:hover,
+.textInput1:focus {
+  border-color: #ff876d;
+  outline: none;
+}
+.textInput1::-webkit-input-placeholder { /* Chrome */
+  color: white;
+  opacity: .85
+}
+.textInput1:-ms-input-placeholder { /* IE 10+ */
+  color: white;
+  opacity: .85
+}
+.textInput1::-moz-placeholder { /* Firefox 19+ */
+  color: white;
+  opacity: .85
+}
+.textInput1:-moz-placeholder { /* Firefox 4 - 18 */
+  color: white;
+  opacity: .85
+}
+
+/* custom checkbox adapted from https://www.w3schools.com/howto/howto_css_custom_checkbox.asp */
+.checkbox0 {
+  display: none;
+}
+/* Create a custom checkbox */
+.checkboxUI0 {
+  background-color: #eee;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  font-size: 16px;
+}
+/* On mouse-over, add a grey background color */
+.checkboxUI0:hover {
+  background-color: #ccc;
+}
+/* When the checkbox is checked, add a blue background */
+[type=checkbox]:checked + .checkboxUI0 {
+  background-color: #2196F3;
+}
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkboxUI0:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 35%;
+  top: 10%;
+  width: 25%;
+  height: 50%;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+/* Show the checkmark when checked */
+[type=checkbox]:checked ~ .checkboxUI0:after {
+  display: block;
 }

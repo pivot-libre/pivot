@@ -11,8 +11,14 @@ var piv = piv = piv || {};  //(need the ; in order to do this syntax)
 var view = lib.view = {};
 view.workspace = document.querySelector(".workspace")
 var mainheader = document.querySelector(".mainheader")
-view.setHeader = function(text) {
+view.setHeader = function(text, election, delim) {
   mainheader.innerHTML = text
+  if (election) {
+    delim = delim || ": "
+    http.get(["/api/election/" + election], function(electionDetails) {
+      mainheader.innerHTML = text + delim + electionDetails.name
+    })
+  }
 }
 
 
@@ -82,6 +88,9 @@ var evmanage = lib.evmanage = {};
 (function(evmanage) {
   var handlers = {}
   evmanage.listen = function(domel, ename, func, args) {
+    if (!(domel instanceof Element)) return
+    if (!ename) return
+    if (!(func instanceof Function)) return
     domel.setAttribute("data-elisten-" + ename, true)
     var domelDataKey = domeldata.getKey(domel)
     handlers[domelDataKey] = handlers[domelDataKey] || {}
@@ -243,60 +252,10 @@ var canonicalize = lib.canonicalize = function(url) {
   return div.firstChild.href;
 }
 
-// getResource('/api/election')
-// getResource('/api/election/1')
-// getResource('/api/election/1/result')
-// getResource('/api/election/1/candidate')
-// getResource('/api/election/1/candidate/1')
-// getResource('/api/election/1/candidate/1/rank')
-// getResource('/api/election/1/candidate/10/rank')
-// getResource('/api/election/2/invite')
-var getResource = lib.getResource = function(resource, onSuccess, onError) {
-  axios.get(resource)
-    .then(response => {
-      if (onSuccess) {onSuccess(response.data); return}
-      // console.log(response);
-      console.log(JSON.stringify(response.data, "", " "));
-    })
-    .catch(error => {
-      if (onError) {onError(response.data); return}
-      onAxiosError(resource, "", onSuccess, error)
-    })
-}
-// postToResource('/api/election/2/invite', {"email": "nathan.eckberg@gmail.com"})
-// postToResource('/api/invite/accept', {"code": "e2562a8a"})
-var postToResource = lib.postToResource = function(resource, payload, onSuccess, onError) {
-  axios.post(resource, payload)
-    .then(response => {
-      if (onSuccess) {onSuccess(response.data); return}
-      console.log(response);
-    })
-    .catch(error => {
-      if (onError) {onError(response.data); return}
-      onAxiosError(resource, payload, onSuccess, error)
-    })
-}
-var deleteResource = lib.deleteResource = function(resource, onSuccess, onError) {
-  axios.delete(resource)
-    .then(response => {
-      if (onSuccess) {onSuccess(response.data); return}
-      console.log(response);
-    })
-    .catch(error => {
-      if (onError) {onError(response.data); return}
-      onAxiosError(resource, "", onSuccess, error)
-    })
-}
-var onAxiosError = function(resource, payload, onSuccess, error) {
-  console.group("error");
-  console.log(resource);
-  console.log(payload);
-  console.log(onSuccess);
-  console.log(error);
-  console.groupEnd()
-}
-
-var httpMultiple = lib.httpMultiple = function(method, resources, payloads, onSuccess, onFail) {
+var http = lib.http = {}
+// lib.http.post1('/api/election/2/invite', {"email": "nathan.eckberg@gmail.com"})
+// lib.http.post1('/api/invite/accept', {"code": "e2562a8a"})
+var httpMultiple = lib.http.send = function(method, resources, payloads, onSuccess, onFail) {
 
   var exFuncAry = function() {
     var funcReturns = []
@@ -326,15 +285,22 @@ var httpMultiple = lib.httpMultiple = function(method, resources, payloads, onSu
     .then(axios.spread(thenFunc))
     .catch(onFail);
 }
-
-var getMultResources = lib.getMultResources = function(resources, onSuccess, onFail) {
+var getMultResources = lib.http.get = function(resources, onSuccess, onFail) {
   httpMultiple("get", resources, "", onSuccess, onFail)
 }
-var postToMultResources = lib.postToMultResources = function(resources, payloads, onSuccess, onFail) {
+var postToMultResources = lib.http.post = function(resources, payloads, onSuccess, onFail) {
   httpMultiple("post", resources, payloads, onSuccess, onFail)
 }
-var deleteMultResources = lib.deleteMultResources = function(resources, onSuccess, onFail) {
+var deleteMultResources = lib.http.delete = function(resources, onSuccess, onFail) {
   httpMultiple("delete", resources, "", onSuccess, onFail)
+}
+var onAxiosError = function(resource, payload, onSuccess, error) {
+  console.group("error");
+  console.log(resource);
+  console.log(payload);
+  console.log(onSuccess);
+  console.log(error);
+  console.groupEnd()
 }
 
 var hasClass = lib.hasClass = function(el, className) {
@@ -387,6 +353,12 @@ var makeVobjectCollection = lib.makeVobjectCollection = function() {
     vobject.status = status  //update the status field on the vobject
     return status
   }
+  collection.remove = function(vobject) {
+    var status = vobject.status
+    if (!status) return
+    delete collection.indexes[vobject.status][vobject.index]  //delete the entry for this vobject in whatever index it's in
+    vobject.status = false  //noe this needs to be improved
+  }
   collection.reset = function() {
     collection.list = []
     collection.indexes = {}
@@ -419,6 +391,37 @@ var setTreeData = lib.setTreeData = function(obj, keys, value, push) {
   objCursor[keys[key]].push(value);
 
   return obj;
+}
+
+lib.checkbox = function(parent, id, name, size, checked, labelatts, evhandler, evargs) {
+  var vobject = {}, label, input, atts = {}, ui
+  label = vobject.label = html("", "label", "", labelatts)
+  atts.type = "checkbox"
+  atts.style = "display:none;"
+  if (id) atts.id = id
+  if (name) atts.name = name
+  input = vobject.input = html(label, "input", "", atts, "click", evhandler, evargs)
+  if (checked) input.checked = true
+  ui = html(label, "div", "", {"class": "checkboxUI0"})
+  // size = size || "16px";
+  if (size) {
+    ui.style.width = size
+    ui.style.height = size
+    ui.style["line-height"] = size
+    ui.style["font-size"] = size
+  }
+  parent.appendChild(label)
+  return vobject
+}
+
+lib.table = function(parent, columnHeaders, atts) {
+  var table = div(parent, "", "", "", atts)  // create the table
+  addClass(table, "table")
+  div(parent, "", "row1", div("", "", "", table))  //add the table to a row in the workspace
+  if (!columnHeaders || columnHeaders.length < 1) return table
+  var row0 = div(table)
+  for (var i = 0; i < columnHeaders.length; i++) { row0.appendChild(columnHeaders[i]) }
+  return table
 }
 
 //feed our object to the function so that we can populate it with properties
