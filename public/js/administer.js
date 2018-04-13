@@ -1,7 +1,7 @@
 'use strict';
 
 //create a file-specific context via a function
-(function(Piv) {
+(function(Piv, ElectionId) {
 
 // script-level variables
 var View = Piv.view
@@ -9,24 +9,18 @@ var View = Piv.view
 // actions (do stuff)
 Piv.evmanage.setManager(View.workspace, ["click"])
 
-View.setHeader("Administer")
+View.setHeader("Administer", ElectionId)
 
 Piv.anchorListDiv(View.workspace, "", {
-    "Election details": "/administer/" + election,
-    "Add/Edit candidates": "/candidates/" + election,
-    "Manage electorate": "/electorate/" + election
+    "Add/Edit candidates": "/candidates/" + ElectionId,
+    "Manage electorate": "/electorate/" + ElectionId,
+    "Election details": "/administer/" + ElectionId
   }
 )
 
 Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
-Piv.getMultResources(['/api/election/' + election, '/api/election/' + election + '/voter_stats'], showElectionDetails)
-// Piv.getResource('/api/election/' + election, showElectionDetails)
-// Piv.getResource('/api/election/' + election + '/voter_stats',
-//   function(response){
-//     console.log(response)
-//   }
-// )
+Piv.http.get(["/api/election/" + ElectionId, "/api/election/" + ElectionId + "/voter_stats"], showElectionDetails)
 
 // function definitions
 function showElectionDetails(details, stats) {
@@ -51,4 +45,4 @@ function deleteElection(electionId) {
 }
 
 // close the self-executing function and feed the piv library to it
-})(piv)
+})(piv, election)

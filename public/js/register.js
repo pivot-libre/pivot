@@ -19,7 +19,7 @@ GetTokenButton.addEventListener("click", function() {
 })
 
 function verifyEmail(email, statusEl, instructionsEl) {
-  Piv.postToResource('/open/send_verify_email', {"email": email}, function(response) {
+  Piv.http.post(["/open/send_verify_email"], [{"email": email}], function(response) {
     if ("confirmation Email sent" == response) {
       statusEl.innerHTML = "Token created!"
       instructionsEl.innerHTML = "An email has been sent to " + email + " containing a verification token. Use the token from the Email in the Verification Token field to continue with your registration."

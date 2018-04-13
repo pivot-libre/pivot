@@ -18,7 +18,7 @@ Piv.html(VerifyEmailForm, "input", "", {"type": "submit", "value": "Verify"});
 // function definitions
 function verifyEmail(form) {
   var email = form.elements.email.value;
-  Piv.postToResource('/open/send_verify_email', {"email": email}, function(response) {
+  Piv.http.post(["/open/send_verify_email"], [{"email": email}], function(response) {
     alert(response);
   })
 }

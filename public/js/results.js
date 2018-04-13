@@ -1,18 +1,18 @@
 'use strict';
 
 //create a file-specific context via a function
-(function(Piv) {
+(function(Piv, ElectionId) {
 
 // script-level variables
 var View = Piv.view
 var Edititems = Piv.html(View.workspace, "ol", "", {"id": "edititems", "class": "itemlist incrementsCounter"});
 
 // actions (do stuff)
-View.setHeader("Results")
+View.setHeader("Results", ElectionId)
 
 Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
-Piv.getResource('/api/election/' + election + '/result', showElectionResults)
+Piv.http.get(["/api/election/" + ElectionId + "/result"], showElectionResults)
 
 // function definitions
 function displayCandidate(parent, description, cost, tie) {
@@ -29,4 +29,4 @@ function showElectionResults(results) {
 }
 
 // close the self-executing function and feed the piv library to it
-})(piv)
+})(piv, election)
