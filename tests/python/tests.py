@@ -215,7 +215,7 @@ class API:
 
     def add_elector(self, election, admin, user):
         invite_status = self.invite(admin, election, user['email'])
-        code = invite_status['code']
+        code = invite_status['election_id']
         self.accept(user, code)
 
     def get_ready(self, user, election):
@@ -256,15 +256,16 @@ def test1(api):
 
     # electors
     invite_status = api.invite(userA, election, userA['email'])
-    code = invite_status['code']
+    code = invite_status['election_id']
     print code
     api.accept(userA, code)
     invite_status = api.invite(userA, election, userB['email'])
-    code = invite_status['code']
+    code = str(invite_status['election_id'])
     electors = api.get_electors(userA, election)
     print(electors)
     assert(len(electors) == 1)
     acceptables = api.acceptable(userB)
+    print acceptables
     codes = [inv['code'] for inv in acceptables]
     assert (code in codes)
     api.accept(userB, code)
@@ -308,7 +309,7 @@ def test2(api):
 
     election = api.create_election(userA, 'Triceritops Rex')
     invite_status = api.invite(userA, election, userA['email'])
-    code = invite_status['code']
+    code = invite_status['election_id']
     api.accept(userA, code)
 
     A = api.create_candidate(userA, election, 'candidate-A')
@@ -352,7 +353,7 @@ def test4(api):
 
     election = api.create_election(userA, 'test4-election')
     invite_status = api.invite(userA, election, userA['email'])
-    code = invite_status['code']
+    code = invite_status['election_id']
 
     # it should not be possible to accept an invitation that was not sent to you,
     # so this should fail
@@ -388,7 +389,7 @@ def test6(api):
     invite1 = api.invite(userA, election, userB['email'])
     invite2 = api.invite(userA, election, userB['email'])
     assert(invite1['id'] == invite2['id'])
-    code = invite1['code']
+    code = invite1['election_id']
     # multiple accepts should return the same first timestamp
     accept1 = api.accept(userB, code)
     print accept1
@@ -488,7 +489,7 @@ def test8(api):
     
     # invite
     invite_status = api.invite(userA, election, userB['email'])
-    code = invite_status['code']
+    code = invite_status['election_id']
     verify_voterB_status('outstanding_invites')
 
     # accept

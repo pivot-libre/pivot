@@ -31,14 +31,12 @@ Route::get('election/{election_id}/batch_candidates', 'ElectionController@batch_
 // TODO: allow update (e.g., to fix typos in candidate name?)
 Route::resource('election.candidate', 'CandidateController', ['only' => ['index', 'show', 'store', 'destroy']]);
 
-Route::resource('election.elector', 'ElectorController', ['only' => ['index', 'show', 'destroy'],
-                                                          'parameters' => ['elector' => 'user'],
-]);
+Route::resource('election.elector', 'ElectorController', ['only' => ['index', 'show', 'destroy']]);
 
 // TODO: get rid of election result, moving call to election controller
 Route::resource('election.result', 'ResultController', ['only' => ['index']]);
 
-Route::resource('election.invite', 'InviteController', ['only' => ['index', 'store', 'destroy']]);
+Route::resource('election.invite', 'InviteController', ['only' => ['index', 'store']]);
 Route::post('/invite/acceptable', 'InviteController@acceptable')->name('invite.acceptable'); // TODO: remove this (use GET instead)
 Route::get('/invite/acceptable', 'InviteController@acceptable')->name('invite.acceptable');
 Route::post('/invite/accept', 'InviteController@accept')->name('invite.accept');
