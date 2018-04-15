@@ -9,7 +9,7 @@
 
     // function definitions
     function deleteAccount(form) {
-	Piv.http.post("/api/delete_account", [{}], function(response) {
+	Piv.http.post(["/api/delete_account"], [{}], function(response) {
 	    alert(response);
 	})
     }
