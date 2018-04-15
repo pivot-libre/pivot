@@ -44,6 +44,7 @@ function newInvite(table) {
   Piv.div(row, "", "clickable2", "X", "", "click", removeInviteVobject, [inviteKey])
   // TheTable.insertBefore(row, ElectorateHeaderRow)
 }
+
 function newInviteMaybe(table) {
   var input = this.domel, lastrow
   var lastKey = Number(Object.keys(InviteList)[Object.keys(InviteList).length - 1])
@@ -66,7 +67,7 @@ function newInviteMaybe(table) {
   }
 }
 
-loadElectorateAndInvites(ElectionId, displayElectorateAndInvites)
+loadElectorate(ElectionId, displayElectorate)
 
 function removeInviteVobject(inviteKey) {
   var invite = InviteList[inviteKey]
@@ -112,7 +113,8 @@ function sendInvites() {
   Piv.http.post(resources, payloads, function() {
     for (var i = 0; i < arguments.length; i++) {
       removeInviteVobject(inviteKeys[i])
-      makeElectorVobject("", arguments[i].email, arguments[i].code, "outstanding_invites")
+      var elector = arguments[i]
+      makeElectorVobject(elector.invite_email, elector.invite_email, elector.id, "outstanding_invites")
     }
     repopulateElectorateStatusTable()
     SendInProgress = false
@@ -121,13 +123,12 @@ function sendInvites() {
   })
 }
 
-function loadElectorateAndInvites(electionId, onSuccessFunction) {
+function loadElectorate(electionId, onSuccessFunction) {
   Piv.http.get([
     '/api/election/' + electionId + '/voter_details',
-    '/api/election/' + electionId + '/invite',
-    // '/api/election/' + electionId + '/elector',
   ], onSuccessFunction)
 }
+
 function electorFilters(parent, StatusMap, table) {
   for (var key in StatusMap) {
     var button = Piv.html(parent, "label", "", {"class": "clickable1"})
@@ -140,6 +141,7 @@ function electorFilters(parent, StatusMap, table) {
     Piv.evmanage.listen(checkbox.input, "click", filterElectorate, [checkbox.input, key, table])
   }
 }
+
 function table(parent, columnHeaders) {
   var table = Piv.div("", "", "table")  // create the table
   Piv.div(parent, "", "row1", Piv.div("", "", "", table))  //add the table to a row in the worspace
@@ -148,15 +150,16 @@ function table(parent, columnHeaders) {
   for (var i = 0; i < columnHeaders.length; i++) { row0.appendChild(columnHeaders[i]) }
   return table
 }
+
 function filterElectorate(checkbox, key, table) {
   FilteredStatuses[key] = checkbox.checked
-  // populateElectorateStatusTable(table, Electors, Invites)
   repopulateElectorateStatusTable(table)
 }
+
 function repopulateElectorateStatusTable() {
   var table = ElectorateTable, header = table.firstChild
   Piv.removeAllChildren(table)
-  // if (header) table.appendChild(header)
+
   var electorVobject
   for (var key in ElectorVobjects) {
     electorVobject = ElectorVobjects[key]
@@ -164,23 +167,19 @@ function repopulateElectorateStatusTable() {
     renderElectorVobject(electorVobject, table)
   }
 }
+
 function populateElectorateStatusTable(table, electors, invites) {
-  // var header = table.firstChild
-  // Piv.removeAllChildren(table)
-  // if (header) table.appendChild(header)
   console.log(electors)
 
   if (FilteredStatuses["approved_current"] != false) displayElectorGroup(table, electors.approved_current, "approved_current")
   if (FilteredStatuses["approved_previous"] != false) displayElectorGroup(table, electors.approved_previous, "approved_previous")
   if (FilteredStatuses["approved_none"] != false) displayElectorGroup(table, electors.approved_none, "approved_none")
-  // displayElectorGroup(TheTable, electors.outstanding_invites, "outstanding_invites")
-  // if (FilteredStatuses["outstanding_invites"] != false) displayElectorGroup(table, electors.outstanding_invites, "outstanding_invites")
-  // if (FilteredStatuses["outstanding_invites"] != false) displayInvites(table, invites)
-  if (FilteredStatuses["outstanding_invites"] != false) displayInvites(table, electors.outstanding_invites)
+  if (FilteredStatuses["outstanding_invites"] != false) displayElectorGroup(table, electors.outstanding_invites, "outstanding_invites")
 }
+
 var SendInvitesButton, DeleteSelectedElectorsButton
-function displayElectorateAndInvites(electors, invites) {
-  if (!Electors) { Electors = electors, Invites = invites }
+function displayElectorate(electors) {
+  if (!Electors) { Electors = electors }
 
   SendInvitesButton = Piv.div("", "", "clickable1", "Send Invites", "", "click", sendInvites, ["noe"])
   Piv.div(View.workspace, "", "textRight w75", SendInvitesButton)
@@ -224,31 +223,23 @@ function displayElectorateAndInvites(electors, invites) {
     child.style.width = child.offsetWidth + "px"
   }
 }
+
 function displayElectorGroup(table, electors, status) {
-  if (!electors.length) return
   var elector
   for (var key in electors) {
     elector = electors[key]
-    renderElectorVobject(makeElectorVobject(elector.name || "", elector.email, "", status), table)
+    renderElectorVobject(makeElectorVobject(elector.name || elector.email, elector.email, elector.elector_id, status), table)
   }
 }
-function displayInvites(table, invites) {
-  var invite, code, email
-  for (var key in invites) {
-    invite = invites[key]
-    code = invite.code
-    email = invite.email
-    renderElectorVobject(makeElectorVobject("", email, code, "outstanding_invites"), table)
-  }
-}
+
 // var ElectorVobjects = []
 var ElectorVobjects = {}
-function makeElectorVobject(name, email, code, status) {
+function makeElectorVobject(name, email, elector_id, status) {
   var vobject = {
     "name": name,
     "email": email,
-    "code": code,
-    "status": status
+    "status": status,
+    "elector_id": elector_id
   }
   // vobject.key = ElectorVobjects.push(vobject) - 1
   vobject.key = email
@@ -257,12 +248,12 @@ function makeElectorVobject(name, email, code, status) {
 
   Piv.div(row, "", "text3 textRight", StatusMap[status].icon)
   Piv.div(row, "", "text3 textLeft w75", name ? name + " (" + email + ")" : email)
-  // if (code) Piv.html(row, "input", "", {"type": "checkbox"}, "click", clickElectorCheckbox, [vobject])
-  // if ("outstanding_invites" == status) Piv.html(row, "input", "", {"type": "checkbox"}, "click", clickElectorCheckbox, [vobject])
+
   if ("outstanding_invites" == status) Piv.checkbox(row, "", "", "", "", {"class": "marginR1"},  clickElectorCheckbox, [vobject])
 
   return vobject
 }
+
 function renderElectorVobject(vobject, parent) {
   if (parent) {
     parent.appendChild(vobject.domel)
@@ -270,11 +261,13 @@ function renderElectorVobject(vobject, parent) {
   }
   else if (vobject.parent) { vobject.parent.appendChild(vobject.domel) }
 }
+
 function removeElectorVobject(vobject) {
   delete CheckedElectorCheckboxes[vobject.key]
   delete ElectorVobjects[vobject.key]
   if (vobject.domel.parentElement) vobject.domel.parentElement.removeChild(vobject.domel)
 }
+
 var CheckedElectorCheckboxes = {}
 Piv.CheckedElectorCheckboxes = CheckedElectorCheckboxes
 function clickElectorCheckbox(vobject) {
@@ -282,10 +275,12 @@ function clickElectorCheckbox(vobject) {
   else { delete CheckedElectorCheckboxes[vobject.key] }
   updateDeleteSelectedElectorsButton()
 }
+
 function updateDeleteSelectedElectorsButton() {
   if (Object.keys(CheckedElectorCheckboxes).length < 1) { Piv.addClass(DeleteSelectedElectorsButton, "disabled") }
   else { Piv.removeClass(DeleteSelectedElectorsButton, "disabled") }
 }
+
 var DeletionInProgress
 function deleteSelectedElectors() {
   if (DeletionInProgress) {
@@ -300,7 +295,7 @@ function deleteSelectedElectors() {
 
   var resources = [], electorVobjectKeys = []
   for (var key in CheckedElectorCheckboxes) {
-    resources.push("/api/election/" + ElectionId + "/invite/" + CheckedElectorCheckboxes[key].code)
+    resources.push("/api/election/" + ElectionId + "/elector/" + CheckedElectorCheckboxes[key].elector_id)
     electorVobjectKeys.push(key)
   }
   Piv.http.delete(resources, function() {

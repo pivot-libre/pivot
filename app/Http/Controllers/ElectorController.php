@@ -92,23 +92,16 @@ class ElectorController extends Controller
      * @param  \App\User $user
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Election $election, User $user)
+    public function destroy(Election $election, $elector_id)
     {
         $this->authorize('update', $election);
 
-        $electors = Elector::where([
+        $elector = Elector::where([
             'election_id' => $election->id,
-            'user_id' => $user->id,
-        ])->get();
+            'id' => $elector_id,
+        ])->firstOrFail();
 
-        foreach ($electors as $elector) {
-            if (isset($elector->invite)) {
-                $elector->invite->delete();
-            }
-
-            $elector->delete();
-        }
-
+        $elector->delete();
         return response()->json(new \stdClass());
     }
 }

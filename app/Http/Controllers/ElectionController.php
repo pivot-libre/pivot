@@ -295,6 +295,7 @@ class ElectionController extends Controller
             ->leftJoin('users', 'electors.user_id', '=', 'users.id')
             ->select('users.name',
                 'users.email',
+                'electors.id',
                 'electors.invite_email',
                 'electors.invite_accepted_at',
                 'elections.ballot_version',
@@ -314,9 +315,10 @@ class ElectionController extends Controller
 
             $name = $row->name;
             $email = $row->email != null ? $row->email : $row->invite_email;
+            $elector_id = $row->id;
             # name may be null if invite hasn't been accepted.  Caller
             # should expect this.
-            array_push($stats[$key], array("name" => $name, "email" => $email));
+            array_push($stats[$key], array("name" => $name, "email" => $email, "elector_id" => $elector_id));
         }
 
         return response()->json($stats);

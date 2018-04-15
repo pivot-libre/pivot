@@ -21,7 +21,7 @@ class InviteController extends Controller
      * @SWG\Get(
      *     tags={"Invites"},
      *     path="/election/{electionId}/invite",
-     *     summary="View pending invites",
+     *     summary="View electors who have not accepted their invite yet",
      *     operationId="inviteIndex",
      *     @SWG\Parameter(
      *         name="electionId",
@@ -43,7 +43,7 @@ class InviteController extends Controller
     {
         $this->authorize('update', $election);
 
-        return $election->invites;
+        return $election->electors()->whereNull('invite_accepted_at')->get();
     }
 
     /**
@@ -90,11 +90,7 @@ class InviteController extends Controller
 
         $email = $request->json()->get('email');
         $elector = $election->invite($email);
-
-        # we don't really use codes anymore, but we use the election ID for it so
-        # that we don't break the client side (cleanup later, by using election_id on client?)
-        $code = (string)$election->id;
-        return response()->json(array("id" => $elector->id, "code" => $code, "election_id" => $election->id));
+        return $elector;
     }
 
     /**
@@ -170,52 +166,5 @@ class InviteController extends Controller
         }
 
         return array_values($results);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @SWG\Delete(
-     *     tags={"Invites"},
-     *     path="/election/{electionId}/invite/{code}",
-     *     summary="Delete an invite",
-     *     consumes={"application/json"},
-     *     produces={"application/json"},
-     *     operationId="deleteInvite",
-     *     @SWG\Parameter(
-     *         name="electionId",
-     *         in="path",
-     *         description="Election ID",
-     *         required=true,
-     *         type="string",
-     *     ),
-     *     @SWG\Parameter(
-     *         name="code",
-     *         in="path",
-     *         description="Invite Code",
-     *         required=true,
-     *         type="string",
-     *     ),
-     *     @SWG\Response(
-     *         response=200,
-     *         description="successful operation"
-     *     ),
-     *     @SWG\Response(
-     *         response="400",
-     *         description="Bad Request",
-     *     )
-     * )
-     *
-     * @param  \App\Election  $election
-     * @param  \App\Invite  $invite
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Election $election, Invite $invite)
-    {
-        $this->authorize('update', $election);
-
-        $invite->delete();
-
-        return response()->json(new \stdClass());
     }
 }
