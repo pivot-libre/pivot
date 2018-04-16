@@ -572,6 +572,7 @@ def create_users(url):
         chrome_options = ChromeOptions()
         chrome_options.add_argument("--headless")
         driver = webdriver.Chrome(chrome_options=chrome_options)
+        driver.implicitly_wait(30)
 
         name = 'User %d' % i
         email = 'user%d-%06d@pivot.vote' % (i, random.randint(0,999999))
@@ -584,7 +585,6 @@ def create_users(url):
         driver.find_element_by_name("password_confirmation").submit()
         driver.get(url + '/profile')
         driver.find_element_by_link_text('Create New Token').click()
-        time.sleep(3) # find better way to wait till field is visible
         driver.find_element_by_name("name").send_keys("my token")
 
         # Create Button
