@@ -1,5 +1,21 @@
-language: php
+matrix:
+  include:
+    - language: python
+      python: 2.7
+      before_script:
+        - php artisan serve
+        - cd tests/python
+      script:
+        - python tests.py --url http://127.0.0.1:8000/ --genusers
 
+    - language: php
+      php:
+        - 7.1
+      script:
+        - vendor/bin/phpunit
+
+
+language: php
 php:
   - 7.1
 
@@ -12,5 +28,4 @@ before_script:
   - php artisan migrate --database=testing
   - php artisan passport:install
 
-script:
-- vendor/bin/phpunit
+
