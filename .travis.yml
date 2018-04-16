@@ -9,6 +9,7 @@ matrix:
         - composer self-update
         - composer install --no-interaction
         - sudo apt-get install chromium-chromedriver
+        - sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver
         - php artisan key:generate
         - php artisan migrate --database=testing
         - php artisan passport:install
