@@ -17,7 +17,7 @@ matrix:
         - sleep 5
         - cd tests/python
       script:
-        - python tests.py --url http://127.0.0.1:8000/ --genusers
+        - python tests.py --url http://127.0.0.1:8000 --genusers
 
     - language: php
       php:
