@@ -38,4 +38,3 @@ before_script:
   - php artisan key:generate
   - php artisan migrate --database=testing
   - php artisan passport:install
-
