@@ -39,4 +39,3 @@ before_script:
   - php artisan migrate --database=testing
   - php artisan passport:install
 
-
