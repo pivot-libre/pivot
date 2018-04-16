@@ -11,7 +11,7 @@ matrix:
         - php artisan key:generate
         - php artisan migrate --database=testing
         - php artisan passport:install
-        - php artisan serve
+        - php artisan serve&
         - cd tests/python
       script:
         - python tests.py --url http://127.0.0.1:8000/ --genusers
@@ -19,7 +19,6 @@ matrix:
     - language: php
       php:
         - 7.1
-        - 7.2
       script:
         - vendor/bin/phpunit
 
