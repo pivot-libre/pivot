@@ -8,7 +8,7 @@ matrix:
         - mysql -e 'create database homestead_test;'
         - composer self-update
         - composer install --no-interaction
-        - apt-get install chromium-chromedriver
+        - sudo apt-get install chromium-chromedriver
         - php artisan key:generate
         - php artisan migrate --database=testing
         - php artisan passport:install
