@@ -3,11 +3,11 @@ matrix:
     - language: python
       python: 2.7
       before_script:
+        - phpenv global 7.1
         - cp .env.travis .env
         - mysql -e 'create database homestead_test;'
         - composer self-update
         - composer install --no-interaction
-        - phpenv global 7.1
         - php artisan key:generate
         - php artisan migrate --database=testing
         - php artisan passport:install
