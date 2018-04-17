@@ -10,6 +10,7 @@ matrix:
         - cp .env.travis .env
       install:
         - composer install --no-interaction
+        - pip install -r requirements.txt
 
       before_script:
         - mysql -e 'create database homestead_test;'
