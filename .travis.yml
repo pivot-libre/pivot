@@ -16,7 +16,6 @@ matrix:
         - travis_retry composer install --no-interaction
         - travis_retry pip install -r requirements.txt
       cache:
-        - pip
         directories:
           - node_modules
           - vendor
