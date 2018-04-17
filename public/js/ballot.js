@@ -5,7 +5,7 @@
 
 // script-level variables
 var View = Piv.view
-var SavedStatusDomel, ReviewedStatusDomels = {}
+var SavedStatusDomel, ReviewedStatusDomels = {}, TieSelectedButton
 var Rankeditems, Unrankeditems
 
 // actions (do stuff)
@@ -15,16 +15,12 @@ View.setHeader("Cast Ballot", ElectionId)
 
 Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
-Piv.div(View.workspace, "", "textRight w75", Piv.div("", "", "clickable1", "Tie Selected", "", "click", tieSelected))
-// Rankeditems = Piv.table(View.workspace, "", {"id": "rankeditems", "class": "itemlist incrementsCounter grabbable hasLabelFrame w100"})
+TieSelectedButton = Piv.div(Piv.div(View.workspace, "", "textRight w75", ""), "", "clickable1 disabled", "Tie Selected", "", "click", tieSelected)
+
 Rankeditems = Piv.div("", "", "", "", {"id": "rankeditems", "class": "incrementsCounter grabbable hasLabelFrame w100"})
 Piv.div(View.workspace, "", "w100 marginB1", Piv.div("", "", "w75", Rankeditems))
-// Unrankeditems = Piv.table(View.workspace, "", {"id": "unrankeditems", "class": "cursorPointer hasLabelFrame"})
 Unrankeditems = Piv.div("", "", "", "", {"id": "unrankeditems", "class": "cursorPointer hasLabelFrame w100"})
 Piv.div(View.workspace, "", "w100 marginB1", Piv.div("", "", "w75", Unrankeditems))
-
-// Rankeditems = Piv.html(View.workspace, "ol", "", {"id": "rankeditems", "class": "itemlist incrementsCounter grabbable hasLabelFrame"});
-// Unrankeditems = Piv.html(View.workspace, "ul", "", {"id": "unrankeditems", "class": "itemlist cursorPointer hasLabelFrame"});
 
 ReviewedStatusDomels.div = Piv.div(View.workspace, "", "textRight w75")
 var reviewedButton = Piv.html(ReviewedStatusDomels.div, "label", "", {"class": "clickable1"})
@@ -52,9 +48,7 @@ Piv.http.get(["/api/election/" + ElectionId + "/get_ready"], function(response) 
   ReviewedStatusDomels.version = response.latest_version
   ReviewedStatusDomels.checkbox.input.checked = ReviewedStatusDomels.isApproved = response.is_latest
 })
-// Piv.html(ReviewedStatusDomels.div, "label", "Reviewed", {"for": "reviewedStatusCheckbox", "class": "label0"})
 Piv.div(reviewedButton, "", "", "Reviewed")
-// Piv.div(View.workspace, "", "textRight w75", )
 
 Piv.loadBallot(ElectionId, Piv.displayBallot, li1)
 
@@ -62,36 +56,32 @@ setUpDragHandling(Dragula, Rankeditems, Unrankeditems)
 
 // function definitions
 function li1(parent, id, description, tie, isNew) {
+  var vobject = {}
   var candidateLiAtts = {"class": "row1 triggerHoverOpacity75", "data-id": id}
 
   if ("new" == isNew) { candidateLiAtts["data-isNew"] = "new" }
   if (tie) { candidateLiAtts["data-tie"] = tie }
-  // var box = Piv.html(parent, "li", "", candidateLiAtts)
-  var box = Piv.html(parent, "div", "", candidateLiAtts)
+  var box = vobject.domel =  Piv.html(parent, "div", "", candidateLiAtts)
 
-  // Piv.div(box, "", "hidden1 text1", "new")
   Piv.div(box, "", "text1square orderdisplay");
-  // Piv.div(box, "", "grabbable text1 hoverOpacity75", "::", {"style": "width:21px"});
   Piv.div(box, "", "grabbable text1 hoverOpacity75", "::", {"width": "21px"});
   var descriptionBox = Piv.div(box, "", "text1 w67 hoverOpacity75")
   Piv.div(descriptionBox, "", "display_none_1 text4 marginR1", "new")
   Piv.div(descriptionBox, "", "", description)
-  // var checkbox = Piv.html(box, "input", "", {"type": "checkbox", "class": "hidden2 text1square cursorPointer", "name": "ballotcheck", "id": "ballotcheck-" + id})
-  // var tiebutton = Piv.div(box, "", "hidden3 clickable1", "tie")
-  // var tiebutton = Piv.div(box, "", "clickable2", "tie")
 
-  // var xbutton = Piv.div(box, "", "hidden3 clickable1", "X", "")
   var xbutton = Piv.div(box, "", "clickable2 hidden1", "X", {"width": "21px"})
-  var checkbox = Piv.checkbox(box, "ballotcheck-" + id, "ballotcheck", "20px", "", {"class": "hidden1", "width": "21px"})
+  var checkbox = vobject.checkbox = Piv.checkbox(box, "ballotcheck-" + id, "ballotcheck", "20px", "", {"class": "hidden1", "width": "21px"}, updateTieSelectedButton)
 
   Piv.domeldata.set(box, id, "id")
-  // Piv.domeldata.set(checkbox, box, "box")
   Piv.domeldata.set(checkbox.input, box, "box")
   Piv.boxlist = Piv.boxlist || [];
   Piv.boxlist.push(box)
-  Piv.evmanage.listen(box, "click", candidateClick, [box])
-  // Piv.evmanage.listen(tiebutton, "click", tieSelected)
-  Piv.evmanage.listen(xbutton, "click", sendToEnd, [box])
+  Piv.evmanage.listen(box, "click", candidateClick, [vobject])
+  Piv.evmanage.listen(xbutton, "click", sendToEnd, [vobject])
+}
+function updateTieSelectedButton() {
+  if (getCheckedCandidates().length > 1) { Piv.removeClass(TieSelectedButton, "disabled") }
+  else { Piv.addClass(TieSelectedButton, "disabled") }
 }
 
 function setUpDragHandling(dragula, rankeditems, unrankeditems) {
@@ -181,7 +171,7 @@ function getCheckedCandidates(uncheck) {
 }
 function tieSelected(box, checkbox, rankeditems, afterEl) {
   var candidate, candidates = getCheckedCandidates("uncheck")
-  if (candidates.length < 1) return  //no need to do anything if there is only one candidate selected
+  if (candidates.length < 2) return  //no need to do anything if there is only one candidate selected
 
   // loop over all the candidates except the first and last and insert them after the first candidate
   for (var i = 1; i < candidates.length; i++) {
@@ -207,30 +197,34 @@ function tieSelected(box, checkbox, rankeditems, afterEl) {
   }
   onReorder()
 }
-function sendSelectedToEnd() {
-  var box, candidates = getCheckedCandidates("uncheck")
-
-  for (var i = 0; i < candidates.length; i++) {
-    sendToEnd(candidates[i].box)
-  }
+// function sendSelectedToEnd() {
+//   var box, candidates = getCheckedCandidates("uncheck")
+//
+//   for (var i = 0; i < candidates.length; i++) {
+//     sendToEnd(candidates[i].box)
+//   }
+//   onReorder()
+// }
+function sendToEnd(vobject) {
+  var domel = vobject.domel
+  vobject.checkbox.input.checked = false  //make sure the checkbox gets unchecked
+  updateFormerSiblingTieStatuses( getTieStatus(domel), domel.previousElementSibling, domel.nextElementSibling)
+  setTieStatus(domel, "none")
+  Unrankeditems.appendChild(domel);
   onReorder()
 }
-function sendToEnd(box) {
-  updateFormerSiblingTieStatuses( getTieStatus(box), box.previousElementSibling, box.nextElementSibling)
-  setTieStatus(box, "none")
-  Unrankeditems.appendChild(box);
-  onReorder()
-}
-function candidateClick(box) {
+function candidateClick(vobject) {
+  var domel = vobject.domel
   if (this.eContext.log.length > 0) return  //quit if the user clicked one of the action buttons
-  if (box.parentElement == Rankeditems) return   //no action when clicking a ranked item
-  Rankeditems.appendChild(box);
-  onReorder(box);
+  if (domel.parentElement == Rankeditems) return   //no action when clicking a ranked item
+  Rankeditems.appendChild(domel);
+  onReorder(domel);
 }
 function onReorder(candidateEl) {
   if (candidateEl) { candidateEl.removeAttribute("data-isNew")}
-  updateInstructions(Rankeditems.childElementCount);
-  saveRankings();
+  updateInstructions(Rankeditems.childElementCount)
+  saveRankings()
+  updateTieSelectedButton()
 }
 function updateInstructions(rankeditemsCount) {
   // var header = document.getElementById("instructions");

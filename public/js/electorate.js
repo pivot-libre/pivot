@@ -132,11 +132,10 @@ function loadElectorate(electionId, onSuccessFunction) {
 function electorFilters(parent, StatusMap, table) {
   for (var key in StatusMap) {
     var button = Piv.html(parent, "label", "", {"class": "clickable1"})
-    // var button = Piv.div(row, "", "clickable1")
+    if (StatusMap[key].number < 1) button.style.display = "none"
+    StatusMap[key].button = button
     var checkbox = Piv.checkbox(button, "", "", "", "checked", {"class": "marginR1"})
     FilteredStatuses[key] = true;
-    // var checkbox = Piv.html(button, "input", "", {"type": "checkbox"})
-    // checkbox.checked = FilteredStatuses[key] = true;
     Piv.div(button, "", "", key + StatusMap[key].icon)
     Piv.evmanage.listen(checkbox.input, "click", filterElectorate, [checkbox.input, key, table])
   }
