@@ -571,8 +571,8 @@ def create_users(url):
     for i in range(1,user_count+1):
         chrome_options = ChromeOptions()
         chrome_options.add_argument("--headless")
-        chrome_options.add_argument("disable-gpu")
-        chrome_options.add_argument("window-size=1200,1100")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--window-size=1200,1100")
         driver = webdriver.Chrome(chrome_options=chrome_options)
         driver.implicitly_wait(30)
 
