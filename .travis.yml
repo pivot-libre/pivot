@@ -40,7 +40,6 @@ matrix:
       script:
         - vendor/bin/phpunit
 
-
 language: php
 php:
   - 7.1
