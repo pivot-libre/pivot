@@ -5,13 +5,15 @@ matrix:
       addons:
         chrome: stable
       before_install:
-        - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://127.0.0.1:8000 &
+        - google-chrome --headless --disable-gpu --remote-debugging-port=9222 http://127.0.0.1:8000 &
       before_script:
         - phpenv global 7.1
         - cp .env.travis .env
         - mysql -e 'create database homestead_test;'
         - composer self-update
         - composer install --no-interaction
+        - sudo apt-get install chromium-chromedriver
+        - sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver
         - php artisan key:generate
         - php artisan migrate --database=testing
         - php artisan passport:install
