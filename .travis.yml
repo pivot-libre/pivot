@@ -5,7 +5,11 @@ matrix:
       dist: trusty
       sudo: required
       addons:
-        chrome: stable
+        apt:
+          sources:
+            - google-chrome
+          packages:
+            - google-chrome-stable
       before_install:
         - wget https://chromedriver.storage.googleapis.com/2.37/chromedriver_linux64.zip -O /tmp/chromedriver
         - chmod 777 /tmp/chromedriver
@@ -31,7 +35,7 @@ matrix:
         - sleep 5
         - cd tests/python
       script:
-        - python tests.py --url http://127.0.0.1:8000 --genusers --chromedriver /tmp/chromedriver
+        - python tests.py --url http://127.0.0.1:8000 --genusers --chromedriver chromium-browser
 
     - language: php
       php:
