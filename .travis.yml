@@ -26,11 +26,12 @@ matrix:
         - php artisan key:generate
         - php artisan migrate --database=testing
         - php artisan passport:install
+        - php artisan db:seed --class=TravisSeeder
         - php artisan serve&
         - sleep 5
         - cd tests/python
       script:
-        - python tests.py --url http://127.0.0.1:8000 --genusers --chromedriver chromium-browser
+        - python tests.py --url http://127.0.0.1:8000
 
     - language: php
       php:
