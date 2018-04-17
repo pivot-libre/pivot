@@ -33,7 +33,7 @@ class API:
             self.curl.close()
         
     def load_users(self):
-        with open('users.json') as f:
+        with open(os.path.dirname(os.path.realpath(__file__))+'/users.json') as f:
             return json.loads(f.read())["users"]
 
     def dump(self, out):
@@ -622,7 +622,7 @@ def create_users(url):
 
         users['users'].append({'email': email, 'token': token})
 
-    with open('users.json', 'w') as f:
+    with open(os.path.dirname(os.path.realpath(__file__))+'/users.json', 'w') as f:
         f.write(json.dumps(users, indent=2, sort_keys=True))
         
 def main(url, genusers, curltrace, regex):
