@@ -8,12 +8,16 @@ matrix:
       before_install:
         - phpenv global 7.1
         - cp .env.travis .env
+        - mysql -e 'create database homestead_test;'
       install:
         - composer install --no-interaction
         - pip install -r requirements.txt
+      cache:
+        directories:
+          - node_modules
+          - vendor
 
       before_script:
-        - mysql -e 'create database homestead_test;'
         - php artisan key:generate
         - php artisan migrate --database=testing
         - php artisan passport:install
@@ -21,7 +25,7 @@ matrix:
         - sleep 5
         - cd tests/python
       script:
-        - python tests.py --url http://127.0.0.1:8000 --genusers
+        - python tests.py --url http://127.0.0.1:8000 --genusers --chromedriver google-chrome-stable
 
     - language: php
       php:
