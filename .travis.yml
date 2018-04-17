@@ -22,10 +22,9 @@ before_script:
   - php artisan key:generate
   - php artisan migrate --database=testing
   - php artisan passport:install
-  - php artisan db:seed --class=TravisSeeder
   - php artisan serve&
   - sleep 5
 
 script:
   - vendor/bin/phpunit
-  - python tests/python/tests.py --url http://127.0.0.1:8000
+  - php artisan db:seed --class=TravisSeeder & python tests/python/tests.py --url http://127.0.0.1:8000
