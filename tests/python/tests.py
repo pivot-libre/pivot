@@ -577,6 +577,7 @@ def create_users(url):
         driver = webdriver.Chrome(chrome_options=chrome_options)
         driver.implicitly_wait(30)
 
+
         name = 'User %d' % i
         email = 'user%d-%06d@pivot.vote' % (i, random.randint(0,999999))
         password = 'abcabc'
