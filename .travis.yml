@@ -2,10 +2,6 @@ matrix:
   include:
     - language: python
       python: 2.7
-      addons:
-        chrome: stable
-      before_install:
-        - google-chrome --headless --disable-gpu --remote-debugging-port=9222 http://127.0.0.1:8000 &
       before_script:
         - phpenv global 7.1
         - cp .env.travis .env
