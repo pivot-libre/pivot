@@ -572,7 +572,8 @@ def create_users(url):
         chrome_options = ChromeOptions()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--window-size=1200,1100")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("window-size=1024,768")
         driver = webdriver.Chrome(chrome_options=chrome_options)
         driver.implicitly_wait(30)
 
