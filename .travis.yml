@@ -27,4 +27,4 @@ before_script:
 
 script:
   - vendor/bin/phpunit
-  - php artisan db:seed --class=TravisSeeder & python tests/python/tests.py --url http://127.0.0.1:8000
+  - php artisan db:seed --class=TravisSeeder && python tests/python/tests.py --url http://127.0.0.1:8000
