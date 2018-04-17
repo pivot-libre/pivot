@@ -23,7 +23,7 @@ before_script:
   - php artisan migrate --database=testing
   - php artisan passport:install
   - php artisan db:seed --class=TravisSeeder
-  - php artisan server&
+  - php artisan serve&
   - sleep 5
 
 script:
