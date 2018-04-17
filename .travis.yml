@@ -1,53 +1,31 @@
-matrix:
-  include:
-    - language: python
-      python: 2.7
-      dist: trusty
-      sudo: required
-      addons:
-        apt:
-          sources:
-            - google-chrome
-          packages:
-            - google-chrome-stable
-      before_install:
-        - phpenv global 7.1
-        - cp .env.travis .env
-        - mysql -e 'create database homestead_test;'
-      install:
-        - travis_retry composer install --no-interaction
-        - travis_retry pip install -r requirements.txt
-      cache:
-        directories:
-          - node_modules
-          - vendor
-
-      before_script:
-        - php artisan key:generate
-        - php artisan migrate --database=testing
-        - php artisan passport:install
-        - php artisan db:seed --class=TravisSeeder
-        - php artisan serve&
-        - sleep 5
-        - cd tests/python
-      script:
-        - python tests.py --url http://127.0.0.1:8000
-
-    - language: php
-      php:
-        - 7.1
-      script:
-        - vendor/bin/phpunit
-
 language: php
 php:
   - 7.1
+dist: trusty
+sudo: required
+
+cache:
+  directories:
+    - node_modules
+    - vendor
+
+before_install:
+  - cp .env.travis .env
+  - mysql -e 'create database homestead_test;'
+install:
+  - travis_retry composer install --no-interaction
+  - travis_retry pip install -r requirements.txt
 
 before_script:
   - cp .env.travis .env
   - mysql -e 'create database homestead_test;'
-  - composer self-update
-  - composer install --no-interaction
   - php artisan key:generate
   - php artisan migrate --database=testing
   - php artisan passport:install
+  - php artisan db:seed --class=TravisSeeder
+  - php artisan server&
+  - sleep 5
+
+script:
+  - vendor/bin/phpunit
+  - python tests/python/tests.py --url http://127.0.0.1:8000
