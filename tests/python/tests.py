@@ -33,7 +33,7 @@ class API:
             self.curl.close()
         
     def load_users(self):
-        with open('users.json') as f:
+        with open(os.path.dirname(os.path.realpath(__file__))+'/users.json') as f:
             return json.loads(f.read())["users"]
 
     def dump(self, out):
@@ -571,7 +571,11 @@ def create_users(url):
     for i in range(1,user_count+1):
         chrome_options = ChromeOptions()
         chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--disable-gpu")
+
         driver = webdriver.Chrome(chrome_options=chrome_options)
+        driver.implicitly_wait(30)
+
 
         name = 'User %d' % i
         email = 'user%d-%06d@pivot.vote' % (i, random.randint(0,999999))
@@ -584,7 +588,6 @@ def create_users(url):
         driver.find_element_by_name("password_confirmation").submit()
         driver.get(url + '/profile')
         driver.find_element_by_link_text('Create New Token').click()
-        time.sleep(3) # find better way to wait till field is visible
         driver.find_element_by_name("name").send_keys("my token")
 
         # Create Button
@@ -619,7 +622,7 @@ def create_users(url):
 
         users['users'].append({'email': email, 'token': token})
 
-    with open('users.json', 'w') as f:
+    with open(os.path.dirname(os.path.realpath(__file__))+'/users.json', 'w') as f:
         f.write(json.dumps(users, indent=2, sort_keys=True))
         
 def main(url, genusers, curltrace, regex):
