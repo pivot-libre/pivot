@@ -11,8 +11,6 @@ matrix:
           packages:
             - google-chrome-stable
       before_install:
-        - wget https://chromedriver.storage.googleapis.com/2.37/chromedriver_linux64.zip -O /tmp/chromedriver
-        - chmod 777 /tmp/chromedriver
         - phpenv global 7.1
         - cp .env.travis .env
         - mysql -e 'create database homestead_test;'
@@ -25,9 +23,6 @@ matrix:
           - vendor
 
       before_script:
-        - export DISPLAY=:99.0
-        - sh -e /etc/init.d/xvfb start
-        - ./tmp/chromedriver &
         - php artisan key:generate
         - php artisan migrate --database=testing
         - php artisan passport:install

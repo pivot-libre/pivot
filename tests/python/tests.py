@@ -561,7 +561,7 @@ def test9(api):
     for name in set1+set2:
         assert(name in names)
         
-def create_users(url, chromedriver):
+def create_users(url):
     from selenium import webdriver
     from selenium.webdriver.common.keys import Keys
     from selenium.webdriver.chrome.options import Options as ChromeOptions
@@ -572,11 +572,8 @@ def create_users(url, chromedriver):
         chrome_options = ChromeOptions()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("window-size=1024,768")
 
-        driver = webdriver.Chrome(chrome_options=chrome_options,
-                                  executable_path=chromedriver)
+        driver = webdriver.Chrome(chrome_options=chrome_options)
         driver.implicitly_wait(30)
 
 
@@ -628,9 +625,9 @@ def create_users(url, chromedriver):
     with open('users.json', 'w') as f:
         f.write(json.dumps(users, indent=2, sort_keys=True))
         
-def main(url, genusers, curltrace, regex, chromedriver):
+def main(url, genusers, curltrace, regex):
     if genusers:
-        create_users(url, chromedriver)
+        create_users(url)
     
     # scan this Python file for things that look like tests
     tests_fns = []
@@ -657,6 +654,5 @@ if __name__ == '__main__':
     parser.add_argument('--genusers', help='generates users and tokens for use in tests', dest='genusers', action='store_true')
     parser.add_argument('--curltrace', help='dumps a curl trace to given file', default='')
     parser.add_argument('--regex', help='filter tests that run', default=r'.*')
-    parser.add_argument('--chromedriver', help='path to chrome driver', default="chromedriver")
     args = parser.parse_args()
-    main(url=args.url, genusers=args.genusers, curltrace=args.curltrace, regex=args.regex, chromedriver=args.chromedriver)
+    main(url=args.url, genusers=args.genusers, curltrace=args.curltrace, regex=args.regex)
