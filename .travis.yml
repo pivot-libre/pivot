@@ -6,6 +6,8 @@ matrix:
       addons:
         chrome: stable
       before_install:
+        - wget https://chromedriver.storage.googleapis.com/2.37/chromedriver_linux64.zip -O /tmp/chromedriver
+        - chmod 777 /tmp/chromedriver
         - phpenv global 7.1
         - cp .env.travis .env
         - mysql -e 'create database homestead_test;'
@@ -25,7 +27,7 @@ matrix:
         - sleep 5
         - cd tests/python
       script:
-        - python tests.py --url http://127.0.0.1:8000 --genusers --chromedriver google-chrome-stable
+        - python tests.py --url http://127.0.0.1:8000 --genusers --chromedriver /tmp/chromedriver
 
     - language: php
       php:
