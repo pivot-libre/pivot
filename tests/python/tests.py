@@ -162,23 +162,23 @@ class API:
         return self.user_delete(user, url)
 
     def get_candidates(self, user, election):
-        url = 'elections/%d/candidate' % election['id']
+        url = 'elections/%d/candidates' % election['id']
         return self.user_get(user, url)
 
     def get_electors(self, user, election):
-        url = 'elections/%d/elector' % election['id']
+        url = 'elections/%d/electors' % election['id']
         return self.user_get(user, url)
 
     def create_candidate(self, user, election, name):
-        url = 'elections/%d/candidate' % election['id']
+        url = 'elections/%d/candidates' % election['id']
         return self.user_post(user, url, {"name": name})
 
     def delete_candidate(self, user, election, candidate):
-        url = 'elections/%d/candidate/%d' % (election['id'], candidate['id'])
+        url = 'elections/%d/candidates/%d' % (election['id'], candidate['id'])
         return self.user_delete(user, url)
 
     def set_rank(self, user, election, candidate, rank):
-        url = 'elections/%d/candidate/%d/rank' % (election['id'], candidate['id'])
+        url = 'elections/%d/candidates/%d/rank' % (election['id'], candidate['id'])
         return self.user_post(user, url, {"rank": rank})
 
     def invite(self, user, election, email):

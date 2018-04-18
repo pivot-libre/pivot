@@ -34,7 +34,7 @@ Route::group(['middleware' => 'auth:api'], function (Router $api) {
 
 
         // TODO: allow update (e.g., to fix typos in candidate name?)
-        $api->resource('candidate', 'CandidateController', ['only' => ['index', 'show', 'store', 'destroy']]);
+        $api->resource('candidates', 'CandidateController', ['only' => ['index', 'show', 'store', 'destroy']]);
 
         $api->resource('electors', 'ElectorController', ['only' => ['index', 'show', 'destroy']]);
 
