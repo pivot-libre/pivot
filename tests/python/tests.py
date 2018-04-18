@@ -139,7 +139,7 @@ class API:
         try:
             return_data = json.loads(d)
         except:
-            if self.next_should_fail:
+            if self.next_should_fail or d == "":
                 self.next_should_fail = False
                 return
             else:

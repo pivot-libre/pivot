@@ -32,9 +32,7 @@ Route::group(['middleware' => 'auth:api'], function (Router $api) {
         $api->post('batch_candidates', 'ElectionController@batch_candidates')->name('election.batch_candidates');
         $api->get('batch_candidates', 'ElectionController@batch_candidates_view')->name('election.batch_candidates_view');
 
-
-        // TODO: allow update (e.g., to fix typos in candidate name?)
-        $api->resource('candidates', 'CandidateController', ['only' => ['index', 'show', 'store', 'destroy']]);
+        $api->apiResource('candidates', 'CandidateController');
 
         $api->resource('electors', 'ElectorController', ['only' => ['index', 'show', 'destroy']]);
 

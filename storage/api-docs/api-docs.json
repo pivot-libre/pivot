@@ -6,7 +6,7 @@
     },
     "basePath": "/api",
     "paths": {
-        "/elections/{electionId}/candidate": {
+        "/elections/{electionId}/candidates": {
             "get": {
                 "tags": [
                     "Candidates"
@@ -80,7 +80,7 @@
                 }
             }
         },
-        "/elections/{electionId}/candidate/{candidateId}": {
+        "/elections/{electionId}/candidates/{candidateId}": {
             "get": {
                 "tags": [
                     "Candidates"
@@ -141,6 +141,45 @@
                         "description": "Candidate ID to delete",
                         "required": true,
                         "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Candidates"
+                ],
+                "summary": "Update a candidate",
+                "operationId": "updateCandidate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "electionId",
+                        "in": "path",
+                        "description": "Election ID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "payload",
+                        "in": "body",
+                        "description": "Candidate to add",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateCandidate"
+                        }
                     }
                 ],
                 "responses": {
