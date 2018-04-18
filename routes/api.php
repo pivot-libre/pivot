@@ -36,7 +36,7 @@ Route::group(['middleware' => 'auth:api'], function (Router $api) {
         // TODO: allow update (e.g., to fix typos in candidate name?)
         $api->resource('candidate', 'CandidateController', ['only' => ['index', 'show', 'store', 'destroy']]);
 
-        $api->resource('elector', 'ElectorController', ['only' => ['index', 'show', 'destroy']]);
+        $api->resource('electors', 'ElectorController', ['only' => ['index', 'show', 'destroy']]);
 
         // TODO: get rid of election result, moving call to election controller
         $api->resource('result', 'ResultController', ['only' => ['index']]);

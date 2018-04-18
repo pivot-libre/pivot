@@ -208,7 +208,7 @@
                 }
             }
         },
-        "/elections/{electionId}/elector": {
+        "/elections/{electionId}/electors": {
             "get": {
                 "tags": [
                     "Electors"
@@ -240,7 +240,7 @@
                 }
             }
         },
-        "/elections/{electionId}/elector/{electorId}": {
+        "/elections/{electionId}/electors/{electorId}": {
             "get": {
                 "tags": [
                     "Electors"
