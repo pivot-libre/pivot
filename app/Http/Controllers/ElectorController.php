@@ -20,7 +20,7 @@ class ElectorController extends Controller
      *
      * @SWG\Get(
      *     tags={"Electors"},
-     *     path="/election/{electionId}/elector",
+     *     path="/elections/{electionId}/elector",
      *     summary="View the electorate for an election",
      *     operationId="electorIndex",
      *     @SWG\Parameter(
@@ -52,7 +52,7 @@ class ElectorController extends Controller
      *
      * @SWG\Get(
      *     tags={"Electors"},
-     *     path="/election/{electionId}/elector/{electorId}",
+     *     path="/elections/{electionId}/elector/{electorId}",
      *     summary="Get information about an elector",
      *     operationId="getElectorById",
      *     @SWG\Parameter(

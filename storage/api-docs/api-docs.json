@@ -6,7 +6,7 @@
     },
     "basePath": "/api",
     "paths": {
-        "/election/{electionId}/candidate": {
+        "/elections/{electionId}/candidate": {
             "get": {
                 "tags": [
                     "Candidates"
@@ -80,7 +80,7 @@
                 }
             }
         },
-        "/election/{electionId}/candidate/{candidateId}": {
+        "/elections/{electionId}/candidate/{candidateId}": {
             "get": {
                 "tags": [
                     "Candidates"
@@ -153,7 +153,7 @@
                 }
             }
         },
-        "/election": {
+        "/elections": {
             "get": {
                 "tags": [
                     "Election"
@@ -176,7 +176,7 @@
                 }
             }
         },
-        "/election/{electionId}": {
+        "/elections/{electionId}": {
             "get": {
                 "tags": [
                     "Election"
@@ -208,7 +208,7 @@
                 }
             }
         },
-        "/election/{electionId}/elector": {
+        "/elections/{electionId}/elector": {
             "get": {
                 "tags": [
                     "Electors"
@@ -240,7 +240,7 @@
                 }
             }
         },
-        "/election/{electionId}/elector/{electorId}": {
+        "/elections/{electionId}/elector/{electorId}": {
             "get": {
                 "tags": [
                     "Electors"
@@ -276,12 +276,12 @@
                 }
             }
         },
-        "/election/{electionId}/invite": {
+        "/elections/{electionId}/invite": {
             "get": {
                 "tags": [
                     "Invites"
                 ],
-                "summary": "View pending invites",
+                "summary": "View electors who have not accepted their invite yet",
                 "operationId": "inviteIndex",
                 "parameters": [
                     {
@@ -343,79 +343,6 @@
                         "schema": {
                             "$ref": "#/definitions/Invite"
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    }
-                }
-            }
-        },
-        "/election/{electionId}/invite/{code}": {
-            "get": {
-                "tags": [
-                    "Invites"
-                ],
-                "summary": "Get information about an invite",
-                "operationId": "getInviteByCode",
-                "parameters": [
-                    {
-                        "name": "electionId",
-                        "in": "path",
-                        "description": "Election to get",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "code",
-                        "in": "path",
-                        "description": "Invite to get",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "$ref": "#/definitions/Invite"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "Invites"
-                ],
-                "summary": "Delete an invite",
-                "operationId": "deleteInvite",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "name": "electionId",
-                        "in": "path",
-                        "description": "Election ID",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "code",
-                        "in": "path",
-                        "description": "Invite Code",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "successful operation"
                     },
                     "400": {
                         "description": "Bad Request"
