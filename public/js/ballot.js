@@ -30,7 +30,7 @@ ReviewedStatusDomels.checkbox = Piv.checkbox(reviewedButton, "reviewedStatusChec
       ReviewedStatusDomels.messageDiv.parentElement.removeChild(ReviewedStatusDomels.messageDiv)
       delete ReviewedStatusDomels.messageDiv
     }
-    Piv.http.post(["/api/election/" + ElectionId + "/set_ready"], [{"approved_version": ReviewedStatusDomels.version}], function(response) {
+    Piv.http.post(["/api/elections/" + ElectionId + "/set_ready"], [{"approved_version": ReviewedStatusDomels.version}], function(response) {
       if (!response.is_latest) {
         ReviewedStatusDomels.checkbox.input.checked = false
         Piv.loadBallot(ElectionId, Piv.displayBallot, li1)
@@ -40,11 +40,11 @@ ReviewedStatusDomels.checkbox = Piv.checkbox(reviewedButton, "reviewedStatusChec
     })
   }
   else {
-    Piv.http.post(["/api/election/" + ElectionId + "/set_ready"], [{"approved_version": null}], function(response) {
+    Piv.http.post(["/api/elections/" + ElectionId + "/set_ready"], [{"approved_version": null}], function(response) {
     })
   }
 })
-Piv.http.get(["/api/election/" + ElectionId + "/get_ready"], function(response) {
+Piv.http.get(["/api/elections/" + ElectionId + "/get_ready"], function(response) {
   ReviewedStatusDomels.version = response.latest_version
   ReviewedStatusDomels.checkbox.input.checked = ReviewedStatusDomels.isApproved = response.is_latest
 })
@@ -293,7 +293,7 @@ function candidatesToArray(candidates, targetArray, isRanked) {
 };
 function batchVote(electionId, candidateRanks) {
   if (!electionId) {return}
-  Piv.http.post(["/api/election/" + electionId + "/batchvote"], [candidateRanks], finishSaveRankings)
+  Piv.http.post(["/api/elections/" + electionId + "/batchvote"], [candidateRanks], finishSaveRankings)
 }
 
 // close the self-executing function and feed the piv library to it

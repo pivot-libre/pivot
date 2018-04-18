@@ -9,7 +9,7 @@
 
 @section('scripts')
 <script>
-    axios.get('/api/election')
+    axios.get('/api/elections')
          .then(response => {
                    console.log(response.data);
              });

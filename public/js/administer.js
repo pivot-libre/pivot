@@ -20,7 +20,7 @@ Piv.anchorListDiv(View.workspace, "", {
 
 Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
-Piv.http.get(["/api/election/" + ElectionId, "/api/election/" + ElectionId + "/voter_stats"], showElectionDetails)
+Piv.http.get(["/api/elections/" + ElectionId, "/api/elections/" + ElectionId + "/voter_stats"], showElectionDetails)
 
 // function definitions
 function showElectionDetails(details, stats) {
@@ -37,7 +37,7 @@ function showElectionDetails(details, stats) {
 }
 function deleteElection(electionId) {
   if (!electionId) {return}
-  axios.delete('/api/election/' + electionId)
+  axios.delete('/api/elections/' + electionId)
     .then(response => {
       // console.log(response.data);
       window.location.href = "/myElections"

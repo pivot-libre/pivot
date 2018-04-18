@@ -105,7 +105,7 @@ function sendInvites() {
       continue
     }
     emails[email] = true
-    resources.push("/api/election/" + ElectionId + "/invite")
+    resources.push("/api/elections/" + ElectionId + "/invite")
     payloads.push({"email": email})
     inviteKeys.push(key)
   }
@@ -125,7 +125,7 @@ function sendInvites() {
 
 function loadElectorate(electionId, onSuccessFunction) {
   Piv.http.get([
-    '/api/election/' + electionId + '/voter_details',
+    '/api/elections/' + electionId + '/voter_details',
   ], onSuccessFunction)
 }
 
@@ -294,7 +294,7 @@ function deleteSelectedElectors() {
 
   var resources = [], electorVobjectKeys = []
   for (var key in CheckedElectorCheckboxes) {
-    resources.push("/api/election/" + ElectionId + "/elector/" + CheckedElectorCheckboxes[key].elector_id)
+    resources.push("/api/elections/" + ElectionId + "/electors/" + CheckedElectorCheckboxes[key].elector_id)
     electorVobjectKeys.push(key)
   }
   Piv.http.delete(resources, function() {
