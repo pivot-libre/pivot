@@ -11,11 +11,6 @@ use Illuminate\Support\Facades\Config;
 
 class VerifyController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('web');
-    }
-
     public function send_verify_email(Request $request)
     {
         // don't even try if the mail driver is not configured
