@@ -12,7 +12,7 @@ View.setHeader("Results", ElectionId)
 
 Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
-Piv.http.get(["/api/election/" + ElectionId + "/result"], showElectionResults)
+Piv.http.get(["/api/elections/" + ElectionId + "/result"], showElectionResults)
 
 // function definitions
 function displayCandidate(parent, description, cost, tie) {

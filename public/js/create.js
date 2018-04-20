@@ -19,7 +19,7 @@ Piv.html(NewElectionForm, "input", "", {"type": "submit", "value": "Create"});
 // function definitions
 function createElection(form) {
   var name = form.elements.electionName.value
-  Piv.http.post(["/api/election"], [{"name": name}], function(response) {
+  Piv.http.post(["/api/elections"], [{"name": name}], function(response) {
     window.location.href = "/administer/" + response.id
   })
 }

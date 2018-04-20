@@ -15,7 +15,7 @@ view.setHeader = function(text, election, delim) {
   mainheader.innerHTML = text
   if (election) {
     delim = delim || ": "
-    http.get(["/api/election/" + election], function(electionDetails) {
+    http.get(["/api/elections/" + election], function(electionDetails) {
       mainheader.innerHTML = text + delim + electionDetails.name
     })
   }
@@ -27,7 +27,7 @@ var loadBallot = lib.loadBallot = function(electionId, onSuccessFunction, perCan
   var onLoadBallotDataFunc = function(ballotDef, userRankings) {
     onSuccessFunction(ballotDef, userRankings, perCandidateFunc)
   }
-  getMultResources(['/api/election/' + electionId + '/candidate', '/api/election/' + electionId + '/batchvote'], onLoadBallotDataFunc)
+  getMultResources(['/api/elections/' + electionId + '/candidates', '/api/elections/' + electionId + '/batchvote'], onLoadBallotDataFunc)
 }
 var displayBallot = lib.displayBallot = function(ballotDefinition, rankedBallot, perCandidateFunc) {
   var candidate, sortedDefinitions = {}, sortedCandidates = {}

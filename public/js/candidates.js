@@ -41,7 +41,7 @@ function loadCandidates(electionId, onSuccessFunction) {
   if (!electionId) return
   // (candidate and batch_candidates are the same)
   // Piv.http.get1('/api/election/' + electionId + "/candidate", onSuccessFunction)
-  Piv.http.get(["/api/election/" + electionId + "/batch_candidates"], onSuccessFunction)
+  Piv.http.get(["/api/elections/" + electionId + "/batch_candidates"], onSuccessFunction)
 }
 function revertChanges() {
   if (SaveInProgress) {
@@ -146,7 +146,7 @@ function saveCandidates(electionId) {
   var innerHtml = SaveCandidatesButton.innerHTML
 
   for (var i in CandidateDirectory.indexes.deleted) {
-    deleteResources.push("/api/election/" + electionId + "/candidate/" + CandidateDirectory.indexes.deleted[i].id)
+    deleteResources.push("/api/elections/" + electionId + "/candidates/" + CandidateDirectory.indexes.deleted[i].id)
   }
   if (deleteResources.length > 0) {
     SaveCandidatesButton.innerHTML = "Deleting..."
@@ -181,7 +181,7 @@ function saveCandidateList(electionId, innerHtml) {
     updateSaveButton()
     return
   }
-  Piv.http.post(["/api/election/" + electionId + "/batch_candidates"], [{"candidates": newAndChangedCandidates}], function(candidates) {
+  Piv.http.post(["/api/elections/" + electionId + "/batch_candidates"], [{"candidates": newAndChangedCandidates}], function(candidates) {
     displayCandidates(candidates)
     SaveInProgress = false
     SaveCandidatesButton.innerHTML = innerHtml

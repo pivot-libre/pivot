@@ -10,17 +10,12 @@ use Illuminate\Support\Facades\Auth;
 
 class InviteController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth:api');
-    }
-
     /**
      * Display a listing of the resource.
      *
      * @SWG\Get(
      *     tags={"Invites"},
-     *     path="/election/{electionId}/invite",
+     *     path="/elections/{electionId}/invite",
      *     summary="View electors who have not accepted their invite yet",
      *     operationId="inviteIndex",
      *     @SWG\Parameter(
@@ -51,7 +46,7 @@ class InviteController extends Controller
      *
      * @SWG\Post(
      *     tags={"Invites"},
-     *     path="/election/{electionId}/invite",
+     *     path="/elections/{electionId}/invite",
      *     summary="Send an invite",
      *     operationId="createInvite",
      *     consumes={"application/json"},

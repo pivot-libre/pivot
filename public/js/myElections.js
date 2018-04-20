@@ -15,7 +15,7 @@ Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
 View.setHeader("My Elections")
 
-Piv.http.get(["/api/election/", "/api/invite/acceptable"], showAllMyElections)
+Piv.http.get(["/api/elections/", "/api/invite/acceptable"], showAllMyElections)
 
 
 function showAllMyElections(elections, invitesData) {
@@ -64,7 +64,7 @@ function showElection(container, name, id, canVote, canViewResults, canEdit, inv
 
   if (defaultButton) { linkElsOnHover(defaultButton, nameButton, "hover1") }
 
-  Piv.http.get(["/api/election/" + id + "/result"], function() { resultsButton.style.visibility = null })  //noe revert
+  Piv.http.get(["/api/elections/" + id + "/result"], function() { resultsButton.style.visibility = null })  //noe revert
 
 }
 function linkElsOnHover(el1, el2, hoverclass) {

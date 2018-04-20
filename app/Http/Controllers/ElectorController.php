@@ -10,17 +10,12 @@ use Illuminate\Http\Request;
 
 class ElectorController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth:api');
-    }
-
     /**
      * Display a listing of the resource.
      *
      * @SWG\Get(
      *     tags={"Electors"},
-     *     path="/election/{electionId}/elector",
+     *     path="/elections/{electionId}/electors",
      *     summary="View the electorate for an election",
      *     operationId="electorIndex",
      *     @SWG\Parameter(
@@ -52,7 +47,7 @@ class ElectorController extends Controller
      *
      * @SWG\Get(
      *     tags={"Electors"},
-     *     path="/election/{electionId}/elector/{electorId}",
+     *     path="/elections/{electionId}/electors/{electorId}",
      *     summary="Get information about an elector",
      *     operationId="getElectorById",
      *     @SWG\Parameter(

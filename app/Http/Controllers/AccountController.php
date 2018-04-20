@@ -11,11 +11,6 @@ use Illuminate\Support\Facades\Config;
 
 class AccountController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth:api');
-    }
-
     public function delete_account(Request $request)
     {
         $user = Auth::user();

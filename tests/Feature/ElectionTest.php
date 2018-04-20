@@ -8,6 +8,7 @@ use App\Candidate;
 use App\Election;
 use App\Elector;
 use App\User;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -30,7 +31,7 @@ class ElectionTest extends TestCase
             'election_id' => $election->id,
         ]);
 
-        $response = $this->actingAs($user, 'api')->getJson("api/election/{$election->id}");
+        $response = $this->actingAs($user, 'api')->getJson("api/elections/{$election->id}");
 
         $response->assertStatus(200);
         $this->assertInstanceOf(Election::class, $response->getOriginalContent());
@@ -63,7 +64,7 @@ class ElectionTest extends TestCase
         ]);
 
         $this->assertEquals(0, $elector->ranks()->count());
-        $response = $this->actingAs($user, 'api')->postJson("api/election/{$election->id}/batchvote", [
+        $response = $this->actingAs($user, 'api')->postJson("api/elections/{$election->id}/batchvote", [
             'votes' => [
                 [
                     'candidate_id' => $candidateA->id,
@@ -96,7 +97,7 @@ class ElectionTest extends TestCase
         ]);
 
         $invalidElectionId = $election->id + 9999;
-        $response = $this->actingAs($user, 'api')->postJson("api/election/{$invalidElectionId}/batchvote", [
+        $response = $this->actingAs($user, 'api')->postJson("api/elections/{$invalidElectionId}/batchvote", [
             'votes' => [
                 [
                     'candidate_id' => $candidateA->id,
@@ -105,5 +106,29 @@ class ElectionTest extends TestCase
             ]
         ]);
         $this->assertInstanceOf(ModelNotFoundException::class, $response->exception);
+    }
+
+    /** @test */
+    public function cannot_batch_vote_if_not_authenticated()
+    {
+        $user = factory(User::class)->create();
+
+        $election = factory(Election::class)->create();
+
+        $candidateA = factory(Candidate::class)->create([
+            'name' => 'candidate-A'
+        ]);
+
+        $invalidElectionId = $election->id + 9999;
+        $response = $this->postJson("api/elections/{$invalidElectionId}/batchvote", [
+            'votes' => [
+                [
+                    'candidate_id' => $candidateA->id,
+                    'rank' => 2
+                ],
+            ]
+        ]);
+
+        $this->assertInstanceOf(AuthenticationException::class, $response->exception);
     }
 }

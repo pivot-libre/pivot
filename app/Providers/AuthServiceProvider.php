@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Election;
+use App\Policies\ElectionPolicy;
 use Laravel\Passport\Passport;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -14,7 +16,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
-        'App\Election' => 'App\Policies\ElectionPolicy',
+        Election::class  => ElectionPolicy::class,
     ];
 
     /**

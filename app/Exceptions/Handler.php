@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
@@ -66,6 +67,10 @@ class Handler extends ExceptionHandler
             if ($this->isHttpException($exception)) {
                 // Grab the HTTP status code from the Exception
                 $status = $exception->getStatusCode();
+            } elseif ($exception instanceof ModelNotFoundException) {
+                $status = 404;
+                $model = class_basename($exception->getModel());
+                $response['errors'] = "Couldn't find the requested resource [{$model}].";
             }
 
             // Return a JSON response with the response array and status code

@@ -12,15 +12,10 @@ use Illuminate\Support\Facades\DB;
 
 class ElectionController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth:api');
-    }
-
     /**
      * @SWG\Get(
      *     tags={"Election"},
-     *     path="/election",
+     *     path="/elections",
      *     operationId="electionIndex",
      *     summary="View all elections",
      *     @SWG\Response(response="200", description="Success", @SWG\Schema(
@@ -91,7 +86,7 @@ class ElectionController extends Controller
      *
      * * @SWG\Get(
      *     tags={"Election"},
-     *     path="/election/{electionId}",
+     *     path="/elections/{electionId}",
      *     summary="View information about an election",
      *     operationId="getElectionById",
      *     @SWG\Parameter(

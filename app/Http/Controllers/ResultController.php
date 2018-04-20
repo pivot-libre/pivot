@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Election;
 use App\CandidateRank;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use PivotLibre\Tideman\Agenda;
@@ -15,14 +16,9 @@ use PivotLibre\Tideman\Grouper;
 
 class ResultController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth:api');
-    }
-
     /**
      * @param int $electionId
-     * @return Illuminate\Collection of all CandidateRanks associated with
+     * @return Collection of all CandidateRanks associated with
      * the election identified by the parameterized  id.
      */
     public function getCandidateRankCollection($electionId)
@@ -52,7 +48,7 @@ class ResultController extends Controller
     }
 
     /**
-     * @param Illuminate\Database\Eloquent\Relations\Collection of App\CandidateRank
+     * @param Collection of App\CandidateRank
      * @return array of arrays of arrays. The arrays are grouped at the outermost level
      * on elector id. The arrays are grouped at the next level by rank. Array entries at this level are ordered in
      * ascending rank. The innermost arrays are associative arrays that contain CandidateRank attributes.

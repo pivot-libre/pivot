@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Election;
 use App\Candidate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CandidateController extends Controller
 {
+
     public function __construct()
     {
-        $this->middleware('auth:api');
+
     }
 
     /**
@@ -18,7 +20,7 @@ class CandidateController extends Controller
      *
      * @SWG\Get(
      *     tags={"Candidates"},
-     *     path="/election/{electionId}/candidate",
+     *     path="/elections/{electionId}/candidates",
      *     summary="View candidates for an election",
      *     operationId="candidateIndex",
      *     @SWG\Parameter(
@@ -49,7 +51,7 @@ class CandidateController extends Controller
      *
      * @SWG\Get(
      *     tags={"Candidates"},
-     *     path="/election/{electionId}/candidate/{candidateId}",
+     *     path="/elections/{electionId}/candidates/{candidateId}",
      *     summary="Get information about a candidate",
      *     operationId="getCandidateById",
      *     @SWG\Parameter(
@@ -87,7 +89,7 @@ class CandidateController extends Controller
      *
      * @SWG\Post(
      *     tags={"Candidates"},
-     *     path="/election/{electionId}/candidate",
+     *     path="/elections/{electionId}/candidates",
      *     summary="Add a candidate",
      *     consumes={"application/json"},
      *     produces={"application/json"},
@@ -125,16 +127,74 @@ class CandidateController extends Controller
     {
         $this->authorize('update', $election);
 
-        // bump election version, reseting voter indications
-        $election->ballot_version += 1;
-        $election->save();
+        $candidate = null;
+        DB::transaction(function() use (&$election, $request, &$candidate) {
+            // bump election version, reseting voter indications
+            $election->ballot_version += 1;
+            $election->save();
 
-        // save new candidate
-        $candidate = new Candidate();
-        $candidate->name = $request->json()->get('name');
-        $candidate->election_id = $election->id;
-        $candidate->save();
-        return $candidate;
+            // save new candidate
+            $candidate = new Candidate();
+            $candidate->name = $request->json()->get('name');
+            $candidate->election_id = $election->id;
+            $candidate->save();
+
+
+        });
+        return response($candidate, 201);
+    }
+
+    /**
+     * Delete a candidate from an election
+     *
+     * @SWG\Patch(
+     *     tags={"Candidates"},
+     *     path="/elections/{electionId}/candidates/{candidateId}",
+     *     summary="Update a candidate",
+     *     consumes={"application/json"},
+     *     produces={"application/json"},
+     *     operationId="updateCandidate",
+     *     @SWG\Parameter(
+     *         name="electionId",
+     *         in="path",
+     *         description="Election ID",
+     *         required=true,
+     *         type="string",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="payload",
+     *         in="body",
+     *         description="Candidate to update",
+     *         required=true,
+     *         @SWG\Schema(ref="#/definitions/CreateCandidate")
+     *     ),
+     *     @SWG\Response(
+     *         response=200,
+     *         description="successful operation"
+     *     ),
+     *     @SWG\Response(
+     *         response="400",
+     *         description="Bad Request",
+     *     )
+     * )
+     *
+     * @param Election $election
+     * @param Candidate $candidate
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request, Election $election, Candidate $candidate)
+    {
+        $this->authorize('update', $election);
+
+        $this->validate($request, [
+            'name' => 'required|string',
+        ]);
+
+        $candidate->update([
+           'name' => $request->get('name')
+        ]);
+
+        return response(null, 204);
     }
 
     /**
@@ -142,7 +202,7 @@ class CandidateController extends Controller
      *
      * @SWG\Delete(
      *     tags={"Candidates"},
-     *     path="/election/{electionId}/candidate/{candidateId}",
+     *     path="/elections/{electionId}/candidates/{candidateId}",
      *     summary="Delete a candidate",
      *     consumes={"application/json"},
      *     produces={"application/json"},
@@ -177,8 +237,7 @@ class CandidateController extends Controller
      */
     public function destroy(Election $election, Candidate $candidate)
     {
-        // TODO: does this allow deletion of candidates in other elections?
-        $this->authorize('update', $election);
+        $this->authorize('delete', $election);
 
         // bump ballot version, reseting voter indications
         $election->ballot_version += 1;
@@ -186,6 +245,6 @@ class CandidateController extends Controller
 
         // delete candidate
         $candidate->delete();
-        return response()->json(new \stdClass());
+        return response(null, 204);
     }
 }

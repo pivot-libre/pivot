@@ -40,7 +40,7 @@ class ElectorTest extends TestCase
             'invite_accepted_at' => Carbon::now()
         ]);
 
-        $response = $this->actingAs($user, 'api')->getJson("api/election/{$election->id}/elector");
+        $response = $this->actingAs($user, 'api')->getJson("api/elections/{$election->id}/electors");
 
         $response->assertStatus(200);
         $electors = $response->getOriginalContent();
@@ -73,7 +73,7 @@ class ElectorTest extends TestCase
             'invite_accepted_at' => Carbon::now()
         ]);
 
-        $response = $this->actingAs($user, 'api')->getJson("api/election/{$election->id}/elector/{$electorA->id}");
+        $response = $this->actingAs($user, 'api')->getJson("api/elections/{$election->id}/electors/{$electorA->id}");
 
         $response->assertStatus(200);
         $this->assertTrue($electorA->is($response->getOriginalContent()));
@@ -104,7 +104,7 @@ class ElectorTest extends TestCase
             'invite_accepted_at' => Carbon::now()
         ]);
 
-        $response = $this->actingAs($user, 'api')->getJson("api/election/{$election->id}/elector/{$electorWithoutUser->id}");
+        $response = $this->actingAs($user, 'api')->getJson("api/elections/{$election->id}/electors/{$electorWithoutUser->id}");
 
         $this->assertInstanceOf(ModelNotFoundException::class, $response->exception);
     }
@@ -135,7 +135,7 @@ class ElectorTest extends TestCase
             'invite_accepted_at' => Carbon::now()
         ]);
 
-        $response = $this->actingAs($user, 'api')->getJson("api/election/{$election->id}/elector/{$electorNotInElection->id}");
+        $response = $this->actingAs($user, 'api')->getJson("api/elections/{$election->id}/electors/{$electorNotInElection->id}");
 
         $this->assertInstanceOf(ModelNotFoundException::class, $response->exception);
     }

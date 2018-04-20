@@ -139,7 +139,7 @@ class API:
         try:
             return_data = json.loads(d)
         except:
-            if self.next_should_fail:
+            if self.next_should_fail or d == "":
                 self.next_should_fail = False
                 return
             else:
@@ -152,37 +152,37 @@ class API:
 
     # pivot API wrappers
     def get_elections(self, user):
-        return self.user_get(user, 'election')
+        return self.user_get(user, 'elections')
 
     def create_election(self, user, name):
-        return self.user_post(user, 'election', {"name": name})
+        return self.user_post(user, 'elections', {"name": name})
 
     def delete_election(self, user, election):
-        url = 'election/%d' % election['id']
+        url = 'elections/%d' % election['id']
         return self.user_delete(user, url)
 
     def get_candidates(self, user, election):
-        url = 'election/%d/candidate' % election['id']
+        url = 'elections/%d/candidates' % election['id']
         return self.user_get(user, url)
 
     def get_electors(self, user, election):
-        url = 'election/%d/elector' % election['id']
+        url = 'elections/%d/electors' % election['id']
         return self.user_get(user, url)
 
     def create_candidate(self, user, election, name):
-        url = 'election/%d/candidate' % election['id']
+        url = 'elections/%d/candidates' % election['id']
         return self.user_post(user, url, {"name": name})
 
     def delete_candidate(self, user, election, candidate):
-        url = 'election/%d/candidate/%d' % (election['id'], candidate['id'])
+        url = 'elections/%d/candidates/%d' % (election['id'], candidate['id'])
         return self.user_delete(user, url)
 
     def set_rank(self, user, election, candidate, rank):
-        url = 'election/%d/candidate/%d/rank' % (election['id'], candidate['id'])
+        url = 'elections/%d/candidates/%d/rank' % (election['id'], candidate['id'])
         return self.user_post(user, url, {"rank": rank})
 
     def invite(self, user, election, email):
-        url = 'election/%d/invite' % (election['id'])
+        url = 'elections/%d/invite' % (election['id'])
         return self.user_post(user, url, {"email": email})
 
     def accept(self, user, code):
@@ -194,23 +194,23 @@ class API:
         return self.user_get(user, url)
 
     def election_result(self, user, election):
-        url = 'election/%d/result' % election['id']
+        url = 'elections/%d/result' % election['id']
         return self.user_get(user, url)
 
     def batchvote(self, user, election, votes):
-        url = 'election/%d/batchvote' % election['id']
+        url = 'elections/%d/batchvote' % election['id']
         return self.user_post(user, url, {'votes': votes})
 
     def batchvote_view(self, user, election):
-        url = 'election/%d/batchvote' % election['id']
+        url = 'elections/%d/batchvote' % election['id']
         return self.user_get(user, url)
 
     def batch_candidates(self, user, election, candidates):
-        url = 'election/%d/batch_candidates' % election['id']
+        url = 'elections/%d/batch_candidates' % election['id']
         return self.user_post(user, url, {'candidates': candidates})
 
     def batch_candidates_view(self, user, election):
-        url = 'election/%d/batch_candidates' % election['id']
+        url = 'elections/%d/batch_candidates' % election['id']
         return self.user_get(user, url)
 
     def add_elector(self, election, admin, user):
@@ -219,19 +219,19 @@ class API:
         self.accept(user, code)
 
     def get_ready(self, user, election):
-        url = 'election/%d/get_ready' % election['id']
+        url = 'elections/%d/get_ready' % election['id']
         return self.user_get(user, url)
 
     def set_ready(self, user, election, version):
-        url = 'election/%d/set_ready' % election['id']
+        url = 'elections/%d/set_ready' % election['id']
         return self.user_post(user, url, {'approved_version': version})
 
     def voter_stats(self, user, election):
-        url = 'election/%d/voter_stats' % election['id']
+        url = 'elections/%d/voter_stats' % election['id']
         return self.user_get(user, url)
 
     def voter_details(self, user, election):
-        url = 'election/%d/voter_details' % election['id']
+        url = 'elections/%d/voter_details' % election['id']
         return self.user_get(user, url)
 
 def test1(api):

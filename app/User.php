@@ -32,4 +32,12 @@ class User extends Authenticatable
     {
         return $this->belongsToMany('App\Election', 'electors');
     }
+
+    public function isAdmin(Election $election) {
+        return $election->creator->is($this);
+    }
+
+    public function isElector(Election $election) {
+        return $election->electors()->where('user_id', $this->id)->exists();
+    }
 }
