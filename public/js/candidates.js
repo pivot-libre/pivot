@@ -16,23 +16,36 @@ var Edititems
 Piv.evmanage.setManager(View.workspace, ["click", "keyup", "paste"])
 
 View.setHeader("Candidates", ElectionId)
+View.statusbar.innerHTML = ""
 
-Piv.anchorListDiv(View.workspace, "", {
-    "Add/Edit candidates": "/candidates/" + ElectionId,
-    "Manage electorate": "/electorate/" + ElectionId,
-    "Election details": "/administer/" + ElectionId
-  }
-)
+// Piv.anchorListDiv(View.workspace, "", {
+//     "Add/Edit candidates": "/candidates/" + ElectionId,
+//     "Manage electorate": "/electorate/" + ElectionId,
+//     "Election details": "/administer/" + ElectionId
+//   }
+// )
+Piv.electionsMenu(View.sidenav, ElectionId)
 
 Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
-Edititems = Piv.html(View.workspace, "ol", "", {"id": "edititems", "class": "itemlist incrementsCounter"})
+
+// Piv.div(View.workspace, "", "w100 font-size-3 padding-1 textLeft color-white", "Candidates")
+var CandidatesSection = Piv.div(View.workspace, "", "container1")
+Piv.div(CandidatesSection, "", "w100 font-size-4", "Add candidates to be voted on in the election.")
+var ButtonRow = Piv.div(CandidatesSection, "", "textRight w100")
+Piv.div(ButtonRow, "", "clickable1", "+ New Candidate", "", "click", addCandidate);
+RevertChangesButton = Piv.div(ButtonRow, "", "clickable1 disabled", "Revert Changes", "", "click", revertChanges);
+SaveCandidatesButton = Piv.div(ButtonRow, "", "clickable1 disabled", "Save", "", "click", saveCandidates, [ElectionId]);
+
+Edititems = Piv.html(CandidatesSection, "ol", "", {"class": "incrementsCounter w100"})
+Piv.div(CandidatesSection, "", "w100", Piv.div("", "", "w100 textLeft", Edititems))
+
+
+
+// Edititems = Piv.html(View.workspace, "ol", "", {"id": "edititems", "class": "itemlist incrementsCounter"})
 // Dragula([Edititems])
 // Drake.on('drop', function (el) { onCandidateDrop(el); })
 
-Piv.div(View.workspace, "", "clickable1", "+ New Candidate", "", "click", addCandidate);
-RevertChangesButton = Piv.div(View.workspace, "", "clickable1 disabled", "Revert Changes", "", "click", revertChanges);
-SaveCandidatesButton = Piv.div(View.workspace, "", "clickable1 disabled", "Save", "", "click", saveCandidates, [ElectionId]);
 
 loadCandidates(ElectionId, displayCandidates)
 
@@ -69,17 +82,17 @@ function displayCandidate(parent, id, name, status) {
   var vobject = {"id": id, "status": status || "current", "original_name": name}
   CandidateDirectory.push(vobject)
 
-  var candidateLiAtts = {"class": "row1"}
+  var candidateLiAtts = {"class": "w75 overflow-visible nowrap hover-children"}
+  // var candidateLiAtts = {"class": "w100"}
   if (id) { candidateLiAtts["data-id"] = id}
 
-  var box = vobject.domel = Piv.html(parent, "li", "", candidateLiAtts);
-  Piv.div(box, "", "text1square orderdisplay");
-  // Piv.div(box, "", "grabbable", "#");
-  // Piv.div(box, "", "grabbable", "^v");
-  var input = vobject.name = Piv.html(box, "input", "", {"class": "textInput1 w75", "type": "text", "value": (name || ""), "placeholder": "Candidate name/description"});
+  var box = vobject.domel = Piv.html(parent, "li", "", candidateLiAtts)
+  Piv.div(box, "", "text1square orderdisplay")
+  var input = vobject.name = Piv.html(box, "input", "", {"class": "input-text-1 w100 hover-1", "type": "text", "value": (name || ""), "placeholder": "Candidate name/description"})
+  // var input = vobject.name = Piv.html(box, "input", "", {"class": "input-text-1 w75", "type": "text", "value": (name || ""), "placeholder": "Candidate name/description"})
   Piv.evmanage.listen(input, "keyup", onNameChange, [vobject])
   Piv.evmanage.listen(input, "paste", onNameChange, [vobject])
-  Piv.div(box, "", "clickable2", "X", "", "click", removeCandidate, [vobject]);
+  Piv.div(box, "", "clickable2", "&#9747;", "", "click", removeCandidate, [vobject])
 
   return vobject
 }
@@ -150,6 +163,7 @@ function saveCandidates(electionId) {
   }
   if (deleteResources.length > 0) {
     SaveCandidatesButton.innerHTML = "Deleting..."
+    View.statusbar.innerHTML = "Deleting candidates..."
     Piv.http.delete(deleteResources, function(response) {
       for (var i in CandidateDirectory.indexes.deleted) {
         CandidateDirectory.remove(CandidateDirectory.indexes.deleted[i])
@@ -164,6 +178,7 @@ function saveCandidates(electionId) {
 function saveCandidateList(electionId, innerHtml) {
   var newAndChangedCandidates = []
   SaveCandidatesButton.innerHTML = "Saving..."
+  View.statusbar.innerHTML = "Saving..."
 
   for (var i in CandidateDirectory.indexes.new) {
     newAndChangedCandidates.push({"name": CandidateDirectory.indexes.new[i].name.value})
@@ -176,6 +191,7 @@ function saveCandidateList(electionId, innerHtml) {
   if (newAndChangedCandidates.length < 1) {
     SaveInProgress = false
     SaveCandidatesButton.innerHTML = innerHtml
+    View.statusbar.innerHTML = "Deleted!"
     // loadCandidates(ElectionId, displayCandidates)  //re-load candidates so that we reset OriginalCandidatesFromServer and ensure that we have the latest list
     // resetCandidates()
     updateSaveButton()
@@ -185,6 +201,7 @@ function saveCandidateList(electionId, innerHtml) {
     displayCandidates(candidates)
     SaveInProgress = false
     SaveCandidatesButton.innerHTML = innerHtml
+    View.statusbar.innerHTML = "Saved!"
   })
 }
 

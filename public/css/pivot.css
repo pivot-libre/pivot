@@ -1,3 +1,7 @@
+html {
+  height: 100%;
+  overflow-y: scroll;
+}
 body {
   box-sizing: border-box;
   margin: 0;
@@ -7,7 +11,8 @@ body {
   text-decoration: none;
   height: 100%;
   width: 100%;
-  text-align: center;
+  overflow: scroll;
+  /* text-align: center; */
   font-weight: 100;
 }
 div, ol, ul, li, a, img, form, label, input, iframe, button {
@@ -25,197 +30,224 @@ div, ol, ul, li, a, img, form, label, input, iframe, button {
   list-style: none;
   font-family: "Raleway","Alegreya Sans",sans-serif;
 }
-svg {
-  width: 100%;
-  height: 100%;
-}
-.button1Item,
-label:hover,
-button:hover,
-input[type=submit]:hover,
-.clickable1:hover:not(.disabled),
-.clickable2:hover:not(.disabled),
-.cursorPointer {
-  cursor: pointer;
-}
 
 /*colors*/
-#topNav a.icon > svg:hover,
-.orange1 {
-  fill: #fcb8a8;
-}
-#topNav svg,
-.orange2 {
-  fill: #ff876d;
-}
-#topNav .parrot svg,
-.orange2 {
-  fill: #fff;
-  /*fill: #3798d4;*/
-}
-#topNav svg > path.forecolor,
-.orange2 {
-  /*fill: #fff;*/
-  fill: #3798d4;
-  fill: #444;
-}
 
-.button1Item:hover,
-.details,
-.button1 a[href]:hover,
-a[href].button1:hover,
-a[href]:hover,
-.button1 a:not([href]),
-a:not([href]).button1,
-a:not([href]),
-a:hover + a[style] + .electionName,
-a:hover + .electionName,
-a:hover,
-/* .stepNavigator > a::after, */
-button:hover,
-input[type=submit]:hover,
-.clickable1:hover:not(.disabled),
-a[href].hover1,
-.hover1,
-.orange1 {
-  background-color: #fcb8a8;
+.checkboxUI0,
+.input-text-1,
+.border-bottom-2,
+.border-color-3 {
+  border-color: #9aad90; /* chrome paisley light */
 }
-.textInput1,
+.border-color-4 {
+  border-color: #64765b;  /* chrome paisley leaf */
+}
+.border-color-5 {
+  border-color: #504a43;  /* chrome paisley shadow */
+}
+[type=checkbox]:checked + .checkboxUI0::after,
+.border-color-6 {
+  border-color: #05535b;   /* chrome paisley bluish */
+}
+.border-1,
+.border-bottom-1,
+.border-color-7 {
+  border-color: #e6dec7;  /* chrome paisley tan */
+  border-color: #f2eee3;  /* chrome paisley tan half white */
+}
+.clickable4:not([href]),
+.fill-1 {
+  fill: #fff;
+}
+svg > path.forecolor,
+.fill-2 {
+  fill: #9aad90; /* chrome paisley light */
+  /* fill: #444; */
+}
+.clickable4[href]:hover,
+.fill-3 {
+  fill: #9aad90; /* chrome paisley light */
+}
+.fill-4 {
+  fill: #9aad90; /* chrome paisley light */
+  fill: #504a43;  /* chrome paisley shadow */
+  fill: #64765b;  /* chrome paisley leaf */
+}
+.clickable4,
+.fill-5 {
+  fill: #9aad90; /* chrome paisley light */
+  fill: #504a43;  /* chrome paisley shadow */
+}
+.drag-drop-1.gu-mirror,
+.clickable3,
+.input-text-1,
 .text3,
-.bgNone {
-  background: none;
+.bg-none {
+  background: none !important;
 }
-/* .grabbable, */
+.bg-color-1 {
+  /* background-color: #fcb8a8; */
+  background-color: #504a43;  /* chrome paisley shadow */
+  /* background-color: #05535b; */
+}
 .clickable1,
-.button1Item,
-.details,
 button,
 input[type=submit],
 .clickable1,
-.button1 a,
-a.button1,
-a,
-.orange2 {
-  background-color: #ff876d;
-  /* border: 1px solid white;
-  margin: 3px; */
+/* a, */
+.bg-color-2 {
+  /* background-color: #ff876d; */
+  /* background-color: #05535b; */
+  background-color: #64765b;  /* chrome paisley leaf */
 }
-.button1Item:active,
-a[href]:active,
-button:active,
-input[type=submit]:active,
-.clickable1:active,
-.clickable2:active,
-.clickable1.disabled,
-.clickable2.disabled,
-.opacity5 {
-  opacity: .5;
-}
-.triggerHoverOpacity75:hover .hoverOpacity75,
-.hoverOpacity75:hover {
-  opacity: .75;
-}
-
-#topNav a:not([href]),
-.hasLabelFrame::after,
+.mainheader,
+/* .workspace, */
 #maincolumn,
-.blue {
-  background-color: #3798d4;
+.clickable4:not([href]),
+/* a:hover:not(.clickable4), */
+/* a:not([href]):not(.clickable4), */
+button:hover,
+input[type=submit]:hover,
+.clickable1:hover:not(.disabled),
+.input-text-1::selection,
+.bg-color-3 {
+  /* background-color: #3798d4; */
+  background-color: #9aad90; /* chrome paisley light */
   background-image: url("https://www.transparenttextures.com/patterns/black-thread-light.png");
   background-size: auto;
 }
-.newitem,
-.blue2 {
-  background-color: #009faf;
-}
-
-.blue3 {
-  background-color: #4dd0e1;
-}
 #topNav,
-body,
-.slate {
+/* body, */
+.bg-color-4 {
   background-color: #444;
-}
-.black {
-  background-color: black;
 }
 .a1,
 a.a1:hover,
 .bgColorTransparent {
   background-color: transparent;
 }
-.electionName,
 .text1,
-.bgwhite {
+.bg-color-white {
   background-color: white;
 }
-
-.userDescription,
-/* .candidateDescription, */
-.grey1 {
-  color: #5d5d5d;
-}
 .text4,
-.background-color4 {
+.bg-color-5 {
   background-color: #77dd76;
 }
-.electorChecks,
-.red1 {
-  color: #d53e3e;
+.bg-color-6 {
+  /* background-color: #ff876d; */
+  background-color: #05535b;  /* bluish */
+  /* background-color: #64765b; */
 }
-.orange1 {
-  color: #fcb8a8;
+body,
+.container1,
+.bg-color-7 {
+  background-color: #e6dec7;  /* chrome paisley tan */
+  background-color: #f2eee3;  /* chrome paisley tan half white */
 }
+.hover-1:hover,
+.bg-color-8 {
+  background-color: #d2d2b9;  /* chrome paisley tan leaf mix */
+  background-color: #c7cebb;  /* chrome paisley tan half white leaf mix */
+}
+.mainheader,
+.text3,
+.color-2 {
+  color: #504a43;  /* chrome paisley shadow */
+}
+.clickable4[href]:hover,
+.color-3 {
+  color: #9aad90; /* chrome paisley light */
+}
+.color-4 {
+  color: #9aad90; /* chrome paisley light */
+  color: #504a43;  /* chrome paisley shadow */
+  color: #64765b;  /* chrome paisley leaf */
+}
+.clickable5,
+.clickable4,
+.color-4 {
+  color: #9aad90; /* chrome paisley light */
+  color: #504a43;  /* chrome paisley shadow */
+}
+.hoverlink-1,
+.clickable5:hover,
+.color-7 {
+  color: #e6dec7;  /* chrome paisley tan */
+  color: #f2eee3;  /* chrome paisley tan half white */
+}
+.hover-children:hover > .hover-child-2,
 .clickable2:hover:not(.disabled),
 .orange2 {
-  color: #ff876d;
+  color: #64765b;
 }
-.blue {
-  color: #3798d4;
-}
-.slate {
-  color: #444;
-}
-.electionName,
+.clickable2,
+.input-text-1,
 .text1,
-.black {
+.color-black {
   color: black;
 }
-/* .stepNavigator > a[href], */
-.button1Item,
-.details,
+.clickable4:not([href]),
 button,
 input[type=submit],
 .clickable1,
-.clickable2,
-.button1 a,
-a.button1,
+.clickable3,
 a,
 .text2,
 .text4,
-.textInput1,
-#maincolumn,
-.white {
+.color-white {
   color: white;
+}
+
+svg {
+  width: 100%;
+  height: 100%;
+}
+label,
+button,
+input[type=submit],
+a[href],
+.clickable1:not(.disabled),
+.clickable2:not(.disabled),
+.cursor-pointer {
+  cursor: pointer;
 }
 
 /* basic layout */
 #maincolumn {
+  /* min-height: 100%; */
   height: 100%;
-  width: 100%;
-  max-width: 1000px;
-  border-radius: 6px;
-  overflow: hidden;
-  padding: 0 0 20px 0;
-  margin: 5px 0 0 0;
-  /*background-image: url("https://www.transparenttextures.com/patterns/black-thread-light.png");
-  background-size: auto;*/
+  /* width: 100%; */
+  /* max-width: 1000px; */
+  /* width: 64%; */
+  width: 82%;
+  /* overflow: hidden; */
+  overflow-y: scroll;
+  /* padding: 0 0 20px 0; */
+  /* margin: 5px 0 0 0; */
+  /* margin: 5px 0 0 18%; */
+  margin: 0 0 0 18%;
+  text-align: left;
+}
+#sidenav {
+  position: fixed;
+  left: 0;
+  top: 48px;
+  width: 18.5%;
+}
+@media only screen and (min-width: 1400px) {
+  #maincolumn {
+    width: 64%;
+  }
+  #sidenav {
+    /* width: 18.5%; */
+  }
+}
+.clickable4[href]:hover {
+  transform: scale(1.05);
 }
 #topNav {
   width: 100%;
-  /*text-align: right;*/
-  /*padding: 5px;*/
 }
 .mainheader {
   width: 100%;
@@ -223,70 +255,35 @@ a,
   font-size: 30px;
   font-weight: 500;
   /* font-family: fantasy; */
+}
+.clickable4,
+.mainheader,
+.text-transform-uppercase {
   text-transform: uppercase;
 }
-
-/* cssremove3 */
-
-/* ballot layout and skin */
 .workspace {
-  padding: 0 10px 0 10px;
+  /* padding: 0 10px 0 10px; */
+  padding: 0 32px 0 32px;
+  width: 100%;
+  /* min-height: 100%; */
+}
+.container1 {
+  padding: 10px;
+  /* margin: 10px 0px 0px 0px; */
+  margin: 0px 0px 10px 0px;
   width: 100%;
 }
-#instructions {
-  width: 100%;
-  font-size: 20px;
-}
-.row1,
-.w100 {
-  width: 100%;
-}
-.w75 {
-  width: 75%;
-}
-.w67 {
-  width: 67%;
-}
-.w50 {
-  width: 50%;
-}
-.w33 {
-  width: 33%;
-}
-.w25 {
-  width: 25%;
-}
-.hasLabelFrame {
-  padding: 25px 0px 0px 0px;
-}
-.hasLabelFrame::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  /*border: 2px solid #aaaaaa;*/
-  /* border: 2px solid #fff; */
-}
-.hasLabelFrame::after {
-  content: "Unranked (tied for last)";
-  position: absolute;
-  font-size: 20px;
-  top: 0px;
-  left: 10px;
-  /* padding: 0 5px 0 5px; */
-}
-#rankeditems::after {
-  content: "Ranked";
-}
-#electorate::after {
-  content: "Electors";
-}
-#invites::after {
-  content: "Invites";
-}
-/* cssremove1 */
+.clickable4,
+.clickable3,
+.w100 { width: 100%; }
+.w75 { width: 75%; }
+.w67 { width: 67%; }
+.w50 { width: 50%; }
+.w33 { width: 33%; }
+.w25 { width: 25%; }
+.w20 { width: 20%; }
+.w15 { width: 15%; }
+
 .grabbable,
 .grippy,
 .grabby,
@@ -296,34 +293,24 @@ a,
   cursor: -moz-grab;
   cursor: -webkit-grab;
 }
-/* cssremove2 */
-
-/*hide rankingTools box when dragging*/
-li.gu-mirror > .rankingTools {
-  display: none;
-}
 
 /* conditional hiding */
-.hidden3,
+.drag-drop-1.gu-mirror .hidden3,
 .hidden2,
 .hidden1,
 .hidden {
   visibility: hidden;
   transition: visibility 0s linear 0s !important;
 }
-
-/* div[data-isNew="new"] .hidden1, */
-/* ul li[data-isNew="new"] .hidden1 { */
 .incrementsCounter .hidden1,
 ol .hidden2:checked,
-ol .hidden2:checked ~ .hidden3,
 ol li:hover .hidden2 {
   visibility: visible;
 }
-.display_none_1 {
+.display-none-1 {
   display: none;
 }
-div[data-isNew="new"] .display_none_1 {
+div[data-isNew="new"] .display-none-1 {
   display: inline-block;
 }
 
@@ -357,63 +344,37 @@ div[data-isNew="new"] .display_none_1 {
 }
 
 /* other stuff */
+a[href]:active,
+button:active,
+input[type=submit]:active,
+.clickable1:active,
+.clickable2:active,
+.clickable1.disabled,
+.clickable2.disabled,
+.opacity5 {
+  opacity: .5;
+}
 .label0,
 /* label, */
-input,
-.button1Item,
-.details,
-.textInput1,
+input,margin-right-1
+.input-text-1,
 .text3,
+a,
 button,
 input[type=submit],
 .clickable1,
 .clickable2,
-.button1 a,
-a.button1,
-a {
+.clickable3,
+.clickable {
   text-decoration: none;
   font-size: 20px;
   padding: 10px;
-  margin: 0 2px 0 2px;
   border-radius: .15em;
   transition: all .25s;
-}
-.electionName {
-  /*height: 100%;*/
-  width: 50%;
-  text-align: left;
-}
-.leftMenu {
-  width: 50%;
-  text-align: left;
-}
-.rightMenu {
-  width: 50%;
-  text-align: right;
-}
-#topNav .icon,
-#topNav img {
-  height: 33px;
-  width: 30.5px;
-  vertical-align: bottom;
-  padding: 5px;
-}
-#topNav .parrot {
-  padding: 0;
-}
-.rightMenu > div {
-  font-size: 20px;
-  padding: 5px;
-}
-.leftMenu a {
-  margin: 0 3px 0 0;
-  border-radius: 6px 6px 0 0;
-  padding: 5px;
-}
-.rightMenu a {
-  margin: 2px 0 2px 0;
-  border-radius: 6px;
-  padding: 3px 5px 3px 5px;
+  -webkit-user-select: none;  /* Chrome all / Safari all */
+  -moz-user-select: none;     /* Firefox all */
+  -ms-user-select: none;      /* IE 10+ */
+  user-select: none;          /* Likely future */
 }
 
 /* revamp */
@@ -427,23 +388,35 @@ a {
 .font15 {
   font-size: 15px;
 }
-.grabbable,
-.text1square,
-.text1,
-.font20 {
-  font-size: 20px;
-}
 .text4,
 .font16 {
   font-size: 16px;
 }
+.grabbable,
+.text1square,
+.text1,
+.font20,
+.font-size-1 {
+  font-size: 20px;
+}
+.font-size-3 {
+  font-size: 23px;
+}
+.font-size-4 {
+  font-size: 18px;
+}
 .text4 {
   border-radius: 10px;
 }
-/* .grabbable, */
 .text1,
 .padding10 {
   padding: 10px;
+}
+.padding-1 {
+  padding: 5px !important;
+}
+.padding-2 {
+  padding: 0 0 0 20px !important;
 }
 .text4,
 .padding-sides-small {
@@ -464,30 +437,41 @@ a {
 .textRight {
   text-align: right;
 }
+.clickable4,
 .text1square,
 .textCenter {
   text-align: center;
 }
 .a1,
 .underline {
-  text-decoration: underline;
+  text-decoration: underline !important;
 }
-.row2 {
+.font-weight-bold {
+  font-weight: 800 !important;
+}
+.margin-bottom-1 {
   margin: 0px 0px 4px 0px;
 }
-.row2:last-child {
+.margin-bottom-1:last-child {
   margin: 0;
 }
-.row1,
-.margin4p0p4p0p {
-  margin: 4px 0px 4px 0px;
+.label0,
+/* label, */
+input,margin-right-1
+.input-text-1,
+.text3,
+button,
+input[type=submit],
+.clickable1,
+.clickable2,
+.clickable3,
+.margin-sides-1 {
+  margin: 0px 2px 0px 2px;
 }
-.marginB1 {
-  margin: 0px 0px 6px 0px;
-}
-.marginR1 {
+.margin-right-1 {
   margin: 0px 6px 0px 0px;
 }
+/* noe removeable? */
 .row-spacing1 {
   border-spacing: 0px 8px;
 }
@@ -502,34 +486,60 @@ a {
 .table > * > * {
   display: table-cell;
 }
-.textInput1 {
-  border-bottom: 1px solid white;
-  /* border-left: 1px solid white; */
+.hover-1,
+.transition-p25s {
+  transition: all .15s;
+}
+.hoverlink-1,
+.clickable5:hover,
+.text-decoration-underline {
+  text-decoration: underline;
+}
+.nowrap {
+  white-space: nowrap !important;
+}
+.overflow-visible {
+  overflow: visible !important;
+}
+.drag-drop-1.gu-mirror,
+.border-none {
+  border: none !important;
+}
+.border-1 {
+  border-width: 1px;
+  border-style: solid;
+}
+.input-text-1,
+.border-bottom-2,
+.border-bottom-1 {
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+}
+.input-text-1 {
   font-weight: 200;
 }
-.textInput1::selection {
-  background-color: #ff876d;
-}
-.textInput1:hover,
-.textInput1:focus {
-  border-color: #ff876d;
+.hover-children:hover > .hover-child-1,
+.input-text-1:hover,
+.input-text-1:focus {
+  /* border-color: black; */
   outline: none;
 }
-.textInput1::-webkit-input-placeholder { /* Chrome */
-  color: white;
-  opacity: .85
+
+.input-text-1::-webkit-input-placeholder { /* Chrome */
+  color: #444;
+  font-style: italic;
 }
-.textInput1:-ms-input-placeholder { /* IE 10+ */
-  color: white;
-  opacity: .85
+.input-text-1:-ms-input-placeholder { /* IE 10+ */
+  color: #444;
+  font-style: italic;
 }
-.textInput1::-moz-placeholder { /* Firefox 19+ */
-  color: white;
-  opacity: .85
+.input-text-1::-moz-placeholder { /* Firefox 19+ */
+  color: #444;
+  font-style: italic;
 }
-.textInput1:-moz-placeholder { /* Firefox 4 - 18 */
-  color: white;
-  opacity: .85
+.input-text-1:-moz-placeholder { /* Firefox 4 - 18 */
+  color: #444;
+  font-style: italic;
 }
 
 /* custom checkbox adapted from https://www.w3schools.com/howto/howto_css_custom_checkbox.asp */
@@ -543,14 +553,12 @@ a {
   height: 16px;
   line-height: 16px;
   font-size: 16px;
+  border-width: 1px;
+  border-style: solid;
 }
 /* On mouse-over, add a grey background color */
 .checkboxUI0:hover {
   background-color: #ccc;
-}
-/* When the checkbox is checked, add a blue background */
-[type=checkbox]:checked + .checkboxUI0 {
-  background-color: #2196F3;
 }
 /* Create the checkmark/indicator (hidden when not checked) */
 .checkboxUI0:after {
