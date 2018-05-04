@@ -11,12 +11,13 @@ Piv.evmanage.setManager(View.workspace, ["click"])
 
 View.setHeader("Administer", ElectionId)
 
-Piv.anchorListDiv(View.workspace, "", {
-    "Add/Edit candidates": "/candidates/" + ElectionId,
-    "Manage electorate": "/electorate/" + ElectionId,
-    "Election details": "/administer/" + ElectionId
-  }
-)
+// Piv.anchorListDiv(View.workspace, "", {
+//     "Add/Edit candidates": "/candidates/" + ElectionId,
+//     "Manage electorate": "/electorate/" + ElectionId,
+//     "Election details": "/administer/" + ElectionId
+//   }
+// )
+Piv.electionsMenu(View.sidenav, ElectionId)
 
 Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
