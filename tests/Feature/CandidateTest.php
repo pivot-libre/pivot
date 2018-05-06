@@ -401,7 +401,9 @@ class CandidateTest extends TestCase
         ]);
 
         $response->assertStatus(204);
-        $this->assertEquals(1, $election->fresh()->ballot_version);
+
+        // The edit should have bumped the ballot version number
+        $this->assertEquals(2, $election->fresh()->ballot_version);
         $this->assertEquals("new name", $candidate->fresh()->name);
     }
 
