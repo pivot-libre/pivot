@@ -190,6 +190,10 @@ class CandidateController extends Controller
             'name' => 'required|string',
         ]);
 
+        // bump ballot version, reseting voter indications
+        $election->ballot_version += 1;
+        $election->save();
+
         $candidate->update([
            'name' => $request->get('name')
         ]);
@@ -237,7 +241,7 @@ class CandidateController extends Controller
      */
     public function destroy(Election $election, Candidate $candidate)
     {
-        $this->authorize('delete', $election);
+        $this->authorize('update', $election);
 
         // bump ballot version, reseting voter indications
         $election->ballot_version += 1;
