@@ -324,6 +324,10 @@ class ElectionController extends Controller
         $election = Election::where('id', '=', $election_id)->firstOrFail();
         $this->authorize('update', $election);
 
+        // bump ballot version, reseting voter indications
+        $election->ballot_version += 1;
+        $election->save();
+
         # loop over input, looking for edits and inserts (we do not support batch delete)
         $candidates = $request->json()->get('candidates');
         foreach ($candidates as $candidate) {

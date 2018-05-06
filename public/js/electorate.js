@@ -258,7 +258,7 @@ function deleteSelectedElectors() {
 
   var resources = [], electorVobjectKeys = []
   for (var key in CheckedElectorCheckboxes) {
-    resources.push("/api/elections/" + ElectionId + "/elector/" + CheckedElectorCheckboxes[key].elector_id)
+    resources.push("/api/elections/" + ElectionId + "/electors/" + CheckedElectorCheckboxes[key].elector_id)
     electorVobjectKeys.push(key)
   }
   Piv.http.delete(resources, function() {

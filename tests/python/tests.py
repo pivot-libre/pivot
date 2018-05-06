@@ -165,10 +165,6 @@ class API:
         url = 'elections/%d/candidates' % election['id']
         return self.user_get(user, url)
 
-    def get_electors(self, user, election):
-        url = 'elections/%d/electors' % election['id']
-        return self.user_get(user, url)
-
     def create_candidate(self, user, election, name):
         url = 'elections/%d/candidates' % election['id']
         return self.user_post(user, url, {"name": name})
@@ -176,6 +172,18 @@ class API:
     def delete_candidate(self, user, election, candidate):
         url = 'elections/%d/candidates/%d' % (election['id'], candidate['id'])
         return self.user_delete(user, url)
+
+    def delete_elector(self, user, election, elector):
+        url = 'elections/%d/electors/%d' % (election['id'], elector['id'])
+        return self.user_delete(user, url)
+
+    def get_electors(self, user, election):
+        url = 'elections/%d/electors' % election['id']
+        return self.user_get(user, url)
+
+    def get_elector(self, user, election, elector_id):
+        url = 'elections/%d/electors/%d' % (election['id'], elector_id)
+        return self.user_get(user, url)
 
     def set_rank(self, user, election, candidate, rank):
         url = 'elections/%d/candidates/%d/rank' % (election['id'], candidate['id'])
@@ -216,7 +224,7 @@ class API:
     def add_elector(self, election, admin, user):
         invite_status = self.invite(admin, election, user['email'])
         code = invite_status['election_id']
-        self.accept(user, code)
+        return self.accept(user, code)
 
     def get_ready(self, user, election):
         url = 'elections/%d/get_ready' % election['id']
@@ -338,7 +346,7 @@ def test3(api):
     userB = users[1]
 
     election = api.create_election(userA, 'test3-election')
-    api.add_elector(election, userA, userB)
+    print api.add_elector(election, userA, userB)
     print api.get_electors(userA, election)
     # an elector may view the list of electors
     print api.get_electors(userB, election)
@@ -560,7 +568,25 @@ def test9(api):
     assert(len(names) == len(set1+set2))
     for name in set1+set2:
         assert(name in names)
-        
+
+def test10(api):
+    """
+    This tests elector deletion
+    """
+    users = api.load_users()
+    userA = users[0]
+    userB = users[1]
+
+    # create election
+    election = api.create_election(userA, 'test10-election')
+    electorB = api.add_elector(election, userA, userB)
+    electors = api.get_electors(userA, election)
+    assert(len(electors) == 1)
+    print api.get_elector(userA, election, electorB['id'])
+    print api.delete_elector(userA, election, electorB)
+    electors = api.get_electors(userA, election)
+    assert(len(electors) == 0)
+
 def create_users(url):
     from selenium import webdriver
     from selenium.webdriver.common.keys import Keys
