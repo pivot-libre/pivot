@@ -63,3 +63,4 @@ php artisan passport:install
 
 ## REST API
 Once you have pivot up and running, visit http://yourhostname.here/docs in a web browser to view dynamic Swagger REST API documentation.
+
