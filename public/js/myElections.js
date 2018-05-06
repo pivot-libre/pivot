@@ -31,12 +31,18 @@ function showAllMyElections(elections, invitesData) {
   console.log(invitesData)
   for (var key in invitesData) {
     invite = invitesData[key]
-    invites[invite.election_id] = invite.code
+    // invites[invite.election_id] = invite.code
+    invites[invite.election_id] = invite
   }
   var election
   for (var key in elections) {
     election = elections[key]
-    showElection(ElectionsDomel, election.name, election.id, election.can_vote, "canViewResults", election.can_edit, invites[election.id])
+    showElection(ElectionsDomel, election.name, election.id, election.can_vote, "canViewResults", election.can_edit, invites[election.id] ? invites[election.id].code : "")
+    delete invites[election.id]
+  }
+  for (var key in invites) {
+    invite = invites[key]
+    showElection(ElectionsDomel, invite.election_name, invite.election_id, "can_vote", "canViewResults", "", invite.code)
   }
 }
 
