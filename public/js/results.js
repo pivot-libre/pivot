@@ -9,6 +9,8 @@ var ResultsList = Piv.html(View.workspace, "ol", "", {"class": "itemlist increme
 
 // actions (do stuff)
 View.setHeader("Results", ElectionId)
+View.statusbar.innerHTML = ""
+Piv.electionsMenu(View.sidenav, ElectionId)
 
 Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
