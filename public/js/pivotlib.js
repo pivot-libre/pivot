@@ -291,6 +291,7 @@ var httpMultiple = lib.http.send = function(method, resources, payloads, onSucce
       console.log(resources)
       console.log(payloads)
       console.log(error)
+      console.log(error.response)  //error.response isn't displayed when I just print out error for some reason
       console.groupEnd()
   }
 
@@ -302,7 +303,7 @@ var httpMultiple = lib.http.send = function(method, resources, payloads, onSucce
 
   axios.all(exFuncAry())
     .then(axios.spread(thenFunc))
-    .catch(onFail);
+    .catch(onFail)  // this is currently sending the error variable to the onFail functions I pass in, but I'm not sure why
 }
 var getMultResources = lib.http.get = function(resources, onSuccess, onFail) {
   httpMultiple("get", resources, "", onSuccess, onFail)

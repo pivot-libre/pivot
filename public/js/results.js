@@ -14,7 +14,7 @@ Piv.electionsMenu(View.sidenav, ElectionId)
 
 Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
-Piv.http.get(["/api/elections/" + ElectionId + "/result"], showElectionResults)
+Piv.http.get(["/api/elections/" + ElectionId + "/result"], showElectionResults, showErrorMessage)
 
 // function definitions
 function displayCandidate(parent, description, cost, tie) {
@@ -30,6 +30,10 @@ function showElectionResults(results) {
   for (var key in candidateOrder) {
     displayCandidate(ResultsList, candidateOrder[key].name, "cost")
   }
+}
+function showErrorMessage(error) {
+  Piv.div(View.workspace, "", "w100 text3", "Results for this election are not currently available.")
+  Piv.div(View.workspace, "", "100 text3", error.response.data.message)
 }
 
 // close the self-executing function and feed the piv library to it
