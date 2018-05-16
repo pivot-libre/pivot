@@ -357,18 +357,34 @@ var removeAllChildren = lib.removeAllChildren = function(domel) {
 var makeVobjectCollection = lib.makeVobjectCollection = function() {
   var collection = {}
   collection.list = []
-  collection.indexes = {}
-  collection.push = function(vobject, status) {
+  collection.statuses = {}
+  collection.indexesSingle = {}
+  // collection.indexesMulti = {}
+  // collection.push = function(vobject, status, singleIndexProps, multiIndexProps) {
+  collection.push = function(vobject, status, singleIndexProps) {
     status = (status || vobject.status) || "current"
     vobject.index = collection.list.push(vobject) - 1
     vobject.status = status
-    lib.setTreeData(collection, ["indexes", status, vobject.index], vobject)
+    lib.setTreeData(collection, ["statuses", status, vobject.index], vobject)
+    if (singleIndexProps) {
+      for (var i = 0; i < singleIndexProps.length; i++) {
+        var property = singleIndexProps[i]
+        if (!vobject[property]) continue  //noe this could still result in wonky indexes; should make this better
+        lib.setTreeData(collection, ["indexesSingle", property, vobject[property]], vobject)
+      }
+      // if (multiIndexProps) {
+      //   for (var i = 0; i < multiIndexProps.length; i++) {
+      //     var property = multiIndexProps[i]
+      //     if (!vobject[property]) continue  //noe this could still result in wonky indexes; should make this better
+      //     lib.pushTreeData(collection, ["indexesMulti", property, vobject[property]], vobject)
+      //   }
+    }
     return vobject.index
   }
   collection.status = function(vobject, status) {
     if (!status) return vobject.status  //don't do anything if the status is unchanged
     if (status == vobject.status) return status  //don't do anything if the status is the same as before
-    delete collection.indexes[vobject.status][vobject.index]  //delete the entry for this vobject in the old index
+    delete collection.statuses[vobject.status][vobject.index]  //delete the entry for this vobject in the old index
     lib.setTreeData(collection, ["indexes", status, vobject.index], vobject)  //add an entry for this vobject in the new index
     vobject.status = status  //update the status field on the vobject
     return status
@@ -376,17 +392,18 @@ var makeVobjectCollection = lib.makeVobjectCollection = function() {
   collection.remove = function(vobject) {
     var status = vobject.status
     if (!status) return
-    delete collection.indexes[vobject.status][vobject.index]  //delete the entry for this vobject in whatever index it's in
+    for (var key in collection.indexesSingle) { if (vobject[key]) delete collection.indexesSingle[key][vobject[key]] }  //remove from single response indexes
+    delete collection.statuses[vobject.status][vobject.index]  //delete the entry for this vobject in whatever index it's in
     vobject.status = false  //noe this needs to be improved
   }
   collection.reset = function() {
     collection.list = []
-    collection.indexes = {}
+    collection.statuses = {}
   }
   collection.length = function(status) {
     if (!status) return collection.list.length
-    if (!collection.indexes[status]) return undefined
-    return Object.keys(collection.indexes[status]).length
+    if (!collection.statuses[status]) return 0
+    return Object.keys(collection.statuses[status]).length
   }
   return collection
 }

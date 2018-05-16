@@ -449,8 +449,9 @@ input[type=submit],
 .font-weight-bold {
   font-weight: 800 !important;
 }
+.margin-bottom-2,
 .margin-bottom-1 {
-  margin: 0px 0px 4px 0px;
+  margin: 0px 0px 4px 0px !important;
 }
 .margin-bottom-1:last-child {
   margin: 0;

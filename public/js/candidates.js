@@ -16,6 +16,7 @@ var Edititems
 Piv.evmanage.setManager(View.workspace, ["click", "keyup", "paste"])
 
 View.setHeader("Candidates", ElectionId)
+// Piv.html(View.workspace, "a", "Next step: Invite Voters >", {"class": "clickable1 margin-bottom-2", "href": "/electorate/" + ElectionId})
 View.statusbar.innerHTML = ""
 
 // Piv.anchorListDiv(View.workspace, "", {
@@ -158,15 +159,15 @@ function saveCandidates(electionId) {
   SaveInProgress = true
   var innerHtml = SaveCandidatesButton.innerHTML
 
-  for (var i in CandidateDirectory.indexes.deleted) {
-    deleteResources.push("/api/elections/" + electionId + "/candidates/" + CandidateDirectory.indexes.deleted[i].id)
+  for (var i in CandidateDirectory.statuses.deleted) {
+    deleteResources.push("/api/elections/" + electionId + "/candidates/" + CandidateDirectory.statuses.deleted[i].id)
   }
   if (deleteResources.length > 0) {
     SaveCandidatesButton.innerHTML = "Deleting..."
     View.statusbar.innerHTML = "Deleting candidates..."
     Piv.http.delete(deleteResources, function(response) {
-      for (var i in CandidateDirectory.indexes.deleted) {
-        CandidateDirectory.remove(CandidateDirectory.indexes.deleted[i])
+      for (var i in CandidateDirectory.statuses.deleted) {
+        CandidateDirectory.remove(CandidateDirectory.statuses.deleted[i])
       }
       // for (var i = 0; i < arguments.length; i++) {
       // }
@@ -180,13 +181,13 @@ function saveCandidateList(electionId, innerHtml) {
   SaveCandidatesButton.innerHTML = "Saving..."
   View.statusbar.innerHTML = "Saving..."
 
-  for (var i in CandidateDirectory.indexes.new) {
-    newAndChangedCandidates.push({"name": CandidateDirectory.indexes.new[i].name.value})
+  for (var i in CandidateDirectory.statuses.new) {
+    newAndChangedCandidates.push({"name": CandidateDirectory.statuses.new[i].name.value})
   }
-  for (var i in CandidateDirectory.indexes.changed) {
+  for (var i in CandidateDirectory.statuses.changed) {
     newAndChangedCandidates.push({
-      "name": CandidateDirectory.indexes.changed[i].name.value,
-      "id": CandidateDirectory.indexes.changed[i].id })
+      "name": CandidateDirectory.statuses.changed[i].name.value,
+      "id": CandidateDirectory.statuses.changed[i].id })
   }
   if (newAndChangedCandidates.length < 1) {
     SaveInProgress = false

@@ -6,15 +6,14 @@
 // script-level variables
 var View = Piv.view
 var CheckedElectorCheckboxes = {}
-Piv.CheckedElectorCheckboxes = CheckedElectorCheckboxes
 var SendInvitesButton, DeleteSelectedElectorsButton
 var InviteList = {}
 var SendInProgress
 var DeletionInProgress
 var FilteredStatuses = {}
-var ElectorVobjects = {}
 var Electors, Invites
 var ElectorateTable
+var ElectorateDirectory = Piv.makeVobjectCollection()
 var StatusMap = {
   // "approved_current": {"icon": "&#x2705;"},
   "approved_current": {"title": "Approved", "icon": "&#9733;"},
@@ -25,10 +24,12 @@ var StatusMap = {
   // "outstanding_invites": {"icon": "&#x270B;"}
   "outstanding_invites": {"title": "Never Viewed", "icon": "&#9755;"}
 }
+Piv.StatusMap = StatusMap
 
 // actions (do stuff)
 Piv.evmanage.setManager(View.workspace, ["click", "keyup", "paste"])
 View.setHeader("Manage Electorate", ElectionId)
+// Piv.html(View.workspace, "a", "< Previous step: Edit Candidates", {"class": "clickable1 margin-bottom-2", "href": "/candidates/" + ElectionId})
 View.statusbar.innerHTML = ""
 
 // Piv.div(View.workspace, "", "w100 textRight font-size-4", "")
@@ -73,12 +74,9 @@ function displayElectorate(electors) {
   var electorateTable = ElectorateTable = Piv.div("", "", "incrementsCounter w100")
   Piv.div(electorateSection, "", "w100", Piv.div("", "", "w100 textLeft", electorateTable))
 
-  StatusMap["approved_current"].number = electors["approved_current"].length
-  StatusMap["approved_previous"].number = electors["approved_previous"].length
-  StatusMap["approved_none"].number = electors["approved_none"].length
-  StatusMap["outstanding_invites"].number = electors["outstanding_invites"].length
-  electorFilters(electorFiltersRow, StatusMap, electorateTable)
+  makeElectorFilters(electorFiltersRow, StatusMap, electorateTable)
   populateElectorateStatusTable(electorateTable, electors, invites)
+  updateCountsAndFilters()
 
   //prevent column widths from resizing when the user adds or deletes electors
   var child
@@ -143,7 +141,7 @@ function sendInvites() {
   for (var key in InviteList) {
     email = InviteList[key].input.value
     if (!email) continue
-    if (emails[email] || ElectorVobjects[email]) {
+    if (emails[email] || ElectorateDirectory.indexesSingle.email[email]) {
       removeInviteVobject(key)
       continue
     }
@@ -160,25 +158,39 @@ function sendInvites() {
       makeElectorVobject(elector.invite_email, elector.invite_email, elector.id, "outstanding_invites")
     }
     repopulateElectorateStatusTable()
+    updateCountsAndFilters()  //noe
     SendInProgress = false
     SendInvitesButton.innerHTML = innerHtml
     View.statusbar.innerHTML = "Sent!"
     Piv.removeClass(SendInvitesButton, "disabled")
   })
 }
-function electorFilters(parent, StatusMap, table) {
+function updateCountsAndFilters() {
   for (var key in StatusMap) {
-    var button = Piv.html(parent, "label", "", {"class": "clickable1 padding-1"})
-    if (StatusMap[key].number < 1) button.style.display = "none"
+    if (ElectorateDirectory.length(key) < 1) {
+      // FilteredStatuses[key].status = false
+      Piv.addClass(FilteredStatuses[key].button, "display-none-1")
+    }
+    else {
+      // FilteredStatuses[key].status = true
+      Piv.removeClass(FilteredStatuses[key].button, "display-none-1")
+    }
+  }
+}
+function makeElectorFilters(parent, StatusMap, table) {
+  for (var key in StatusMap) {
+    FilteredStatuses[key] = {}
+    var button = FilteredStatuses[key].button = Piv.html(parent, "label", "", {"class": "clickable1 padding-1"})
+    if (ElectorateDirectory.length(key) < 1) Piv.addClass(button, "display-none-1")
     StatusMap[key].button = button
     var checkbox = Piv.checkbox(button, "", "", "", "checked", {"class": "margin-right-1"})
-    FilteredStatuses[key] = true;
+    FilteredStatuses[key].status = true;
     Piv.div(button, "", "", StatusMap[key].title + " " + StatusMap[key].icon)
     Piv.evmanage.listen(checkbox.input, "click", filterElectorate, [checkbox.input, key, table])
   }
 }
 function filterElectorate(checkbox, key, table) {
-  FilteredStatuses[key] = checkbox.checked
+  FilteredStatuses[key].status = checkbox.checked
   repopulateElectorateStatusTable(table)
 }
 function repopulateElectorateStatusTable() {
@@ -186,17 +198,19 @@ function repopulateElectorateStatusTable() {
   Piv.removeAllChildren(table)
 
   var electorVobject
-  for (var key in ElectorVobjects) {
-    electorVobject = ElectorVobjects[key]
-    if (!FilteredStatuses[electorVobject.status]) continue
-    renderElectorVobject(electorVobject, table)
+  for (var electorStatus in FilteredStatuses) {
+    if (!FilteredStatuses[electorStatus].status) continue
+    for (var key2 in ElectorateDirectory.statuses[electorStatus]) {
+      electorVobject = ElectorateDirectory.statuses[electorStatus][key2]
+      renderElectorVobject(electorVobject, table)
+    }
   }
 }
 function populateElectorateStatusTable(table, electors, invites) {
-  if (FilteredStatuses["approved_current"] != false) displayElectorGroup(table, electors.approved_current, "approved_current")
-  if (FilteredStatuses["approved_previous"] != false) displayElectorGroup(table, electors.approved_previous, "approved_previous")
-  if (FilteredStatuses["approved_none"] != false) displayElectorGroup(table, electors.approved_none, "approved_none")
-  if (FilteredStatuses["outstanding_invites"] != false) displayElectorGroup(table, electors.outstanding_invites, "outstanding_invites")
+  if (FilteredStatuses["approved_current"].status != false) displayElectorGroup(table, electors.approved_current, "approved_current")
+  if (FilteredStatuses["approved_previous"].status != false) displayElectorGroup(table, electors.approved_previous, "approved_previous")
+  if (FilteredStatuses["approved_none"].status != false) displayElectorGroup(table, electors.approved_none, "approved_none")
+  if (FilteredStatuses["outstanding_invites"].status != false) displayElectorGroup(table, electors.outstanding_invites, "outstanding_invites")
 }
 function displayElectorGroup(table, electors, status) {
   var elector
@@ -212,8 +226,7 @@ function makeElectorVobject(name, email, elector_id, status) {
     "status": status,
     "elector_id": elector_id
   }
-  vobject.key = email
-  ElectorVobjects[vobject.key] = vobject
+  ElectorateDirectory.push(vobject, "", ["email"])
   var row = vobject.domel = Piv.html("", "label", "", {"class": "w100 border-bottom-2 overflow-visible nowrap hover-1"})
 
   Piv.div(row, "", "text3 textRight", StatusMap[status].icon)
@@ -231,13 +244,13 @@ function renderElectorVobject(vobject, parent) {
   else if (vobject.parent) { vobject.parent.appendChild(vobject.domel) }
 }
 function removeElectorVobject(vobject) {
-  delete CheckedElectorCheckboxes[vobject.key]
-  delete ElectorVobjects[vobject.key]
+  delete CheckedElectorCheckboxes[vobject.index]
+  ElectorateDirectory.remove(vobject)
   if (vobject.domel.parentElement) vobject.domel.parentElement.removeChild(vobject.domel)
 }
 function clickElectorCheckbox(vobject) {
-  if (this.domel.checked) { CheckedElectorCheckboxes[vobject.key] = vobject }
-  else { delete CheckedElectorCheckboxes[vobject.key] }
+  if (this.domel.checked) { CheckedElectorCheckboxes[vobject.index] = vobject }
+  else { delete CheckedElectorCheckboxes[vobject.index] }
   updateDeleteSelectedElectorsButton()
 }
 function updateDeleteSelectedElectorsButton() {
@@ -266,6 +279,7 @@ function deleteSelectedElectors() {
       removeElectorVobject(CheckedElectorCheckboxes[electorVobjectKeys[i]])
     }
     updateDeleteSelectedElectorsButton()
+    updateCountsAndFilters()
     DeletionInProgress = false
     DeleteSelectedElectorsButton.innerHTML = innerHtml
     View.statusbar.innerHTML = "Deleted!"
