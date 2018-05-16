@@ -385,7 +385,7 @@ var makeVobjectCollection = lib.makeVobjectCollection = function() {
     if (!status) return vobject.status  //don't do anything if the status is unchanged
     if (status == vobject.status) return status  //don't do anything if the status is the same as before
     delete collection.statuses[vobject.status][vobject.index]  //delete the entry for this vobject in the old index
-    lib.setTreeData(collection, ["indexes", status, vobject.index], vobject)  //add an entry for this vobject in the new index
+    lib.setTreeData(collection, ["statuses", status, vobject.index], vobject)  //add an entry for this vobject in the new index
     vobject.status = status  //update the status field on the vobject
     return status
   }
