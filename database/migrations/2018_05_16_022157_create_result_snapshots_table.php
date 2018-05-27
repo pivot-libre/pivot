@@ -18,7 +18,7 @@ class CreateResultSnapshotsTable extends Migration
             $table->integer('election_id')->unsigned()->index();
             $table->foreign('election_id')->references('id')->on('elections')->onDelete('cascade');
             $table->integer('format_version');
-            $table->jsonb('result_blob');
+            $table->mediumText('result_blob');
             $table->timestamps();
         });
     }
