@@ -46,6 +46,11 @@ class Election extends Model
         return $this->hasMany(Candidate::class);
     }
 
+    public function result_snapshots()
+    {
+        return $this->hasMany(ResultSnapshot::class);
+    }
+
     public function send_invite_email($email)
     {
         // don't even try if the mail driver is not configured

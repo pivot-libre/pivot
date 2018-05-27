@@ -36,8 +36,9 @@ Route::group(['middleware' => 'auth:api'], function (Router $api) {
 
         $api->resource('electors', 'ElectorController', ['only' => ['index', 'show', 'destroy']]);
 
-        // TODO: get rid of election result, moving call to election controller
+        // TODO: get rid of result API, using only result-snapshot API
         $api->resource('result', 'ResultController', ['only' => ['index']]);
+        $api->resource('result_snapshots', 'ResultSnapshotController', ['only' => ['index', 'store', 'show', 'destroy']]);
 
         $api->resource('invite', 'InviteController', ['only' => ['index', 'store']]);
     });
