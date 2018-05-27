@@ -12,6 +12,7 @@ cache:
 before_install:
   - source ~/virtualenv/python2.7/bin/activate
   - cp .env.travis .env
+  - mysql --version
   - mysql -e 'create database homestead_test;'
 install:
   - travis_retry composer install --no-interaction
