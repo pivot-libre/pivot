@@ -242,6 +242,22 @@ class API:
         url = 'elections/%d/voter_details' % election['id']
         return self.user_get(user, url)
 
+    def create_result_snapshot(self, user, election):
+        url = 'elections/%d/result_snapshots' % election['id']
+        return self.user_post(user, url, {})
+
+    def get_result_snapshot(self, user, election, snap_id):
+        url = 'elections/%d/result_snapshots/%d' % (election['id'], snap_id)
+        return self.user_get(user, url)
+
+    def list_result_snapshots(self, user, election):
+        url = 'elections/%d/result_snapshots' % (election['id'])
+        return self.user_get(user, url)
+
+    def delete_result_snapshot(self, user, election, snap_id):
+        url = 'elections/%d/result_snapshots/%d' % (election['id'], snap_id)
+        return self.user_delete(user, url)
+
 def test1(api):
     users = api.load_users()
     userA = users[0]
@@ -586,6 +602,53 @@ def test10(api):
     print api.delete_elector(userA, election, electorB)
     electors = api.get_electors(userA, election)
     assert(len(electors) == 0)
+    
+def test11(api):
+    """
+    This tests result-snapshot storage, without considering actual results
+    """
+    users = api.load_users()
+    userA = users[0]
+    userB = users[1]
+
+    election = api.create_election(userA, 'test11-election')
+    invite_status = api.invite(userA, election, userB['email'])
+    code = invite_status['election_id']
+    electorB = api.accept(userB, code)
+
+    A = api.create_candidate(userA, election, 'candidate-A')
+    B = api.create_candidate(userA, election, 'candidate-B')
+    C = api.create_candidate(userA, election, 'candidate-C')
+    D = api.create_candidate(userA, election, 'candidate-D')
+
+    votes = [
+        {'candidate_id': A['id'], 'rank': 1},
+        {'candidate_id': B['id'], 'rank': 2},
+        {'candidate_id': C['id'], 'rank': 3},
+        {'candidate_id': D['id'], 'rank': 4},
+    ]
+    bv1 = api.batchvote(userB, election, votes)
+
+    # admin should be able to snapshot
+    assert(len(api.list_result_snapshots(userA, election)) == 0)
+    snap_id = api.create_result_snapshot(userA, election)
+    snap = api.get_result_snapshot(userA, election, snap_id)
+    snap.get('result_blob')
+    snaps = api.list_result_snapshots(userA, election)
+    assert(len(snaps) == 1)
+    assert(snaps[0]['id'] == snap_id)
+
+    # other electors should not be able to
+    api.expect_fail()
+    api.create_result_snapshot(userB, election)
+    assert(len(api.list_result_snapshots(userA, election)) == 1)
+    api.expect_fail()
+    api.delete_result_snapshot(userB, election, snap_id)
+    assert(len(api.list_result_snapshots(userA, election)) == 1)
+
+    # admin should be able to delete
+    print api.delete_result_snapshot(userA, election, snap_id)
+    assert(len(api.list_result_snapshots(userA, election)) == 0)
 
 def create_users(url):
     from selenium import webdriver
