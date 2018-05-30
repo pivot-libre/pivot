@@ -81,7 +81,7 @@ function li1(parent, id, description, tie, isNew) {
   // Piv.div(box, "", "grabbable text1 hoverOpacity75", "::", {"width": "21px"});
   var descriptionBox = Piv.div(box, "", "text3 w75")
   // var descriptionBox = Piv.div(box, "", "text1 w67 hoverOpacity75")
-  Piv.div(descriptionBox, "", "display-none-1 text4 margin-right-1", "new")
+  if ("new" == isNew) { Piv.div(descriptionBox, "", "display-none-1 text4 margin-right-1", "new") }
   Piv.div(descriptionBox, "", "", description)
 
   var xbutton = Piv.div(box, "", "clickable2 hidden1", "X", {"width": "21px"})

@@ -90,6 +90,7 @@ svg > path.forecolor,
   background-color: #504a43;  /* chrome paisley shadow */
   /* background-color: #05535b; */
 }
+.text4,
 .clickable1,
 button,
 input[type=submit],
@@ -130,7 +131,6 @@ a.a1:hover,
 .bg-color-white {
   background-color: white;
 }
-.text4,
 .bg-color-5 {
   background-color: #77dd76;
 }
@@ -310,7 +310,7 @@ ol li:hover .hidden2 {
 .display-none-1 {
   display: none;
 }
-div[data-isNew="new"] .display-none-1 {
+[data-isNew="new"] .display-none-1 {
   display: inline-block;
 }
 

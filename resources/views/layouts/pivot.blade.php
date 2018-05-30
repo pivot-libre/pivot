@@ -112,9 +112,7 @@
 
   <!-- Scripts -->
   <script src="{{ asset('js/app.js') }}"></script>
-  @if (!Auth::guest())
   @yield('scripts')
-  @endif
 
 </body>
 </html>

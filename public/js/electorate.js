@@ -13,7 +13,7 @@ var DeletionInProgress
 var FilteredStatuses = {}
 var Electors, Invites
 var ElectorateTable
-var ElectorateDirectory = Piv.makeVobjectCollection()
+var ElectorateDirectory = Piv.makeVobjectCollection(["email"])
 var StatusMap = {
   // "approved_current": {"icon": "&#x2705;"},
   "approved_current": {"title": "Approved", "icon": "&#9733;"},
@@ -77,13 +77,6 @@ function displayElectorate(electors) {
   makeElectorFilters(electorFiltersRow, StatusMap, electorateTable)
   populateElectorateStatusTable(electorateTable, electors, invites)
   updateCountsAndFilters()
-
-  //prevent column widths from resizing when the user adds or deletes electors
-  var child
-  for (var i = 0; i < electorateTable.firstChild.children.length; i++) {
-    child = electorateTable.firstChild.children[i]
-    child.style.width = child.offsetWidth + "px"
-  }
 }
 function newInvite(table) {
   var row = Piv.div(table, "", "w75 overflow-visible nowrap hover-children")
@@ -141,6 +134,8 @@ function sendInvites() {
   for (var key in InviteList) {
     email = InviteList[key].input.value
     if (!email) continue
+    console.log(emails)
+    console.log(ElectorateDirectory)
     if (emails[email] || ElectorateDirectory.indexesSingle.email[email]) {
       removeInviteVobject(key)
       continue
@@ -226,7 +221,7 @@ function makeElectorVobject(name, email, elector_id, status) {
     "status": status,
     "elector_id": elector_id
   }
-  ElectorateDirectory.push(vobject, "", ["email"])
+  ElectorateDirectory.push(vobject, "")
   var row = vobject.domel = Piv.html("", "label", "", {"class": "w100 border-bottom-2 overflow-visible nowrap hover-1"})
 
   Piv.div(row, "", "text3 textRight", StatusMap[status].icon)

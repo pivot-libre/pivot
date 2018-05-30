@@ -15,6 +15,8 @@ Piv.electionsMenu(View.sidenav, ElectionId)
 Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
 Piv.http.get(["/api/elections/" + ElectionId + "/result"], showElectionResults, showErrorMessage)
+Piv.http.get(["/api/elections/" + ElectionId + "/result_snapshots"])
+Piv.http.get(["/api/elections/" + ElectionId + "/result"])
 
 // function definitions
 function displayCandidate(parent, description, cost, tie) {

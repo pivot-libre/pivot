@@ -354,31 +354,40 @@ var removeAllChildren = lib.removeAllChildren = function(domel) {
   while (domel.lastChild) { domel.removeChild(domel.lastChild) }
 }
 
-var makeVobjectCollection = lib.makeVobjectCollection = function() {
+var makeVobjectCollection = lib.makeVobjectCollection = function(indexesSingle) {
   var collection = {}
   collection.list = []
   collection.statuses = {}
   collection.indexesSingle = {}
+  for (var i = 0; i < indexesSingle.length; i++) { collection.indexesSingle[indexesSingle[i]] = {} }
   // collection.indexesMulti = {}
   // collection.push = function(vobject, status, singleIndexProps, multiIndexProps) {
-  collection.push = function(vobject, status, singleIndexProps) {
+
+  // collection.push = function(vobject, status, singleIndexProps) {
+  collection.push = function(vobject, status) {
     status = (status || vobject.status) || "current"
     vobject.index = collection.list.push(vobject) - 1
     vobject.status = status
     lib.setTreeData(collection, ["statuses", status, vobject.index], vobject)
-    if (singleIndexProps) {
-      for (var i = 0; i < singleIndexProps.length; i++) {
-        var property = singleIndexProps[i]
-        if (!vobject[property]) continue  //noe this could still result in wonky indexes; should make this better
-        lib.setTreeData(collection, ["indexesSingle", property, vobject[property]], vobject)
-      }
-      // if (multiIndexProps) {
-      //   for (var i = 0; i < multiIndexProps.length; i++) {
-      //     var property = multiIndexProps[i]
-      //     if (!vobject[property]) continue  //noe this could still result in wonky indexes; should make this better
-      //     lib.pushTreeData(collection, ["indexesMulti", property, vobject[property]], vobject)
-      //   }
+    for (var key in collection.indexesSingle) {
+      // if (!(key in vobject)) continue  //noe this could still result in wonky indexes; should make this better
+      if (!vobject[key]) continue  //noe this could still result in wonky indexes; should make this better
+      collection.indexesSingle[key][vobject[key]] = vobject
+      // lib.setTreeData(collection, ["indexesSingle", key, vobject[property]], vobject)
     }
+    // if (singleIndexProps) {
+    //   for (var i = 0; i < singleIndexProps.length; i++) {
+    //     var property = singleIndexProps[i]
+    //     if (!vobject[property]) continue  //noe this could still result in wonky indexes; should make this better
+    //     lib.setTreeData(collection, ["indexesSingle", property, vobject[property]], vobject)
+    //   }
+    //   // if (multiIndexProps) {
+    //   //   for (var i = 0; i < multiIndexProps.length; i++) {
+    //   //     var property = multiIndexProps[i]
+    //   //     if (!vobject[property]) continue  //noe this could still result in wonky indexes; should make this better
+    //   //     lib.pushTreeData(collection, ["indexesMulti", property, vobject[property]], vobject)
+    //   //   }
+    // }
     return vobject.index
   }
   collection.status = function(vobject, status) {
