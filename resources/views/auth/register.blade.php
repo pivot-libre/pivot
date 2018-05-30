@@ -7,7 +7,7 @@
   <div class="table row-spacing1 w100">
 
     @if ($errors->has('email'))
-    <div class="row1">
+    <div class="w100">
         <label class="w33 label0 textRight"></label>
         <div class="w67 textLeft">
           <div class="w67 text2">{{ $errors->first('email') }}</div>
@@ -15,21 +15,17 @@
     </div>
     @endif
 
-    <div class="row1{{ $errors->has('email') ? ' has-error' : '' }}">
+    <div class="w100{{ $errors->has('email') ? ' has-error' : '' }}">
         <label for="email" class="w33 label0 textRight">E-Mail Address</label>
 
         <div class="w67 textLeft">
             <input id="email" type="email" class="w67" name="email" value="{{ $email }}" required autofocus>
 
         </div>
-        <!-- @if ($errors->has('email'))
-          <div></div>
-          <div class="text2"> {{ $errors->first('email') }} </div>
-        @endif -->
     </div>
 
     @if ($errors->has('token'))
-    <div class="row1">
+    <div class="w100">
         <label class="w33 label0 textRight"></label>
         <div class="w67 textLeft">
           <div class="w67 text2">{{ $errors->first('token') }}</div>
@@ -37,7 +33,7 @@
     </div>
     @endif
 
-    <div class="row1{{ $errors->has('token') ? ' has-error' : '' }}">
+    <div class="w100{{ $errors->has('token') ? ' has-error' : '' }}">
         <label for="name" class="w33 label0 textRight">Verification Token</label>
 
         <div class="w67 textLeft">
@@ -46,17 +42,23 @@
         </div>
     </div>
 
-    <div class="row1">
+    <div class="w100">
         <label class="w33 label0 textRight">~or~</label>
         <div class="w67 textLeft">
               <div class="w67 textLeft">
-                <div id="getTokenButton" class="button1Item">Get Token</div>
-                <div id="getTokenStatus" class="text3"></div>
+                <div id="getTokenButton" class="clickable1">Get Token</div>
+                <!-- <div id="getTokenStatus" class="text3"></div> -->
               </div>
         </div>
     </div>
-    
-    <div class="row1">
+
+    <!-- <div class="w100">
+        <label class="w33 label0 textRight"></label>
+        <div class="w67 textLeft">
+              <div id="getTokenStatus" class="w67 text2"></div>
+        </div>
+    </div> -->
+    <div class="w100">
         <label class="w33 label0 textRight"></label>
         <div class="w67 textLeft">
               <div id="getTokenInstructions" class="w67 text2"></div>
@@ -64,7 +66,7 @@
     </div>
 
     @if ($errors->has('name'))
-    <div class="row1">
+    <div class="w100">
         <label class="w33 label0 textRight"></label>
         <div class="w67 textLeft">
           <div class="w67 text2">{{ $errors->first('name') }}</div>
@@ -72,7 +74,7 @@
     </div>
     @endif
 
-    <div class="row1{{ $errors->has('name') ? ' has-error' : '' }}">
+    <div class="w100{{ $errors->has('name') ? ' has-error' : '' }}">
         <label for="name" class="w33 label0 textRight">Name</label>
 
         <div class="w67 textLeft">
@@ -82,7 +84,7 @@
     </div>
 
     @if ($errors->has('password'))
-    <div class="row1">
+    <div class="w100">
         <label class="w33 label0 textRight"></label>
         <div class="w67 textLeft">
           <div class="w67 text2">{{ $errors->first('password') }}</div>
@@ -90,7 +92,7 @@
     </div>
     @endif
 
-    <div class="row1{{ $errors->has('password') ? ' has-error' : '' }}">
+    <div class="w100{{ $errors->has('password') ? ' has-error' : '' }}">
         <label for="password" class="w33 label0 textRight">Password</label>
 
         <div class="w67 textLeft">
@@ -98,7 +100,7 @@
         </div>
     </div>
 
-    <div class="row1">
+    <div class="w100">
         <label for="password-confirm" class="w33 label0 textRight">Confirm Password</label>
 
         <div class="w67 textLeft">
@@ -106,7 +108,7 @@
         </div>
     </div>
 
-    <div class="row1">
+    <div class="w100">
       <div></div>
       <div>
           <button type="submit">
