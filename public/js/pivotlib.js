@@ -358,8 +358,10 @@ var makeVobjectCollection = lib.makeVobjectCollection = function(indexesSingle) 
   var collection = {}
   collection.list = []
   collection.statuses = {}
-  collection.indexesSingle = {}
-  for (var i = 0; i < indexesSingle.length; i++) { collection.indexesSingle[indexesSingle[i]] = {} }
+  if (indexesSingle) {
+    collection.indexesSingle = {}
+    for (var i = 0; i < indexesSingle.length; i++) { collection.indexesSingle[indexesSingle[i]] = {} }
+  }
   // collection.indexesMulti = {}
   // collection.push = function(vobject, status, singleIndexProps, multiIndexProps) {
 
