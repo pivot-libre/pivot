@@ -221,7 +221,7 @@ function makeElectorVobject(name, email, elector_id, status) {
     "status": status,
     "elector_id": elector_id
   }
-  ElectorateDirectory.push(vobject, "")
+  ElectorateDirectory.push(vobject)
   var row = vobject.domel = Piv.html("", "label", "", {"class": "w100 border-bottom-2 overflow-visible nowrap hover-1"})
 
   Piv.div(row, "", "text3 textRight", StatusMap[status].icon)
