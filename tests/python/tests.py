@@ -631,9 +631,12 @@ def test11(api):
 
     # admin should be able to snapshot
     assert(len(api.list_result_snapshots(userA, election)) == 0)
-    snap_id = api.create_result_snapshot(userA, election)
+    snap_id = api.create_result_snapshot(userA, election)['id']
     snap = api.get_result_snapshot(userA, election, snap_id)
-    snap.get('result_blob')
+    result = snap.get('result_blob')
+    for i, candidate in enumerate(result['order']):
+        print candidate
+        assert(candidate['id'] == votes[i]['candidate_id'])
     snaps = api.list_result_snapshots(userA, election)
     assert(len(snaps) == 1)
     assert(snaps[0]['id'] == snap_id)

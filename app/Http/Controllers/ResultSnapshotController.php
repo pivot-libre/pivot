@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class ResultSnapshotController extends Controller
 {
     // bump this whenever we start storing something different in the result_blob
-    const SNAPSHOT_FORMAT_VERSION = 1;
+    const SNAPSHOT_FORMAT_VERSION = 2;
 
     public function index(Election $election)
     {
@@ -33,13 +33,16 @@ class ResultSnapshotController extends Controller
     {
         $this->authorize('update', $election);
 
+        $result = $election->calculateResult();
+
+        # snapshot result
         $snapshot = new ResultSnapshot();
         $snapshot->election_id = $election->id;
         $snapshot->format_version = self::SNAPSHOT_FORMAT_VERSION;
-        $snapshot->result_blob = array("test" => "pass");
+        $snapshot->result_blob = $result;
         $snapshot->save();
 
-        return response($snapshot->id, 201);
+        return $snapshot;
     }
 
     public function destroy(Election $election, $snapshot_id)
