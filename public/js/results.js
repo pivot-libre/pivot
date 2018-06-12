@@ -14,12 +14,14 @@ Piv.electionsMenu(View.sidenav, ElectionId)
 
 Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
-Piv.http.get(["/api/elections/" + ElectionId + "/result"], showElectionResults, showErrorMessage)
-Piv.http.get(["/api/elections/" + ElectionId + "/result_snapshots"])
-Piv.http.get(["/api/elections/" + ElectionId + "/result"])
+// Piv.http.get(["/api/elections/" + ElectionId + "/result"], showElectionResults, showErrorMessage)
+Piv.http.get(["/api/elections/" + ElectionId + "/result_snapshots"], getLastResultSnapshot, showErrorMessage)
+// Piv.http.get(["/api/elections/" + ElectionId + "/result_snapshots"])
+// Piv.http.post(["/api/elections/" + ElectionId + "/result_snapshots"])
+// Piv.http.get(["/api/elections/" + ElectionId + "/result"])
 
 // function definitions
-function displayCandidate(parent, description, cost, tie) {
+function displayCandidate(parent, description) {
   // var candidateLiAtts = {"class": "w100 border-bottom-2 overflow-visible hover-1 drag-drop-1", "data-id": id}
   var candidateLiAtts = {"class": "w100 border-bottom-1 overflow-visible"}
   var box = Piv.html(parent, "li", "", candidateLiAtts);
@@ -27,14 +29,27 @@ function displayCandidate(parent, description, cost, tie) {
   Piv.div(box, "", "text3 w75", description)
   // Piv.div(box, "", "text1 w75", description);
 }
+function getLastResultSnapshot(snapshots) {
+  if (snapshots.length < 1) {
+    showErrorMessage()
+    return
+  }
+  Piv.http.get(["/api/elections/" + ElectionId + "/result_snapshots/" + snapshots[snapshots.length - 1].id], showElectionResults, showErrorMessage)
+}
 function showElectionResults(results) {
-  var candidateOrder = results.order
-  for (var key in candidateOrder) {
-    displayCandidate(ResultsList, candidateOrder[key].name, "cost")
+  if (2 == results.format_version) {
+    var candidateOrder = results.result_blob.order
+    for (var key in candidateOrder) {
+      displayCandidate(ResultsList, candidateOrder[key].name)
+    }
+  }
+  else {
+    showErrorMessage()
   }
 }
 function showErrorMessage(error) {
   Piv.div(View.workspace, "", "w100 text3", "Results for this election are not currently available.")
+  if (!error) return
   Piv.div(View.workspace, "", "100 text3", error.response.data.message)
 }
 
