@@ -274,6 +274,8 @@ var http = lib.http = {}
 // lib.http.post1('/api/invite/accept', {"code": "e2562a8a"})
 var httpMultiple = lib.http.send = function(method, resources, payloads, onSuccess, onFail) {
 
+  payloads = payloads || []  // set payloads to an array if it doesn't exist, to prevent errers when accessing payloads[i]
+
   var exFuncAry = function() {
     var funcReturns = []
     for (var i in resources) { funcReturns.push( axios[method](resources[i], payloads[i]) ) }

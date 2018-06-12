@@ -5,6 +5,7 @@
 
 // script-level variables
 var View = Piv.view
+var SnapshotsTaken
 
 // actions (do stuff)
 Piv.evmanage.setManager(View.workspace, ["click"])
@@ -33,8 +34,23 @@ function showElectionDetails(details, stats) {
   Piv.div(View.workspace, "", "text3 row1", "Unapproved ballots: " + stats.approved_none)
   Piv.div(View.workspace, "", "text3 row1", "Previously approved ballots: " + stats.approved_previous)
 
+  //calculate results
+  var calcResultsButton = Piv.div(View.workspace, "", "clickable1", "Calculate Results", "", "click", calcElectionResults, [details.id])
+  Piv.http.get(["/api/elections/" + details.id + "/result_snapshots"], function(response) {
+    SnapshotsTaken = response.length
+    if (SnapshotsTaken > 0) calcResultsButton.innerHTML = "Calculate Results" + " (" + response.length + " snapshot(s) taken)"
+  })
+
   //delete button
   Piv.div(View.workspace, "", "clickable1", "Delete Election", "", "click", deleteElection, [details.id])
+}
+
+function calcElectionResults(electionId) {
+  if (!electionId) {return}
+  var calcResultsButton = this.domel
+  Piv.http.post(["/api/elections/" + electionId + "/result_snapshots"], "", function() {
+    calcResultsButton.innerHTML = "Calculate Results (" + ++SnapshotsTaken + " snapshot(s) taken)"
+  })
 }
 function deleteElection(electionId) {
   if (!electionId) {return}

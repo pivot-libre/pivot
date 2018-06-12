@@ -28,7 +28,7 @@ Piv.http.get(["/api/elections/", "/api/invite/acceptable"], showAllMyElections)
 
 function showAllMyElections(elections, invitesData) {
   var invites = {}, invite
-  console.log(invitesData)
+  // console.log(invitesData)
   for (var key in invitesData) {
     invite = invitesData[key]
     // invites[invite.election_id] = invite.code
@@ -44,6 +44,19 @@ function showAllMyElections(elections, invitesData) {
     invite = invites[key]
     showElection(ElectionsDomel, invite.election_name, invite.election_id, "can_vote", "canViewResults", "", invite.code)
   }
+  var resources = []
+  var resources = []
+  var elections = []
+  for (var key in MyElectionsView.elections) {
+    resources.push("/api/elections/" + key + "/result_snapshots/")
+    elections.push(key)
+  }
+  Piv.http.get(resources, function() {
+    for (var i in arguments) {
+      if (arguments[i].length < 1) continue
+      MyElectionsView.elections[elections[i]].resultsButton.style.visibility = null
+    }
+  })
 }
 
 function showElection(container, name, id, canVote, canViewResults, canEdit, inviteCode) {
@@ -77,7 +90,9 @@ function showElection(container, name, id, canVote, canViewResults, canEdit, inv
 
   if (defaultButton) { linkElsOnHover(defaultButton, nameButton, "hoverlink-1") }
 
-  Piv.http.get(["/api/elections/" + id + "/result"], function() { resultsButton.style.visibility = null })  //noe revert
+  thisElection.resultsButton = resultsButton
+
+  // Piv.http.get(["/api/elections/" + id + "/result"], function() { resultsButton.style.visibility = null })  //noe revert
 }
 function linkElsOnHover(el1, el2, hoverclass) {
     el1.addEventListener("mouseenter", function() {Piv.addClass(el2, hoverclass)})
@@ -87,7 +102,7 @@ function linkElsOnHover(el1, el2, hoverclass) {
 }
 
 function addEventAcceptToButton(electionId, code, button) {
-  console.log(code)
+  // console.log(code)
   button.removeAttribute("style")
   button.setAttribute("href", "ballot/" + electionId)
   button.addEventListener("click", function() {
