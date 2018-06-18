@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -100,30 +101,18 @@ class Election extends Model
      * @return Collection of all CandidateRanks associated with
      * the election identified by the parameterized  id.
      */
-    public function getCandidateRankCollection($electionId)
+    public function getCandidateRankCollection()
     {
-        // TODO: should we filter out electors who haven't indicated they are ready?
+        $electionId = $this->getKey();
+        $query = \DB::table('elections')->where('elections.id', '=', $electionId)
+               ->join('candidates', 'candidates.election_id', '=', 'elections.id')
+               ->join('electors', 'electors.election_id', '=', 'elections.id')
+               ->leftJoin('candidate_ranks', function($join) {
+                   $join->on('candidate_ranks.elector_id', '=', 'electors.id');
+                   $join->on('candidate_ranks.candidate_id', '=', 'candidates.id');
+               })->select('electors.id AS elector_id', 'candidates.id AS candidate_id', 'candidates.name', 'candidate_ranks.rank');
 
-        /*
-        SELECT 
-            candidate_ranks.elector_id,
-            candidate_ranks.rank,
-            candidate_ranks.candidate_id
-        FROM
-            candidate_ranks
-                JOIN
-            candidates ON candidates.id = candidate_ranks.candidate_id
-        WHERE
-            candidates.election_id = '4'
-        ORDER BY elector_id , rank;
-        */
-        $candidateRanks = CandidateRank::
-            join('candidates', 'candidate_ranks.candidate_id', '=', 'candidates.id')
-            ->where('candidates.election_id', '=', $electionId)
-            ->orderBy('elector_id', 'asc')
-            ->orderBy('rank', 'asc')
-            ->get();
-        return $candidateRanks;
+        return $query->get();
     }
 
     /**
@@ -135,15 +124,16 @@ class Election extends Model
     public function groupRankingsByElectorAndRank($candidateRanks)
     {
         $candidateRanksGroupedByElector = $candidateRanks->mapToGroups(function($candidateRank){
+            $key = $candidateRank->elector_id;
             $value = $candidateRank;
-            $key = $candidateRank->getAttributeValue('elector_id');
             return [ $key => $value ];
         });
 
         $candidateRanksGroupedByElectorAndRank = $candidateRanksGroupedByElector->map(function($candidateRanksFromOneElector){
             return $candidateRanksFromOneElector->mapToGroups(function($candidateRank){
+                // default rank is 0
+                $key = is_null($candidateRank->rank) ? 0 : $candidateRank->rank;
                 $value = $candidateRank;
-                $key = $candidateRank->getAttributeValue('rank');
                 return [ $key => $value ];
             });
         })->toArray();
@@ -154,54 +144,86 @@ class Election extends Model
      * @param array of arrays of arrays as output by $this->groupRankingsByElectorAndRank
      * @return array of NBallots
      */
-    public function buildNBallots($candidateRanksGroupedByElectorAndRank)
+    public function buildNBallots()
     {
+        $electionId = $this->getKey();
+        $candidateRanks = $this->getCandidateRankCollection();
+        $candidateRanksGroupedByElectorAndRank = $this->groupRankingsByElectorAndRank($candidateRanks);
+
         $nBallots = array_map(function($ballotArray){
             $candidateLists = array_map(function($candidateListArray){
                 
                 $candidates = array_map(function($candidateArray){
-                    return new TidemanCandidate($candidateArray['id'], $candidateArray['name']);
+                    return new TidemanCandidate($candidateArray->candidate_id, $candidateArray->name);
                 }, $candidateListArray);
 
                 $candidateList = new CandidateList(...$candidates);
                 return $candidateList;
             }, $ballotArray);
+
+            # we want the highest ranked entries first
+            ksort($candidateLists);
+            array_reverse($candidateLists);
+
             $nBallot = new NBallot(1, ...$candidateLists);
             return $nBallot;
         }, $candidateRanksGroupedByElectorAndRank);
         return $nBallots;
     }
 
+    public function createTotallyOrderedBallot($nBallot) {
+        $totalOrder = array();
+        foreach ($nBallot as $candidateList) {
+            $candidates = (clone $candidateList)->toArray();
+            shuffle($candidates);
+            array_push($totalOrder, ...$candidates);
+        }
+
+        // every candidate should be in its own CandidateList
+        $totalOrder = array_map(function($candidate){
+            return new CandidateList($candidate);
+        }, $totalOrder);
+        
+        return new NBallot(1, ...$totalOrder);
+    }
+
+    public function ballotsToText($nBallots) {
+        $lines = [];
+        foreach ($nBallots as $nBallot) {
+            $line = implode(">",
+                            array_map(function($candidateList) {
+                                return implode("=",
+                                               array_map(function($candidate) {
+                                                   return $candidate->getId();
+                                               }, $candidateList->toArray()));
+                            }, $nBallot->toArray()));
+            array_push($lines, $line);
+        }
+        return implode("\n", $lines);
+    }
+
     public function calculateResult()
     {
-        $election = $this;
-        $electionId = $election->getKey();
-        
-        $candidateRanks = $this->getCandidateRankCollection($electionId);
-        $candidateRanksGroupedByElectorAndRank = $this->groupRankingsByElectorAndRank($candidateRanks);
+        # generate Tideman ballots from Pivot data
+        $nBallots = $this->buildNBallots();
+        Log::debug('BALLOTS: ' . self::ballotsToText($nBallots));
+        $tieBreakerBallot = $nBallots[array_rand($nBallots)];
+        $tieBreakerBallot = self::createTotallyOrderedBallot($tieBreakerBallot);
 
-        $nBallots = $this->buildNBallots($candidateRanksGroupedByElectorAndRank);
-        $numWinners = $election->candidates()->count();
-
-        //choose a random ballot for tie-breaking
-        $tieBreakerBallotIndex = array_rand($nBallots);
-        $tieBreakerBallot = $nBallots[$tieBreakerBallotIndex];
-
+        # calculate results
         $calculator = new RankedPairsCalculator($tieBreakerBallot);
-        $winnerOrder = $calculator->calculate($numWinners, ...$nBallots)->toArray();
+        $numWinners = $this->candidates()->count();
+        $tidemanWinners = $calculator->calculate($numWinners, ...$nBallots)->toArray();
 
-        $pivotCandidates = $election->candidates()->get()->keyBy('id');
-        
-        // format for return (i.e., convert tideman candidates back to pivot candidates)
-        $orderedPivotCandidates = [];
-        //use explicit numerical indexing because order is very important
-        for($i = 0; $i < sizeof($winnerOrder); $i++) {
-            $tidemanCandidate = $winnerOrder[$i];
-            $candidateId = (int)$tidemanCandidate->getId();
-            $pivotCandidate = $pivotCandidates->get($candidateId);
-            $orderedPivotCandidates[] = $pivotCandidate;
+        // iterate over IDs in winningOrder, lookup Pivot candidates, and append in order
+        $pivotWinners = [];
+        $pivotCandidates = $this->candidates()->get()->keyBy('id');
+        for($i = 0; $i < sizeof($tidemanWinners); $i++) {
+            $candidateId = $tidemanWinners[$i]->getId();
+            array_push($pivotWinners, $pivotCandidates[$candidateId]);
         }
-        $wrapper = ["order" => $orderedPivotCandidates];
-        return $wrapper;
+
+        $result = ["order" => $pivotWinners];
+        return $result;
     }
 }

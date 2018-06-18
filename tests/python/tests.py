@@ -93,6 +93,7 @@ def test2(api):
     ]
     bv1 = api.batchvote(userA, election, votes)
     results = api.election_result(userA, election)
+    print results
     result_names = [result['name'] for result in results['order']]
     assert(result_names == [u'candidate-A', u'candidate-B', u'candidate-C', u'candidate-D'])
     print result_names
@@ -360,16 +361,16 @@ def test11(api):
     code = invite_status['election_id']
     electorB = api.accept(userB, code)
 
-    A = api.create_candidate(userA, election, 'candidate-A')
-    B = api.create_candidate(userA, election, 'candidate-B')
-    C = api.create_candidate(userA, election, 'candidate-C')
     D = api.create_candidate(userA, election, 'candidate-D')
+    A = api.create_candidate(userA, election, 'candidate-A')
+    C = api.create_candidate(userA, election, 'candidate-C')
+    B = api.create_candidate(userA, election, 'candidate-B')
 
     votes = [
-        {'candidate_id': A['id'], 'rank': 1},
+        {'candidate_id': A['id'], 'rank': 1}, # worst
         {'candidate_id': B['id'], 'rank': 2},
         {'candidate_id': C['id'], 'rank': 3},
-        {'candidate_id': D['id'], 'rank': 4},
+        {'candidate_id': D['id'], 'rank': 4}, # best
     ]
     bv1 = api.batchvote(userB, election, votes)
 
@@ -378,6 +379,8 @@ def test11(api):
     snap_id = api.create_result_snapshot(userA, election)['id']
     snap = api.get_result_snapshot(userA, election, snap_id)
     result = snap.get('result_blob')
+    print 'EXPECTED: ' + str(votes)
+    print 'RESULTS: ' + str([c['id'] for c in result['order']])
     for i, candidate in enumerate(result['order']):
         print candidate
         assert(candidate['id'] == votes[i]['candidate_id'])
@@ -397,6 +400,39 @@ def test11(api):
     print api.delete_result_snapshot(userA, election, snap_id)
     assert(len(api.list_result_snapshots(userA, election)) == 0)
 
+def test12(api):
+    # test ties
+    users = api.load_users()
+    userA = users[0]
+    userB = users[1]
+
+    election = api.create_election(userA, 'test-election')
+    electorA = api.add_elector(election, userA, userA)
+    
+    A = api.create_candidate(userA, election, 'candidate-A')
+    B = api.create_candidate(userA, election, 'candidate-B')
+
+    assert('order' in api.election_result(userA, election)) #1
+
+    votes = [
+        {'candidate_id': A['id'], 'rank': 1},
+    ]
+    api.batchvote(userA, election, votes)
+    assert('order' in api.election_result(userA, election)) #2
+
+    votes = [
+        {'candidate_id': A['id'], 'rank': 1},
+        {'candidate_id': B['id'], 'rank': 1},
+    ]
+    api.batchvote(userA, election, votes)
+    assert('order' in api.election_result(userA, election)) #3
+    
+    electorB = api.add_elector(election, userA, userB)
+    assert('order' in api.election_result(userA, election)) #4
+
+    api.batchvote(userB, election, votes)    
+    assert('order' in api.election_result(userA, election)) #5
+    
 def create_users(url):
     from selenium import webdriver
     from selenium.webdriver.common.keys import Keys
