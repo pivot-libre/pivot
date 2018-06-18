@@ -460,27 +460,41 @@ def create_users(url):
 
     with open(os.path.dirname(os.path.realpath(__file__))+'/users.json', 'w') as f:
         f.write(json.dumps(users, indent=2, sort_keys=True))
+
+def sort_test_functions(test_fns):
+    def sort_key(name):
+        parts = []
+        for c in name:
+            if len(parts)>0 and parts[-1].isdigit() and c.isdigit():
+                parts[-1] += c
+            else:
+                parts.append(c)
+        for i in range(len(parts)):
+            if parts[i].isdigit():
+                parts[i] = int(parts[i])
+        return parts
+    test_fns.sort(key=lambda fn: sort_key(fn.func_name))
         
 def main(url, genusers, curltrace, regex):
     if genusers:
         create_users(url)
     
     # scan this Python file for things that look like tests
-    tests_fns = []
+    test_fns = []
     predicate = lambda f: inspect.isfunction(f) and f.__module__ == __name__
     for name, fn in inspect.getmembers(sys.modules[__name__], predicate = predicate):
         if name.startswith('test'):
-            tests_fns.append(fn)
-    tests_fns.sort(key=lambda fn: fn.func_name)
+            test_fns.append(fn)
+    sort_test_functions(test_fns)
 
     # execute each test
     with API(url=url+'/api', curltrace=curltrace) as api:
-        for test_fn in tests_fns:
+        for test_fn in test_fns:
             print "\n============= %s ============\n" % test_fn.func_name
             if re.match(regex, test_fn.func_name):
                 test_fn(api)
             else:
-                print 'SKIP '
+                print 'SKIP'
         api.dump_stats()
 
 if __name__ == '__main__':
