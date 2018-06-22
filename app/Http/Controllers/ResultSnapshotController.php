@@ -15,7 +15,7 @@ class ResultSnapshotController extends Controller
     const VERSION_ADD_DEBUG = 3;
 
     // should be the latest version (of above constants)
-    const SNAPSHOT_FORMAT_VERSION = VERSION_ADD_DEBUG;
+    const SNAPSHOT_FORMAT_VERSION = self::VERSION_ADD_DEBUG;
 
     public function index(Election $election)
     {
