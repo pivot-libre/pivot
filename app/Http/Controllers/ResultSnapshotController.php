@@ -9,8 +9,13 @@ use Illuminate\Support\Facades\DB;
 
 class ResultSnapshotController extends Controller
 {
-    // bump this whenever we start storing something different in the result_blob
-    const SNAPSHOT_FORMAT_VERSION = 2;
+    // introduce another version whenever the contents of the result blob change
+    const VERSION_TEST = 1;
+    const VERSION_ADD_RESULTS = 2;
+    const VERSION_ADD_DEBUG = 3;
+
+    // should be the latest version (of above constants)
+    const SNAPSHOT_FORMAT_VERSION = self::VERSION_ADD_DEBUG;
 
     public function index(Election $election)
     {

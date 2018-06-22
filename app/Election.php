@@ -187,17 +187,21 @@ class Election extends Model
         return new NBallot(1, ...$totalOrder);
     }
 
-    public function ballotsToText($nBallots) {
+    public static function ballotToText($nBallot) {
+        $line = implode(">",
+                        array_map(function($candidateList) {
+                            return implode("=",
+                                           array_map(function($candidate) {
+                                               return $candidate->getId();
+                                           }, $candidateList->toArray()));
+                        }, $nBallot->toArray()));
+        return $line;
+    }
+    
+    public static function ballotsToText($nBallots) {
         $lines = [];
         foreach ($nBallots as $nBallot) {
-            $line = implode(">",
-                            array_map(function($candidateList) {
-                                return implode("=",
-                                               array_map(function($candidate) {
-                                                   return $candidate->getId();
-                                               }, $candidateList->toArray()));
-                            }, $nBallot->toArray()));
-            array_push($lines, $line);
+            array_push($lines, self::ballotToText($nBallot));
         }
         return implode("\n", $lines);
     }
@@ -207,11 +211,11 @@ class Election extends Model
         # generate Tideman ballots from Pivot data
         $nBallots = $this->buildNBallots();
         Log::debug('BALLOTS: ' . self::ballotsToText($nBallots));
-        $tieBreakerBallot = $nBallots[array_rand($nBallots)];
-        $tieBreakerBallot = self::createTotallyOrderedBallot($tieBreakerBallot);
+        $tieBreaker = $nBallots[array_rand($nBallots)];
+        $tieBreakerTotal = self::createTotallyOrderedBallot($tieBreaker);
 
         # calculate results
-        $calculator = new RankedPairsCalculator($tieBreakerBallot);
+        $calculator = new RankedPairsCalculator($tieBreakerTotal);
         $numWinners = $this->candidates()->count();
         $tidemanWinners = $calculator->calculate($numWinners, ...$nBallots)->toArray();
 
@@ -223,7 +227,21 @@ class Election extends Model
             array_push($pivotWinners, $pivotCandidates[$candidateId]);
         }
 
-        $result = ["order" => $pivotWinners];
+        // populate snapshot blob (json): debug, debug_private, and order
+        $debug = array();
+        $debug["ballots"] = array_map('self::ballotToText', $nBallots);
+        $debug["tie_breaker"] = self::ballotToText($tieBreaker);
+        $debug["tie_breaker_total"] = self::ballotToText($tieBreakerTotal);
+        $result = array();
+        $debug_private = array();
+        $debug_private["candidates"] = array();
+        foreach ($pivotCandidates as $c) {
+            array_push($debug_private["candidates"], array("id"=>$c->id, "name"=>$c->name));
+        }
+        $result["debug"] = $debug;
+        $result["debug_private"] = $debug_private;
+        $result["order"] = $pivotWinners;
+
         return $result;
     }
 }
