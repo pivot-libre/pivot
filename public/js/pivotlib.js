@@ -235,7 +235,7 @@ var anchorListDiv = lib.anchorListDiv = function(parent, classes, labelsAndHrefs
 }
 var electionsMenu = lib.electionsMenu = function(parent, electionId) {
   http.get(["/api/elections/", "/api/invite/acceptable"], function(elections, invitesData) {
-    var election, invite
+    var election = {}, invite = {}
     for (var i = 0; i < elections.length; i++) {
       election = elections[i]
       if (electionId == election.id) { break }
