@@ -13,9 +13,9 @@
     var CandidatesDiv = Piv.div(View.workspace, "Candidates", "text1")
     Piv.html(View.workspace, "h1", "Ballots", headerStyle)
     var BallotsDiv = Piv.div(View.workspace, "Ballots", "text1")
-    Piv.html(View.workspace, "h1", "Tie-Breaker (partial)", headerStyle)
+    Piv.html(View.workspace, "h1", "Tie-Breaker (Partial Order)", headerStyle)
     var TiePartialDiv = Piv.div(View.workspace, "TiePartial", "text1")
-    Piv.html(View.workspace, "h1", "Tie-Breaker (total)", headerStyle)
+    Piv.html(View.workspace, "h1", "Tie-Breaker (Total Order)", headerStyle)
     var TieTotalDiv = Piv.div(View.workspace, "TieTotal", "text1")
     Piv.html(View.workspace, "h1", "Results", headerStyle)
     var ResultsDiv = Piv.div(View.workspace, "Results", "text1")
@@ -59,16 +59,38 @@
             return
         }
         console.log(snapshot)
+	var debug = snapshot.result_blob.debug
+	var debug_private = snapshot.result_blob.debug_private
 
+	// candidates
         CandidatesDiv.innerHTML = ""
-        snapshot.result_blob.debug_private.candidates.forEach(candidate => {
+        debug_private.candidates.forEach(candidate => {
             piv.html(CandidatesDiv, "span", candidate.id + ": " + candidate.name + "<br>")
         })
+
+	// ballots
+        BallotsDiv.innerHTML = ""
+	var ballots = debug.ballots
+        Object.keys(ballots).forEach(elector_id => {
+	    var ballot_text = ballots[elector_id]
+            piv.html(BallotsDiv, "span", ballot_text + "<br>")
+        })
+
+	// tie breaker, partial and total order
+	TiePartialDiv.innerHTML = debug.tie_breaker
+	TieTotalDiv.innerHTML = debug.tie_breaker_total
+
+	// results
+	var ranks = Array.from(snapshot.result_blob.order.keys())
+	console.log(ranks)
+	ranks.sort()
+	var winners = ranks.map(rank => snapshot.result_blob.order[rank].id)
+	ResultsDiv.innerHTML = winners.join(">")
     }
 
     function showErrorMessage(error) {
         alert(error)
-        Piv.div(View.workspace, "", "w100 text3", "Results for this election are not currently available.")
+        Piv.div(View.workspace, "", "w100 text3", "Debug for this election are not currently available.")
         if (!error) return
         Piv.div(View.workspace, "", "100 text3", error.response.data.message)
     }
