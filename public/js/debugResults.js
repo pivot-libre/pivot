@@ -20,7 +20,7 @@
     Piv.html(View.workspace, "h1", "Results", headerStyle)
     var ResultsDiv = Piv.div(View.workspace, "Results", "text1")
     Piv.html(View.workspace, "h1", "Plot", headerStyle)
-    var PlotDiv = Piv.div(View.workspace, "Plot", "text1")
+    var PlotDiv = Piv.div(View.workspace, "Plot", "plot_area text1")
 
     function main() {
         // generic setup
@@ -86,6 +86,56 @@
 	ranks.sort()
 	var winners = ranks.map(rank => snapshot.result_blob.order[rank].id)
 	ResultsDiv.innerHTML = winners.join(">")
+
+	// plotting
+	showPlot()
+    }
+
+    function showPlot() {
+	PlotDiv.innerHTML = ""
+	var AlchemyDiv = Piv.div(PlotDiv, "alchemy")
+	
+	var graph_data = {
+	    "nodes": [
+		{
+		    "id": 0,
+		    "caption": "TO",
+		},
+		{
+		    "id": 1,
+		    "caption": "FROM",
+		},
+	    ],
+	    "edges": [
+		{
+		    "source": 1,
+		    "target": 0,
+		},
+	    ]
+	}
+
+	var config = {
+            dataSource: graph_data,
+
+            directedEdges: true,
+            backgroundColour: "white",
+            nodeCaptionsOnByDefault: true,
+
+            edgeStyle: {"all":{
+		"color": "black",
+		"opacity": 1,
+		"width": 2,
+            }},
+
+            nodeStyle: {"all":{
+		"borderColor": "black",
+		"borderWidth": 2,
+		"color": "white",
+		"radius": 30,
+            }},
+	};
+
+	var alchemy = new Alchemy(config)
     }
 
     function showErrorMessage(error) {
