@@ -60,7 +60,7 @@ Route::group(['middleware' => 'auth'], function() {
   Route::get('/delete_account', function () {
       return view('deleteAccount');
   });
-  Route::get('/debug/election/{election}', function ($election) {
+  Route::get('/debug/{election}', function ($election) {
       return view('debugResults', ['election' => $election]);
   });
 });
