@@ -82,40 +82,81 @@
 
 	// results
 	var ranks = Array.from(snapshot.result_blob.order.keys())
-	console.log(ranks)
 	ranks.sort()
 	var winners = ranks.map(rank => snapshot.result_blob.order[rank].id)
 	ResultsDiv.innerHTML = winners.join(">")
 
 	// plotting
-	showPlot()
+	var alchemy_data = ballotsToAlchemyGraph(debug.ballots)
+	showPlot(alchemy_data)
     }
 
-    function showPlot() {
+    function ballotsToAlchemyGraph(ballots) {
+	var nodes = new Set()
+	var edge_counts = new Map()
+
+	// compute votes each way, between each pair
+	Object.keys(ballots).forEach(elector_id => {
+	    var ballot_text = ballots[elector_id]
+	    console.log(ballot_text)
+	    var ballot = ballot_text.split(">").map(x => x.split("="))
+
+	    for (var i=0; i<ballot.length; i++) {
+		var group1 = ballot[i]
+		group1.forEach(function(A){
+		    nodes.add(A)
+		    ballot.slice(i+1).forEach(function(group2) {
+			group2.forEach(function(B){
+			    var key = [A,B].toString() // A beats B in this ballot
+			    var count = edge_counts.has(key) ? edge_counts.get(key) : 0
+			    count += 1
+			    edge_counts.set(key, count)
+			})
+		    })
+		})
+	    }
+        })
+
+	// generate list of alchemy edges
+	var edges = []
+	nodes.forEach(function(A) {
+	    nodes.forEach(function(B) {
+		// compute margin
+		var margin = 0
+		var key = [A,B].toString()
+		if (edge_counts.has(key)) {
+		    margin += edge_counts.get(key)
+		}
+		var key = [B,A].toString()
+		if (edge_counts.has(key)) {
+		    margin -= edge_counts.get(key)
+		}
+
+		// add edge (if margin!=0) in appropriate direction
+		if (margin > 0) {
+		    edges.push({source:A, target:B})
+		} else if (margin < 0) {
+		    edges.push({source:B, target:A})
+		}
+	    })
+	})
+
+	// generate list of alchemy nodes
+	nodes = Array.from(nodes)
+	nodes = nodes.map(function(id) {
+	    return {id:id, caption:id}
+	})
+
+	var alchemy_data = {nodes:nodes, edges:edges}
+	return alchemy_data
+    }
+
+    function showPlot(alchemy_data) {
 	PlotDiv.innerHTML = ""
 	var AlchemyDiv = Piv.div(PlotDiv, "alchemy")
-	
-	var graph_data = {
-	    "nodes": [
-		{
-		    "id": 0,
-		    "caption": "TO",
-		},
-		{
-		    "id": 1,
-		    "caption": "FROM",
-		},
-	    ],
-	    "edges": [
-		{
-		    "source": 1,
-		    "target": 0,
-		},
-	    ]
-	}
 
 	var config = {
-            dataSource: graph_data,
+            dataSource: alchemy_data,
 
             directedEdges: true,
             backgroundColour: "white",
@@ -139,7 +180,6 @@
     }
 
     function showErrorMessage(error) {
-        alert(error)
         Piv.div(View.workspace, "", "w100 text3", "Debug for this election are not currently available.")
         if (!error) return
         Piv.div(View.workspace, "", "100 text3", error.response.data.message)
