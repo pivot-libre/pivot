@@ -3,6 +3,12 @@
 //create a file-specific context via a function
 (function(Piv, ElectionId) {
 
+// snapshot versions (corresponds to ResultSnapshotController.php)
+var VERSION_TEST = 1;
+var VERSION_ADD_RESULTS = 2;
+var VERSION_ADD_DEBUG = 3;
+var SNAPSHOT_FORMAT_VERSION = VERSION_ADD_DEBUG;
+
 // script-level variables
 var View = Piv.view
 var ResultsList = Piv.html(View.workspace, "ol", "", {"class": "itemlist incrementsCounter"});
@@ -37,14 +43,15 @@ function getLastResultSnapshot(snapshots) {
   Piv.http.get(["/api/elections/" + ElectionId + "/result_snapshots/" + snapshots[snapshots.length - 1].id], showElectionResults, showErrorMessage)
 }
 function showElectionResults(results) {
-  if (2 == results.format_version) {
+  var version = results.format_version
+  if (version == VERSION_ADD_RESULTS || version == VERSION_ADD_DEBUG) {
     var candidateOrder = results.result_blob.order
     for (var key in candidateOrder) {
       displayCandidate(ResultsList, candidateOrder[key].name)
     }
   }
   else {
-    showErrorMessage()
+    Piv.div(View.workspace, "", "100 text3", "Snapshot with version "+version+" not accessible.  Please take another snapshot.")
   }
 }
 function showErrorMessage(error) {
