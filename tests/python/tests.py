@@ -63,6 +63,9 @@ def test1(api):
     assert(len(bv1)) == len(votes)
     assert(len(bv2)) == len(votes)
 
+    ready = api.get_ready(userA, election)
+    api.set_ready(userA, election, ready['latest_version'])
+
     # result
     print api.election_result(userA, election)
     print api.election_result(userB, election)
@@ -92,6 +95,8 @@ def test2(api):
         {'candidate_id': D['id'], 'rank': 4},
     ]
     bv1 = api.batchvote(userA, election, votes)
+    ready = api.get_ready(userA, election)
+    api.set_ready(userA, election, ready['latest_version'])
     results = api.election_result(userA, election)
     print results
     result_names = [result['name'] for result in results['order']]
@@ -374,6 +379,9 @@ def test11(api):
     ]
     bv1 = api.batchvote(userB, election, votes)
 
+    ready = api.get_ready(userB, election)
+    api.set_ready(userB, election, ready['latest_version'])
+
     # admin should be able to snapshot
     assert(len(api.list_result_snapshots(userA, election)) == 0)
     snap_id = api.create_result_snapshot(userA, election)['id']
@@ -412,12 +420,14 @@ def test12(api):
     A = api.create_candidate(userA, election, 'candidate-A')
     B = api.create_candidate(userA, election, 'candidate-B')
 
-    assert('order' in api.election_result(userA, election)) #1
+    # TODO: nothing expected yet, because nobody is ready
+    # assert('order' in api.election_result(userA, election)) #1
 
     votes = [
         {'candidate_id': A['id'], 'rank': 1},
     ]
     api.batchvote(userA, election, votes)
+    api.set_ready(userA, election, api.get_ready(userA, election)['latest_version']) # approve
     assert('order' in api.election_result(userA, election)) #2
 
     votes = [
@@ -425,14 +435,17 @@ def test12(api):
         {'candidate_id': B['id'], 'rank': 1},
     ]
     api.batchvote(userA, election, votes)
+    api.set_ready(userA, election, api.get_ready(userA, election)['latest_version']) # approve
     assert('order' in api.election_result(userA, election)) #3
     
     electorB = api.add_elector(election, userA, userB)
+    api.set_ready(userB, election, api.get_ready(userB, election)['latest_version']) # approve
     assert('order' in api.election_result(userA, election)) #4
 
-    api.batchvote(userB, election, votes)    
+    api.batchvote(userB, election, votes)
+    api.set_ready(userB, election, api.get_ready(userB, election)['latest_version']) # approve
     assert('order' in api.election_result(userA, election)) #5
-    
+
 def create_users(url):
     from selenium import webdriver
     from selenium.webdriver.common.keys import Keys
@@ -524,14 +537,19 @@ def main(url, genusers, curltrace, regex):
     sort_test_functions(test_fns)
 
     # execute each test
+    skips = []
     with API(url=url+'/api', curltrace=curltrace) as api:
         for test_fn in test_fns:
-            print "\n============= %s ============\n" % test_fn.func_name
             if re.match(regex, test_fn.func_name):
+                print "\n============= %s ============\n" % test_fn.func_name
                 test_fn(api)
             else:
-                print 'SKIP'
+                skips.append(test_fn.func_name)
         api.dump_stats()
+    if len(skips):
+        print "\n============= SKIPPED ============\n"
+        print ', '.join(skips)
+        print
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run some tests.')

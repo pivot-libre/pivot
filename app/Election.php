@@ -28,6 +28,10 @@ class Election extends Model
      */
     protected $fillable = ['name'];
 
+    protected $casts = [
+        'config' => 'array'
+    ];
+
     /**
      * The attributes that should be mutated to dates.
      *
@@ -56,6 +60,18 @@ class Election extends Model
     public function result_snapshots()
     {
         return $this->hasMany(ResultSnapshot::class);
+    }
+
+    public function get_config_value($key, $default_value) {
+        $config = $this->config;
+        if (is_null($config) || !array_key_exists($key, $config)) {
+            return $default_value;
+        }
+        return $config[$key];
+    }
+
+    public function get_config_approved_only($default_value=true) {
+        return $this->get_config_value('approved_only', $default_value);
     }
 
     public function send_invite_email($email)
@@ -110,8 +126,14 @@ class Election extends Model
                ->leftJoin('candidate_ranks', function($join) {
                    $join->on('candidate_ranks.elector_id', '=', 'electors.id');
                    $join->on('candidate_ranks.candidate_id', '=', 'candidates.id');
-               })->select('electors.id AS elector_id', 'candidates.id AS candidate_id', 'candidates.name', 'candidate_ranks.rank');
+               });
+        if ($this->get_config_approved_only()) {
+            $query = $query->where('electors.ballot_version_approved', '=', \DB::raw('elections.ballot_version'));
+        }
+        $query = $query->select('electors.id AS elector_id', 'candidates.id AS candidate_id', 'candidates.name', 'candidate_ranks.rank');
 
+        Log::debug('BALLOT QUERY: ' . $query->toSql());
+        
         return $query->get();
     }
 
@@ -123,15 +145,22 @@ class Election extends Model
      */
     public function groupRankingsByElectorAndRank($candidateRanks)
     {
-        $max_rank = max(array_map(function($candidateRank){return $candidateRank->rank;}, $candidateRanks->toArray()));
+        // determine largest (worst) rank
+        $max_rank = 1;
+        $ranks = array_map(function($candidateRank){return $candidateRank->rank;}, $candidateRanks->toArray());
+        if (count($ranks) > 0) {
+            $max_rank = max($ranks);
+        }
         $unranked = $max_rank + 1;
 
+        // bucketize by elector
         $candidateRanksGroupedByElector = $candidateRanks->mapToGroups(function($candidateRank){
             $key = $candidateRank->elector_id;
             $value = $candidateRank;
             return [ $key => $value ];
         });
 
+        // bucketize by rank within each elector
         $candidateRanksGroupedByElectorAndRank = $candidateRanksGroupedByElector->map(function($candidateRanksFromOneElector) use ($unranked) {
             return $candidateRanksFromOneElector->mapToGroups(function($candidateRank) use ($unranked) {
                 // default rank is <= 0.  Map that to largest value
@@ -214,6 +243,9 @@ class Election extends Model
         # generate Tideman ballots from Pivot data
         $nBallots = $this->buildNBallots();
         Log::debug('BALLOTS: ' . self::ballotsToText($nBallots));
+
+        // TODO: exit out early if there are no ballots
+
         $tieBreaker = $nBallots[array_rand($nBallots)];
         $tieBreakerTotal = self::createTotallyOrderedBallot($tieBreaker);
 
@@ -235,6 +267,7 @@ class Election extends Model
         $debug["ballots"] = array_map('self::ballotToText', $nBallots);
         $debug["tie_breaker"] = self::ballotToText($tieBreaker);
         $debug["tie_breaker_total"] = self::ballotToText($tieBreakerTotal);
+        $debug["election_config"] = $this->config;
         $result = array();
         $debug_private = array();
         $debug_private["candidates"] = array();
