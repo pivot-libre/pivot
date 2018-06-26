@@ -123,16 +123,19 @@ class Election extends Model
      */
     public function groupRankingsByElectorAndRank($candidateRanks)
     {
+        $max_rank = max(array_map(function($candidateRank){return $candidateRank->rank;}, $candidateRanks->toArray()));
+        $unranked = $max_rank + 1;
+
         $candidateRanksGroupedByElector = $candidateRanks->mapToGroups(function($candidateRank){
             $key = $candidateRank->elector_id;
             $value = $candidateRank;
             return [ $key => $value ];
         });
 
-        $candidateRanksGroupedByElectorAndRank = $candidateRanksGroupedByElector->map(function($candidateRanksFromOneElector){
-            return $candidateRanksFromOneElector->mapToGroups(function($candidateRank){
-                // default rank is 0
-                $key = is_null($candidateRank->rank) ? 0 : $candidateRank->rank;
+        $candidateRanksGroupedByElectorAndRank = $candidateRanksGroupedByElector->map(function($candidateRanksFromOneElector) use ($unranked) {
+            return $candidateRanksFromOneElector->mapToGroups(function($candidateRank) use ($unranked) {
+                // default rank is <= 0.  Map that to largest value
+                $key = (is_null($candidateRank->rank) || $candidateRank->rank <= 0) ? $unranked : $candidateRank->rank;
                 $value = $candidateRank;
                 return [ $key => $value ];
             });
@@ -161,7 +164,7 @@ class Election extends Model
                 return $candidateList;
             }, $ballotArray);
 
-            # we want the highest ranked entries first
+            # sort by rank (best=1 first)
             ksort($candidateLists);
             array_reverse($candidateLists);
 
