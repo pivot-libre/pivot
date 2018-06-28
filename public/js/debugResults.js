@@ -4,21 +4,36 @@
 (function(Piv, ElectionId) {
     var View = Piv.view
 
+    // page state
+    var current_snapshot = null
+    var candidateIdToName = null
+    
+    // page components
     var headerStyle = {"class": "font-size-1"}
-
-    // page layout
+    Piv.html(View.workspace, "h1", "Options", headerStyle)
+    var OptionsDiv = Piv.div(View.workspace, "Options", "text1")
+    var humanNamesCheckbox = piv.html(OptionsDiv, "input", "", {"type": "checkbox"})
+    humanNamesCheckbox.onchange = refreshResults
+    piv.html(OptionsDiv, "span", " Use Human-Readable Names<br>")
+    
     Piv.html(View.workspace, "h1", "Snapshots", headerStyle)
     var SnapshotsDiv = Piv.div(View.workspace, "Snapshots", "text1")
+
     Piv.html(View.workspace, "h1", "Candidates", headerStyle)
     var CandidatesDiv = Piv.div(View.workspace, "Candidates", "text1")
+
     Piv.html(View.workspace, "h1", "Ballots", headerStyle)
     var BallotsDiv = Piv.div(View.workspace, "Ballots", "text1")
+
     Piv.html(View.workspace, "h1", "Tie-Breaker (Partial Order)", headerStyle)
     var TiePartialDiv = Piv.div(View.workspace, "TiePartial", "text1")
+
     Piv.html(View.workspace, "h1", "Tie-Breaker (Total Order)", headerStyle)
     var TieTotalDiv = Piv.div(View.workspace, "TieTotal", "text1")
+
     Piv.html(View.workspace, "h1", "Results", headerStyle)
     var ResultsDiv = Piv.div(View.workspace, "Results", "text1")
+    
     Piv.html(View.workspace, "h1", "Plot", headerStyle)
     var PlotDiv = Piv.div(View.workspace, "Plot", "plot_area text1")
 
@@ -28,7 +43,7 @@
         View.statusbar.innerHTML = ""
         Piv.electionsMenu(View.sidenav, ElectionId)
         Piv.removeHrefsForCurrentLoc()
-
+	
         // start workflow
         getSnapshots()
     }
@@ -53,14 +68,83 @@
                      gotSnapshot, showErrorMessage)
     }
 
+    // return list of candidate, and list of relations
+    function ballotSplit(ballot_text) {
+	var parts = []
+	var delims = []
+	var split_chars = [">", "="]
+	while (true) {
+	    var indexes = split_chars.map(delim => ballot_text.indexOf(delim)).filter(idx => idx >= 0)
+
+	    if (indexes.length == 0) {
+		// no delims found
+		parts.push(ballot_text)
+		break
+	    }
+
+	    var min_idx = Math.min(...indexes)
+	    delims.push(ballot_text[min_idx])
+	    parts.push(ballot_text.substr(0, min_idx))
+	    ballot_text = ballot_text.substr(min_idx+1)
+	}
+
+	return {parts:parts, delims:delims}
+    }
+
+    // apply function to each candidate in the ballot
+    function ballotMap(ballot_text, fn) {
+	var split = ballotSplit(ballot_text)
+	split.parts = split.parts.map(fn)
+	var new_text = split.parts[0]
+	for (var i=0; i<split.delims.length; i++) {
+	    new_text += split.delims[i] + split.parts[i+1]
+	}
+	return new_text
+    }
+
     function gotSnapshot(snapshot) {
+        console.log(snapshot)
         if (snapshot.format_version < 3) {
-            alert("You can only debug snapshots with version 3 or greater.  This one was version " + snapshot.format_version + ".")
+            alert("You can only debug snapshots with version 3 or greater.  This one was version " +
+		  snapshot.format_version + ".")
             return
         }
-        console.log(snapshot)
+
+	// refresh state
+	current_snapshot = snapshot
+	candidateIdToName = {}
+	snapshot.result_blob.debug_private.candidates.forEach(function(candidate) {
+	    candidateIdToName[candidate.id] = candidate.name
+	})
+
+	// refresh display
+	refreshResults()
+    }
+
+    // based on settings, apply transformations to ballot text (e.g.,
+    // make it bold, or replace an ID with a name)
+    function getCandidateFormatFn(snapshot) {
+	var fn
+	if (humanNamesCheckbox.checked) {
+	    fn = (x => candidateIdToName[x])
+	} else {
+	    fn = (x => x)
+	}
+
+	return fn
+    }
+
+    // populate all divs with snapshot results
+    function refreshResults() {
+	console.log("attempt refresh")
+	if (current_snapshot == null) {
+	    return
+	}
+	var snapshot = current_snapshot
 	var debug = snapshot.result_blob.debug
 	var debug_private = snapshot.result_blob.debug_private
+	var candidateFormatFn = getCandidateFormatFn(snapshot)
+	var formatCandidates = (x => ballotMap(x, candidateFormatFn))
 
 	// candidates
         CandidatesDiv.innerHTML = ""
@@ -73,18 +157,18 @@
 	var ballots = debug.ballots
         Object.keys(ballots).forEach(elector_id => {
 	    var ballot_text = ballots[elector_id]
-            piv.html(BallotsDiv, "span", ballot_text + "<br>")
+            piv.html(BallotsDiv, "span", formatCandidates(ballot_text) + "<br>")
         })
 
 	// tie breaker, partial and total order
-	TiePartialDiv.innerHTML = debug.tie_breaker
-	TieTotalDiv.innerHTML = debug.tie_breaker_total
+	TiePartialDiv.innerHTML = formatCandidates(debug.tie_breaker)
+	TieTotalDiv.innerHTML = formatCandidates(debug.tie_breaker_total)
 
 	// results
 	var ranks = Array.from(snapshot.result_blob.order.keys())
 	ranks.sort()
 	var winners = ranks.map(rank => snapshot.result_blob.order[rank].id)
-	ResultsDiv.innerHTML = winners.join(">")
+	ResultsDiv.innerHTML = formatCandidates(winners.join(">"))
 
 	// plotting
 	var alchemy_data = ballotsToAlchemyGraph(debug.ballots)
@@ -144,7 +228,8 @@
 	// generate list of alchemy nodes
 	nodes = Array.from(nodes)
 	nodes = nodes.map(function(id) {
-	    return {id:id, caption:id}
+	    var caption = (humanNamesCheckbox.checked ? candidateIdToName[id] : id)
+	    return {id:id, caption:caption}
 	})
 
 	var alchemy_data = {nodes:nodes, edges:edges}
@@ -180,6 +265,7 @@
     }
 
     function showErrorMessage(error) {
+	console.log(error)
         Piv.div(View.workspace, "", "w100 text3", "Debug for this election are not currently available.")
         if (!error) return
         Piv.div(View.workspace, "", "100 text3", error.response.data.message)
