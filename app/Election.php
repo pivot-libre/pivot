@@ -240,40 +240,69 @@ class Election extends Model
 
     public function calculateResult()
     {
-        # generate Tideman ballots from Pivot data
-        $nBallots = $this->buildNBallots();
-        Log::debug('BALLOTS: ' . self::ballotsToText($nBallots));
+        // values to populate for the result snapshot
+        $nBallots = null;
+        $tieBreaker = null;
+        $tieBreakerTotal = null;
+        $pivotWinners = null;
+        $errorMessage = null;
+        $exceptionMessage = null;
+        $exceptionStack = null;
+        $pivotCandidates = null;
 
-        // TODO: exit out early if there are no ballots
+        # calculate Tideman
+        try {
+            # generate Tideman inputs
+            $nBallots = $this->buildNBallots();
+            Log::debug('BALLOTS: ' . self::ballotsToText($nBallots));
+            if (count($nBallots) == 0) {
+                $errorMessage = "there were 0 ballots ready for the election";
+                throw new \Exception($errorMessage);
+            }
+            $tieBreaker = $nBallots[array_rand($nBallots)];
+            $tieBreakerTotal = self::createTotallyOrderedBallot($tieBreaker);
 
-        $tieBreaker = $nBallots[array_rand($nBallots)];
-        $tieBreakerTotal = self::createTotallyOrderedBallot($tieBreaker);
+            // calculated results
+            $calculator = new RankedPairsCalculator($tieBreakerTotal);
+            $numWinners = $this->candidates()->count();
+            $tidemanWinners = $calculator->calculate($numWinners, ...$nBallots)->toArray();
 
-        # calculate results
-        $calculator = new RankedPairsCalculator($tieBreakerTotal);
-        $numWinners = $this->candidates()->count();
-        $tidemanWinners = $calculator->calculate($numWinners, ...$nBallots)->toArray();
+            // iterate over IDs in winningOrder, lookup Pivot candidates, and append in order
+            $pivotWinners = [];
+            $pivotCandidates = $this->candidates()->get()->keyBy('id');
+            for($i = 0; $i < sizeof($tidemanWinners); $i++) {
+                $candidateId = $tidemanWinners[$i]->getId();
+                array_push($pivotWinners, $pivotCandidates[$candidateId]);
+            }
+        } catch (\Exception $e) {
+            // visible to users
+            if (is_null($errorMessage)) {
+                $errorMessage = 'a result could not be computed for this snapshot';
+            }
 
-        // iterate over IDs in winningOrder, lookup Pivot candidates, and append in order
-        $pivotWinners = [];
-        $pivotCandidates = $this->candidates()->get()->keyBy('id');
-        for($i = 0; $i < sizeof($tidemanWinners); $i++) {
-            $candidateId = $tidemanWinners[$i]->getId();
-            array_push($pivotWinners, $pivotCandidates[$candidateId]);
+            // for debug blob
+            $exceptionMessage = $e->getMessage();
+            $exceptionStack = $e->getTraceAsString();
         }
 
         // populate snapshot blob (json): debug, debug_private, and order
         $debug = array();
-        $debug["ballots"] = array_map('self::ballotToText', $nBallots);
-        $debug["tie_breaker"] = self::ballotToText($tieBreaker);
-        $debug["tie_breaker_total"] = self::ballotToText($tieBreakerTotal);
+        $debug["ballots"] = is_null($nBallots) ? null : array_map('self::ballotToText', $nBallots);
+        $debug["tie_breaker"] = is_null($tieBreaker) ? null : self::ballotToText($tieBreaker);
+        $debug["tie_breaker_total"] = is_null($tieBreakerTotal) ? null : self::ballotToText($tieBreakerTotal);
         $debug["election_config"] = $this->config;
+        $debug["exception"] = array("message" => $exceptionMessage, "stack" => $exceptionStack);
         $result = array();
         $debug_private = array();
         $debug_private["candidates"] = array();
-        foreach ($pivotCandidates as $c) {
-            array_push($debug_private["candidates"], array("id"=>$c->id, "name"=>$c->name));
+        if (!is_null($pivotCandidates)) {
+            foreach ($pivotCandidates as $c) {
+                array_push($debug_private["candidates"], array("id"=>$c->id, "name"=>$c->name));
+            }
         }
+
+        // top-level fields in snapshot blob
+        $result["error"] = $errorMessage;
         $result["debug"] = $debug;
         $result["debug_private"] = $debug_private;
         $result["order"] = $pivotWinners;

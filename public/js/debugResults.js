@@ -104,11 +104,14 @@
 
     function gotSnapshot(snapshot) {
         console.log(snapshot)
-        if (snapshot.format_version < 3) {
+        if (snapshot.format_version < 4) {
             alert("You can only debug snapshots with version 3 or greater.  This one was version " +
 		  snapshot.format_version + ".")
             return
-        }
+        } else if (snapshot.result_blob.error != null) {
+	    alert(snapshot.result_blob.error)
+	    return
+	}
 
 	// refresh state
 	current_snapshot = snapshot
