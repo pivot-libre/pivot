@@ -7,7 +7,8 @@
 var VERSION_TEST = 1;
 var VERSION_ADD_RESULTS = 2;
 var VERSION_ADD_DEBUG = 3;
-var SNAPSHOT_FORMAT_VERSION = VERSION_ADD_DEBUG;
+var VERSION_ADD_ERROR_INFO = 4;
+var SNAPSHOT_FORMAT_VERSION = VERSION_ADD_ERROR_INFO;
 
 // script-level variables
 var View = Piv.view
@@ -43,8 +44,15 @@ function getLastResultSnapshot(snapshots) {
   Piv.http.get(["/api/elections/" + ElectionId + "/result_snapshots/" + snapshots[snapshots.length - 1].id], showElectionResults, showErrorMessage)
 }
 function showElectionResults(results) {
+  console.log(results)
   var version = results.format_version
-  if (version == VERSION_ADD_RESULTS || version == VERSION_ADD_DEBUG) {
+  var supported = [VERSION_ADD_RESULTS, VERSION_ADD_DEBUG, VERSION_ADD_ERROR_INFO]
+  if (supported.indexOf(version) >= 0) {
+    if ('error' in results.result_blob && results.result_blob['error'] != null) {
+      Piv.div(View.workspace, "", "100 text3", results.result_blob['error'])
+      return
+    }
+
     var candidateOrder = results.result_blob.order
     for (var key in candidateOrder) {
       displayCandidate(ResultsList, candidateOrder[key].name)
