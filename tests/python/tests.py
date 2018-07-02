@@ -446,6 +446,24 @@ def test12(api):
     api.set_ready(userB, election, api.get_ready(userB, election)['latest_version']) # approve
     assert('order' in api.election_result(userA, election)) #5
 
+def test13(api):
+    # test errors when there are no candidates
+    users = api.load_users()
+    userA = users[0]
+
+    election = api.create_election(userA, 'test-election')
+    electorA = api.add_elector(election, userA, userA)
+    
+    A = api.create_candidate(userA, election, 'candidate-A')
+    B = api.create_candidate(userA, election, 'candidate-B')
+
+    votes = [
+        {'candidate_id': A['id'], 'rank': 1},
+    ]
+    result = api.election_result(userA, election)
+    expected = 'there were 0 ballots ready for the election'
+    assert(result['error'] == expected)
+
 def create_users(url):
     from selenium import webdriver
     from selenium.webdriver.common.keys import Keys
