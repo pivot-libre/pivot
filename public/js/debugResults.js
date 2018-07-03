@@ -7,6 +7,7 @@
     // page state
     var current_snapshot = null
     var candidateIdToName = null
+    var electorIdToName = null
     
     // page components
     var headerStyle = {"class": "font-size-1"}
@@ -14,7 +15,10 @@
     var OptionsDiv = Piv.div(View.workspace, "Options", "text1")
     var humanNamesCheckbox = piv.html(OptionsDiv, "input", "", {"type": "checkbox"})
     humanNamesCheckbox.onchange = refreshResults
-    piv.html(OptionsDiv, "span", " Use Human-Readable Names<br>")
+    piv.html(OptionsDiv, "span", " Use Human-Readable Candidate Names<br>")
+    var showElectorNamesCheckbox = piv.html(OptionsDiv, "input", "", {"type": "checkbox"})
+    showElectorNamesCheckbox.onchange = refreshResults
+    piv.html(OptionsDiv, "span", " Show Elector Names<br>")
     
     Piv.html(View.workspace, "h1", "Snapshots", headerStyle)
     var SnapshotsDiv = Piv.div(View.workspace, "Snapshots", "text1")
@@ -104,8 +108,8 @@
 
     function gotSnapshot(snapshot) {
         console.log(snapshot)
-        if (snapshot.format_version < 4) {
-            alert("You can only debug snapshots with version 3 or greater.  This one was version " +
+        if (snapshot.format_version < 5) {
+            alert("You can only debug snapshots with version 5 or greater.  This one was version " +
 		  snapshot.format_version + ".")
             return
         } else if (snapshot.result_blob.error != null) {
@@ -118,6 +122,10 @@
 	candidateIdToName = {}
 	snapshot.result_blob.debug_private.candidates.forEach(function(candidate) {
 	    candidateIdToName[candidate.id] = candidate.name
+	})
+	electorIdToName = {}
+	snapshot.result_blob.debug_private.electors.forEach(function(elector) {
+	    electorIdToName[elector.id] = (elector.name != null) ? elector.name : ("<"+elector.email+">")
 	})
 
 	// refresh display
@@ -151,6 +159,7 @@
 
 	// candidates
         CandidatesDiv.innerHTML = ""
+	piv.html(CandidatesDiv, "span", "<b>Candidate ID: Candidate Name</b><br>")
         debug_private.candidates.forEach(candidate => {
             piv.html(CandidatesDiv, "span", candidate.id + ": " + candidate.name + "<br>")
         })
@@ -159,8 +168,13 @@
         BallotsDiv.innerHTML = ""
 	var ballots = debug.ballots
         Object.keys(ballots).forEach(elector_id => {
-	    var ballot_text = ballots[elector_id]
-            piv.html(BallotsDiv, "span", formatCandidates(ballot_text) + "<br>")
+	    var ballot_text = ''
+	    if (showElectorNamesCheckbox.checked) {
+		ballot_text += electorIdToName[elector_id] + ": "
+	    }
+	    ballot_text += formatCandidates(ballots[elector_id])
+	    ballot_text += "<br>"
+            piv.html(BallotsDiv, "span", ballot_text)
         })
 
 	// tie breaker, partial and total order

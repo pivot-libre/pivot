@@ -8,8 +8,11 @@ var VERSION_TEST = 1;
 var VERSION_ADD_RESULTS = 2;
 var VERSION_ADD_DEBUG = 3;
 var VERSION_ADD_ERROR_INFO = 4;
-var SNAPSHOT_FORMAT_VERSION = VERSION_ADD_ERROR_INFO;
+var VERSION_ADD_ELECTOR_INFO = 5;
 
+// should be latest version:
+var SNAPSHOT_FORMAT_VERSION = VERSION_ADD_ELECTOR_INFO;
+    
 // script-level variables
 var View = Piv.view
 var ResultsList = Piv.html(View.workspace, "ol", "", {"class": "itemlist incrementsCounter"});
@@ -46,7 +49,7 @@ function getLastResultSnapshot(snapshots) {
 function showElectionResults(results) {
   console.log(results)
   var version = parseInt(results.format_version) // TODO: determine why this is a string in some deployments
-  var supported = [VERSION_ADD_RESULTS, VERSION_ADD_DEBUG, VERSION_ADD_ERROR_INFO]
+  var supported = [VERSION_ADD_RESULTS, VERSION_ADD_DEBUG, VERSION_ADD_ERROR_INFO, VERSION_ADD_ELECTOR_INFO]
   if (supported.indexOf(version) >= 0) {
     if ('error' in results.result_blob && results.result_blob['error'] != null) {
       Piv.div(View.workspace, "", "100 text3", results.result_blob['error'])
