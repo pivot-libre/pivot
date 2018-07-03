@@ -44,6 +44,50 @@ class Election extends Model
         return $this->belongsTo(User::class, 'creator_id');
     }
 
+    public function voter_details() {
+        $electionId = $this->getKey();
+
+        $stats = array(
+            "outstanding_invites" => array(),
+            "approved_none" => array(),
+            "approved_current" => array(),
+            "approved_previous" => array()
+        );
+
+        $query = Election::where('elections.id', '=', $electionId)
+            ->join('electors', 'elections.id', '=', 'electors.election_id')
+            ->leftJoin('users', 'electors.user_id', '=', 'users.id')
+            ->select('users.name',
+                'users.email',
+                'electors.id',
+                'electors.invite_email',
+                'electors.invite_accepted_at',
+                'elections.ballot_version',
+                'electors.ballot_version_approved');
+
+        foreach ($query->get() as $row) {
+            $key = null;
+            if ($row->invite_accepted_at == null) {
+                $key = 'outstanding_invites';
+            } else if ($row->ballot_version_approved == null) {
+                $key = 'approved_none';
+            } else if ($row->ballot_version_approved == $row->ballot_version) {
+                $key = 'approved_current';
+            } else {
+                $key = 'approved_previous';
+            }
+
+            $name = $row->name;
+            $email = $row->email != null ? $row->email : $row->invite_email;
+            $elector_id = $row->id;
+            # name may be null if invite hasn't been accepted.  Caller
+            # should expect this.
+            array_push($stats[$key], array("name" => $name, "email" => $email, "elector_id" => $elector_id));
+        }
+
+        return $stats;
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany|Elector
      */
@@ -241,6 +285,8 @@ class Election extends Model
     public function calculateResult()
     {
         // values to populate for the result snapshot
+        $pivotCandidates = null;
+        $pivotElectors = null;
         $nBallots = null;
         $tieBreaker = null;
         $tieBreakerTotal = null;
@@ -248,11 +294,11 @@ class Election extends Model
         $errorMessage = null;
         $exceptionMessage = null;
         $exceptionStack = null;
-        $pivotCandidates = null;
 
         # calculate Tideman
         try {
             # generate Tideman inputs
+            $pivotElectors = $this->voter_details();
             $nBallots = $this->buildNBallots();
             Log::debug('BALLOTS: ' . self::ballotsToText($nBallots));
             if (count($nBallots) == 0) {
@@ -298,6 +344,18 @@ class Election extends Model
         if (!is_null($pivotCandidates)) {
             foreach ($pivotCandidates as $c) {
                 array_push($debug_private["candidates"], array("id"=>$c->id, "name"=>$c->name));
+            }
+        }
+        $debug_private["electors"] = array();
+        if (!is_null($pivotElectors)) {
+            foreach ($pivotElectors as $state => $electors) {
+                foreach ($electors as $e) {
+                    $row = array("id"=>$e["elector_id"],
+                                 "name"=>$e["name"],
+                                 "email"=>$e["email"],
+                                 "state"=>$state);
+                    array_push($debug_private["electors"], $row);
+                }
             }
         }
 

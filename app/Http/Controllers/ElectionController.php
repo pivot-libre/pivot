@@ -277,45 +277,7 @@ class ElectionController extends Controller
     {
         $election = Election::where('id', '=', $election_id)->firstOrFail();
         $this->authorize('view_voter_details', $election);
-
-        $stats = array(
-            "outstanding_invites" => array(),
-            "approved_none" => array(),
-            "approved_current" => array(),
-            "approved_previous" => array()
-        );
-
-        $query = Election::where('elections.id', '=', $election_id)
-            ->join('electors', 'elections.id', '=', 'electors.election_id')
-            ->leftJoin('users', 'electors.user_id', '=', 'users.id')
-            ->select('users.name',
-                'users.email',
-                'electors.id',
-                'electors.invite_email',
-                'electors.invite_accepted_at',
-                'elections.ballot_version',
-                'electors.ballot_version_approved');
-
-        foreach ($query->get() as $row) {
-            $key = null;
-            if ($row->invite_accepted_at == null) {
-                $key = 'outstanding_invites';
-            } else if ($row->ballot_version_approved == null) {
-                $key = 'approved_none';
-            } else if ($row->ballot_version_approved == $row->ballot_version) {
-                $key = 'approved_current';
-            } else {
-                $key = 'approved_previous';
-            }
-
-            $name = $row->name;
-            $email = $row->email != null ? $row->email : $row->invite_email;
-            $elector_id = $row->id;
-            # name may be null if invite hasn't been accepted.  Caller
-            # should expect this.
-            array_push($stats[$key], array("name" => $name, "email" => $email, "elector_id" => $elector_id));
-        }
-
+        $stats = $election->voter_details();
         return response()->json($stats);
     }
 
