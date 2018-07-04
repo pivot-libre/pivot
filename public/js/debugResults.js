@@ -23,6 +23,16 @@
     Piv.html(View.workspace, "h1", "Snapshots", headerStyle)
     var SnapshotsDiv = Piv.div(View.workspace, "Snapshots", "text1")
 
+    Piv.html(View.workspace, "h1", "Import/Export", headerStyle)
+    var FilesDiv = Piv.div(View.workspace, "Files", "text1")
+    var exportButton = piv.html(FilesDiv, "button", "Export Snapshot")
+    piv.html(FilesDiv, "span", "<br><br><b>OR</b><br>")
+    exportButton.onclick = exportSnapshot
+    piv.html(FilesDiv, "span", "<b>Import:</b> ")
+    var importBox = piv.html(FilesDiv, "input", "", {"type": "file"})
+    importBox.onchange = importSnapshot
+    piv.html(FilesDiv, "span", "<br>")
+
     Piv.html(View.workspace, "h1", "Candidates", headerStyle)
     var CandidatesDiv = Piv.div(View.workspace, "Candidates", "text1")
 
@@ -279,6 +289,39 @@
 	};
 
 	var alchemy = new Alchemy(config)
+    }
+
+    // borrowed from here: https://ourcodeworld.com/articles/read/189/how-to-create-a-file-and-generate-a-download-with-javascript-in-the-browser-without-a-server
+    function download(filename, text) {
+	var element = document.createElement('a');
+	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+	element.setAttribute('download', filename);
+
+	element.style.display = 'none';
+	document.body.appendChild(element);
+
+	element.click();
+
+	document.body.removeChild(element);
+    }
+
+    function importSnapshot(event) {
+	var reader = new FileReader();
+
+	reader.onload = function(){
+	    var snapshot = JSON.parse(reader.result)
+	    gotSnapshot(snapshot)
+	};
+
+	reader.readAsText(event.target.files[0])
+    }
+    
+    function exportSnapshot() {
+	if (current_snapshot == null) {
+	    alert("please open a snapshot first")
+	    return
+	}
+	download("election.json", JSON.stringify(current_snapshot, null, 2))
     }
 
     function showErrorMessage(error) {
