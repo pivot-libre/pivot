@@ -311,15 +311,17 @@ class Election extends Model
             // calculated results
             $calculator = new RankedPairsCalculator($tieBreakerTotal);
             $numWinners = $this->candidates()->count();
-            $tidemanWinners = $calculator->calculate($numWinners, ...$nBallots)->toArray();
+            $result = $calculator->calculate($numWinners, ...$nBallots);
+            $tidemanWinners = $result->getRanking();
 
-            // iterate over IDs in winningOrder, lookup Pivot candidates, and append in order
-            $pivotWinners = [];
+            // translate tideman candidate objects back to pivot candidate objects
             $pivotCandidates = $this->candidates()->get()->keyBy('id');
-            for($i = 0; $i < sizeof($tidemanWinners); $i++) {
-                $candidateId = $tidemanWinners[$i]->getId();
-                array_push($pivotWinners, $pivotCandidates[$candidateId]);
-            }
+            $pivotWinners = array_map(function($tidemanCandidateList) use ($pivotCandidates){
+                return array_map(function($tidemanCandidate) use ($pivotCandidates){
+                    $candidateId = $tidemanCandidate->getId();
+                    return $pivotCandidates[$candidateId];
+                }, $tidemanCandidateList->toArray());
+            }, $tidemanWinners->toArray());
         } catch (\Exception $e) {
             // visible to users
             if (is_null($errorMessage)) {

@@ -2,74 +2,78 @@
 
 //create a file-specific context via a function
 (function(Piv, ElectionId) {
-
-// snapshot versions (corresponds to ResultSnapshotController.php)
-var VERSION_TEST = 1;
-var VERSION_ADD_RESULTS = 2;
-var VERSION_ADD_DEBUG = 3;
-var VERSION_ADD_ERROR_INFO = 4;
-var VERSION_ADD_ELECTOR_INFO = 5;
-
-// should be latest version:
-var SNAPSHOT_FORMAT_VERSION = VERSION_ADD_ELECTOR_INFO;
+    // snapshot versions (corresponds to ResultSnapshotController.php)
+    var VERSION_TEST = 1;
+    var VERSION_ADD_RESULTS = 2;
+    var VERSION_ADD_DEBUG = 3;
+    var VERSION_ADD_ERROR_INFO = 4;
+    var VERSION_ADD_ELECTOR_INFO = 5;
+    var VERSION_SURFACE_CANDIDATE_TIES = 6;
     
-// script-level variables
-var View = Piv.view
-var ResultsList = Piv.html(View.workspace, "ol", "", {"class": "itemlist incrementsCounter"});
+    // should be latest version:
+    var SNAPSHOT_FORMAT_VERSION = VERSION_SURFACE_CANDIDATE_TIES;
+    
+    // script-level variables
+    var View = Piv.view
+    var ResultsList = Piv.div(View.workspace, "", "text1 border-color-3 bg-color-6");
 
-// actions (do stuff)
-View.setHeader("Results", ElectionId)
-View.statusbar.innerHTML = ""
-Piv.electionsMenu(View.sidenav, ElectionId)
-
-Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
-
-// Piv.http.get(["/api/elections/" + ElectionId + "/result"], showElectionResults, showErrorMessage)
-Piv.http.get(["/api/elections/" + ElectionId + "/result_snapshots"], getLastResultSnapshot, showErrorMessage)
-// Piv.http.get(["/api/elections/" + ElectionId + "/result_snapshots"])
-// Piv.http.post(["/api/elections/" + ElectionId + "/result_snapshots"])
-// Piv.http.get(["/api/elections/" + ElectionId + "/result"])
-
-// function definitions
-function displayCandidate(parent, description) {
-  // var candidateLiAtts = {"class": "w100 border-bottom-2 overflow-visible hover-1 drag-drop-1", "data-id": id}
-  var candidateLiAtts = {"class": "w100 border-bottom-1 overflow-visible"}
-  var box = Piv.html(parent, "li", "", candidateLiAtts);
-  Piv.div(box, "", "text1square orderdisplay");
-  Piv.div(box, "", "text3 w75", description)
-  // Piv.div(box, "", "text1 w75", description);
-}
-function getLastResultSnapshot(snapshots) {
-  if (snapshots.length < 1) {
-    showErrorMessage()
-    return
-  }
-  Piv.http.get(["/api/elections/" + ElectionId + "/result_snapshots/" + snapshots[snapshots.length - 1].id], showElectionResults, showErrorMessage)
-}
-function showElectionResults(results) {
-  console.log(results)
-  var version = parseInt(results.format_version) // TODO: determine why this is a string in some deployments
-  var supported = [VERSION_ADD_RESULTS, VERSION_ADD_DEBUG, VERSION_ADD_ERROR_INFO, VERSION_ADD_ELECTOR_INFO]
-  if (supported.indexOf(version) >= 0) {
-    if ('error' in results.result_blob && results.result_blob['error'] != null) {
-      Piv.div(View.workspace, "", "100 text3", results.result_blob['error'])
-      return
+    function main() {
+	View.setHeader("Results", ElectionId)
+	View.statusbar.innerHTML = ""
+	Piv.electionsMenu(View.sidenav, ElectionId)
+	Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
+	Piv.http.get(["/api/elections/" + ElectionId + "/result_snapshots"], getLastResultSnapshot, showErrorMessage)
     }
 
-    var candidateOrder = results.result_blob.order
-    for (var key in candidateOrder) {
-      displayCandidate(ResultsList, candidateOrder[key].name)
-    }
-  }
-  else {
-    Piv.div(View.workspace, "", "100 text3", "Snapshot with version "+version+" not accessible.  Please take another snapshot.")
-  }
-}
-function showErrorMessage(error) {
-  Piv.div(View.workspace, "", "w100 text3", "Results for this election are not currently available.")
-  if (!error) return
-  Piv.div(View.workspace, "", "100 text3", error.response.data.message)
-}
+    function displayCandidateGroup(rank, candidates) {
+	if (ResultsList.innerHTML != "") {
+	    piv.html(ResultsList, "span", "<br><br>")
+	}
 
-// close the self-executing function and feed the piv library to it
+	var group = Piv.div(ResultsList, "", "border-color-3 bg-color-white")
+	for (var key in candidates) {
+	    var name = candidates[key].name
+	    group.innerHTML += ("<b>Rank " + rank + ":</b> " + name + "<br>")
+	}
+    }
+
+    function getLastResultSnapshot(snapshots) {
+	if (snapshots.length < 1) {
+	    showErrorMessage()
+	    return
+	}
+	Piv.http.get(["/api/elections/" + ElectionId + "/result_snapshots/" + snapshots[snapshots.length - 1].id], showElectionResults, showErrorMessage)
+    }
+
+    function showElectionResults(results) {
+	console.log(results)
+	var version = parseInt(results.format_version) // TODO: determine why this is a string in some deployments
+	var supported = [VERSION_SURFACE_CANDIDATE_TIES]
+	if (supported.indexOf(version) >= 0) {
+	    if ('error' in results.result_blob && results.result_blob['error'] != null) {
+		Piv.div(View.workspace, "", "100 text3", results.result_blob['error'])
+		return
+	    }
+
+	    var candidateOrder = results.result_blob.order
+	    ResultsList.innerHTML = ""
+	    var rank = 1
+	    for (var key in candidateOrder) {
+		displayCandidateGroup(rank, candidateOrder[key])
+		rank += 1
+	    }
+	}
+	else {
+	    Piv.div(View.workspace, "", "100 text3", "Snapshot with version "+version+" not accessible.  Please take another snapshot.")
+	}
+    }
+
+    function showErrorMessage(error) {
+	console.log(error)
+	Piv.div(View.workspace, "", "w100 text3", "Results for this election are not currently available.")
+	if (!error) return
+	Piv.div(View.workspace, "", "100 text3", error.response.data.message)
+    }
+
+    main()
 })(piv, election)
