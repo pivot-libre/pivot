@@ -1,6 +1,9 @@
 #!/usr/bin/env python
-import os, sys, json, requests, time, re, argparse, inspect, random
+import os, sys, json, requests, time, re, argparse, inspect, random, itertools
 from pivot_api import API
+
+def flatten_results(results):
+    return list(itertools.chain(*results))
 
 def test1(api):
     users = api.load_users()
@@ -99,7 +102,8 @@ def test2(api):
     api.set_ready(userA, election, ready['latest_version'])
     results = api.election_result(userA, election)
     print results
-    result_names = [result['name'] for result in results['order']]
+    order = flatten_results(results['order'])
+    result_names = [result['name'] for result in order]
     assert(result_names == [u'candidate-A', u'candidate-B', u'candidate-C', u'candidate-D'])
     print result_names
 
@@ -388,8 +392,9 @@ def test11(api):
     snap = api.get_result_snapshot(userA, election, snap_id)
     result = snap.get('result_blob')
     print 'EXPECTED: ' + str(votes)
-    print 'RESULTS: ' + str([c['id'] for c in result['order']])
-    for i, candidate in enumerate(result['order']):
+    order = flatten_results(result['order'])
+    print 'RESULTS: ' + str([c['id'] for c in order])
+    for i, candidate in enumerate(order):
         print candidate
         assert(candidate['id'] == votes[i]['candidate_id'])
     snaps = api.list_result_snapshots(userA, election)

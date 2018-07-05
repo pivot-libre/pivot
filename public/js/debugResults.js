@@ -118,8 +118,9 @@
 
     function gotSnapshot(snapshot) {
         console.log(snapshot)
-        if (snapshot.format_version < 5) {
-            alert("You can only debug snapshots with version 5 or greater.  This one was version " +
+	var required = 6
+        if (snapshot.format_version < required) {
+            alert("You can only debug snapshots with version " + required + " or greater.  This one was version " +
 		  snapshot.format_version + ".")
             return
         } else if (snapshot.result_blob.error != null) {
@@ -194,8 +195,9 @@
 	// results
 	var ranks = Array.from(snapshot.result_blob.order.keys())
 	ranks.sort()
-	var winners = ranks.map(rank => snapshot.result_blob.order[rank].id)
-	ResultsDiv.innerHTML = formatCandidates(winners.join(">"))
+	var order = ranks.map(rank => snapshot.result_blob.order[rank].map(candidate => candidate.id))
+	var order_text = order.map(ties => ties.join("=")).join(">")
+	ResultsDiv.innerHTML = formatCandidates(order_text)
 
 	// plotting
 	var alchemy_data = ballotsToAlchemyGraph(debug.ballots)
