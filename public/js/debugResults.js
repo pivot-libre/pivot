@@ -47,6 +47,9 @@
 
     Piv.html(View.workspace, "h1", "Results", headerStyle)
     var ResultsDiv = Piv.div(View.workspace, "Results", "text1")
+
+    Piv.html(View.workspace, "h1", "Head-to-Head Stats", headerStyle)
+    var TableDiv = Piv.div(View.workspace, "Table", "text1")
     
     Piv.html(View.workspace, "h1", "Plot", headerStyle)
     var PlotDiv = Piv.div(View.workspace, "Plot", "plot_area text1")
@@ -57,7 +60,7 @@
         View.statusbar.innerHTML = ""
         Piv.electionsMenu(View.sidenav, ElectionId)
         Piv.removeHrefsForCurrentLoc()
-	
+
         // start workflow
         getSnapshots()
     }
@@ -199,9 +202,10 @@
 	var order_text = order.map(ties => ties.join("=")).join(">")
 	ResultsDiv.innerHTML = formatCandidates(order_text)
 
-	// plotting
+	// table + plot
 	var alchemy_data = ballotsToAlchemyGraph(debug.ballots)
 	showPlot(alchemy_data)
+	showTable(alchemy_data)
     }
 
     function ballotsToAlchemyGraph(ballots) {
@@ -247,9 +251,9 @@
 
 		// add edge (if margin!=0) in appropriate direction
 		if (margin > 0) {
-		    edges.push({source:A, target:B})
+		    edges.push({source:A, target:B, caption:margin})
 		} else if (margin < 0) {
-		    edges.push({source:B, target:A})
+		    edges.push({source:B, target:A, caption:-margin})
 		}
 	    })
 	})
@@ -291,6 +295,63 @@
 	};
 
 	var alchemy = new Alchemy(config)
+    }
+
+    function showTable(alchemy_data) {
+	TableDiv.innerHTML = ""
+
+	piv.html(TableDiv, "p", "Each would-be victory in a head-to-head matchup is represented by a \
+number in the following table.  Start with a candidate along the \
+vertical access.  The numbers in that row indicate the strengths of \
+the victories that the candidate would have in head-to-head matchups \
+against each candidate along the horizontal access.")
+	
+	var table = piv.html(TableDiv, "table", "")
+	// TODO: move this to a style sheet
+	table.style.borderCollapse = "collapse"
+	table.style.textAlign = "center"
+	table.style.vertialAlign = "middle"
+	
+	var nodes = alchemy_data.nodes.map(node => node.id).sort()
+	var edges = alchemy_data.edges
+	var row, cell, text
+
+	// x-axis header
+	row = table.insertRow(-1)
+	row.insertCell(-1)
+	nodes.forEach(function(B) {
+	    cell = row.insertCell(-1)
+	    cell.style.transform = "rotate(-90deg)"
+	    text = (humanNamesCheckbox.checked ? candidateIdToName[B] : B)
+	    cell.innerHTML = "<b>"+text+"</b>"
+	})
+
+	// cells[A][B] = stats about A beating B
+	var cells = {}
+	
+	// y-axis
+	nodes.forEach(function (A) {
+	    row = table.insertRow(-1)
+	    cell = row.insertCell(-1)
+	    console.log(cell.style)
+	    text = (humanNamesCheckbox.checked ? candidateIdToName[A] : A)
+	    cell.innerHTML = "<b>"+text+"</b>"
+	    cells[A] = {}
+	    nodes.forEach(function(B) {
+		// TODO: move this to a style sheet
+		cell = row.insertCell(-1)
+		cell.style.borderStyle = "solid"
+		cell.style.borderWidth = "1px"
+		text = "-"
+		cell.innerHTML = text
+		cells[A][B] = cell
+	    })
+	})
+
+	for (var idx in edges) {
+	    var edge = edges[idx]
+	    cells[edge.source][edge.target].innerHTML = edge.caption
+	}
     }
 
     // borrowed from here: https://ourcodeworld.com/articles/read/189/how-to-create-a-file-and-generate-a-download-with-javascript-in-the-browser-without-a-server
