@@ -5,65 +5,103 @@
     var View = Piv.view
 
     // page state
+    var debug_mode = false // hide/show certain elements
     var current_snapshot = null
     var candidateIdToName = null
     var electorIdToName = null
     
     // page components
-    var headerStyle = {"class": "font-size-1"}
-    Piv.html(View.workspace, "h1", "Options", headerStyle)
-    var OptionsDiv = Piv.div(View.workspace, "Options", "text1")
-    var humanNamesCheckbox = piv.html(OptionsDiv, "input", "", {"type": "checkbox"})
-    humanNamesCheckbox.onchange = refreshResults
-    piv.html(OptionsDiv, "span", " Use Human-Readable Candidate Names<br>")
-    var showElectorNamesCheckbox = piv.html(OptionsDiv, "input", "", {"type": "checkbox"})
-    showElectorNamesCheckbox.onchange = refreshResults
-    piv.html(OptionsDiv, "span", " Show Elector Names<br>")
-    
-    Piv.html(View.workspace, "h1", "Snapshots", headerStyle)
-    var SnapshotsDiv = Piv.div(View.workspace, "Snapshots", "text1")
-
-    Piv.html(View.workspace, "h1", "Import/Export", headerStyle)
-    var FilesDiv = Piv.div(View.workspace, "Files", "text1")
-    var exportButton = piv.html(FilesDiv, "button", "Export Snapshot")
-    piv.html(FilesDiv, "span", "<br><br><b>OR</b><br>")
-    exportButton.onclick = exportSnapshot
-    piv.html(FilesDiv, "span", "<b>Import:</b> ")
-    var importBox = piv.html(FilesDiv, "input", "", {"type": "file"})
-    importBox.onchange = importSnapshot
-    piv.html(FilesDiv, "span", "<br>")
-
-    Piv.html(View.workspace, "h1", "Candidates", headerStyle)
-    var CandidatesDiv = Piv.div(View.workspace, "Candidates", "text1")
-
-    Piv.html(View.workspace, "h1", "Ballots", headerStyle)
-    var BallotsDiv = Piv.div(View.workspace, "Ballots", "text1")
-
-    Piv.html(View.workspace, "h1", "Tie-Breaker (Partial Order)", headerStyle)
-    var TiePartialDiv = Piv.div(View.workspace, "TiePartial", "text1")
-
-    Piv.html(View.workspace, "h1", "Tie-Breaker (Total Order)", headerStyle)
-    var TieTotalDiv = Piv.div(View.workspace, "TieTotal", "text1")
-
-    Piv.html(View.workspace, "h1", "Results", headerStyle)
-    var ResultsDiv = Piv.div(View.workspace, "Results", "text1")
-
-    Piv.html(View.workspace, "h1", "Head-to-Head Stats", headerStyle)
-    var TableDiv = Piv.div(View.workspace, "Table", "text1")
-    
-    Piv.html(View.workspace, "h1", "Plot", headerStyle)
-    var PlotDiv = Piv.div(View.workspace, "Plot", "plot_area text1")
+    var OptionsDiv;
+    var humanNamesCheckbox
+    var showElectorNamesCheckbox
+    var SnapshotsDiv
+    var FilesDiv
+    var exportButton
+    var importBox
+    var CandidatesDiv
+    var BallotsDiv
+    var TiePartialDiv
+    var TieTotalDiv
+    var ResultsDiv
+    var DebugResultsDiv
+    var TableDiv
+    var PlotDiv
 
     function main() {
+	debug_mode = (getUrlParameter("debug") == "1")
+	console.log("Debugging: " + debug_mode)
+
         // generic setup
         View.setHeader("Election Debugger", ElectionId)
         View.statusbar.innerHTML = ""
         Piv.electionsMenu(View.sidenav, ElectionId)
         Piv.removeHrefsForCurrentLoc()
 
+	// populate page components
+	var headerStyle = {"class": "font-size-1"}
+	debug_element(Piv.html(View.workspace, "h1", "Options", headerStyle))
+	debug_element(OptionsDiv = Piv.div(View.workspace, "Options", "text1"))
+	humanNamesCheckbox = piv.html(OptionsDiv, "input", "", {"type": "checkbox", "checked": true})
+	humanNamesCheckbox.onchange = refreshResults
+	piv.html(OptionsDiv, "span", " Use Human-Readable Candidate Names<br>")
+	showElectorNamesCheckbox = piv.html(OptionsDiv, "input", "", {"type": "checkbox", "checked": true})
+	showElectorNamesCheckbox.onchange = refreshResults
+	piv.html(OptionsDiv, "span", " Show Elector Names<br>")
+
+	Piv.html(View.workspace, "h1", "Snapshots", headerStyle)
+	SnapshotsDiv = Piv.div(View.workspace, "Snapshots", "text1")
+
+	Piv.html(View.workspace, "h1", "Import/Export", headerStyle)
+	FilesDiv = Piv.div(View.workspace, "Files", "text1")
+	exportButton = piv.html(FilesDiv, "button", "Export Snapshot")
+	piv.html(FilesDiv, "span", "<br><br><b>OR</b><br>")
+	exportButton.onclick = exportSnapshot
+	piv.html(FilesDiv, "span", "<b>Import:</b> ")
+	importBox = piv.html(FilesDiv, "input", "", {"type": "file"})
+	importBox.onchange = importSnapshot
+	piv.html(FilesDiv, "span", "<br>")
+
+	debug_element(Piv.html(View.workspace, "h1", "Candidates", headerStyle))
+	debug_element(CandidatesDiv = Piv.div(View.workspace, "Candidates", "text1"))
+
+	Piv.html(View.workspace, "h1", "Ballots", headerStyle)
+	BallotsDiv = Piv.div(View.workspace, "Ballots", "text1")
+
+	debug_element(Piv.html(View.workspace, "h1", "Tie-Breaker (Partial Order)", headerStyle))
+	debug_element(TiePartialDiv = Piv.div(View.workspace, "TiePartial", "text1"))
+
+	debug_element(Piv.html(View.workspace, "h1", "Tie-Breaker (Total Order)", headerStyle))
+	debug_element(TieTotalDiv = Piv.div(View.workspace, "TieTotal", "text1"))
+
+	Piv.html(View.workspace, "h1", "Results", headerStyle)
+	ResultsDiv = Piv.div(View.workspace, "Results", "text1")
+	
+	debug_element(Piv.html(View.workspace, "h1", "Debug Results", headerStyle))
+	debug_element(DebugResultsDiv = Piv.div(View.workspace, "DebugResults", "text1"))
+
+	Piv.html(View.workspace, "h1", "Head-to-Head Stats", headerStyle)
+	TableDiv = Piv.div(View.workspace, "Table", "text1")
+    
+	Piv.html(View.workspace, "h1", "Plot", headerStyle)
+	PlotDiv = Piv.div(View.workspace, "Plot", "plot_area text1")
+	
         // start workflow
         getSnapshots()
     }
+
+    // unless we're in debug mode, hide the element
+    function debug_element(element) {
+	if (!debug_mode) {
+	    element.style.display = "none"
+	}
+    }
+
+    function getUrlParameter(name) {
+	name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+	var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+	var results = regex.exec(location.search);
+	return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    };
 
     function getSnapshots() {
         // fetch snapshots
@@ -195,12 +233,15 @@
 	TiePartialDiv.innerHTML = formatCandidates(debug.tie_breaker)
 	TieTotalDiv.innerHTML = formatCandidates(debug.tie_breaker_total)
 
-	// results
+	// debug results (text only)
 	var ranks = Array.from(snapshot.result_blob.order.keys())
 	ranks.sort()
 	var order = ranks.map(rank => snapshot.result_blob.order[rank].map(candidate => candidate.id))
 	var order_text = order.map(ties => ties.join("=")).join(">")
-	ResultsDiv.innerHTML = formatCandidates(order_text)
+	DebugResultsDiv.innerHTML = formatCandidates(order_text)
+
+	// user-friendly results
+	showResults()
 
 	// table + plot
 	var alchemy_data = ballotsToAlchemyGraph(debug.ballots)
@@ -269,6 +310,28 @@
 	return alchemy_data
     }
 
+    function displayCandidateGroup(rank, candidates) {
+	if (ResultsDiv.innerHTML != "") {
+	    piv.html(ResultsDiv, "span", "<br><br>")
+	}
+
+	var group = Piv.div(ResultsDiv, "", "border-color-6 bg-color-7")
+	candidates.forEach (function(candidate) {
+	    var name = candidate.name
+	    group.innerHTML += ("<b>Rank " + rank + ":</b> " + name + "<br>")
+	})
+    }
+
+    function showResults() {
+	var candidateOrder = current_snapshot.result_blob.order
+	ResultsDiv.innerHTML = ""
+	var rank = 1
+	for (var key in candidateOrder) {
+	    displayCandidateGroup(rank, candidateOrder[key])
+	    rank += 1
+	}
+    }
+
     function showPlot(alchemy_data) {
 	PlotDiv.innerHTML = ""
 	var AlchemyDiv = Piv.div(PlotDiv, "alchemy")
@@ -321,6 +384,7 @@ against each candidate along the horizontal access.")
 	row.insertCell(-1)
 	nodes.forEach(function(B) {
 	    cell = row.insertCell(-1)
+	    // TODO: make this not overflow when it is 3+ characters
 	    cell.style.transform = "rotate(-90deg)"
 	    text = (humanNamesCheckbox.checked ? candidateIdToName[B] : B)
 	    cell.innerHTML = "<b>"+text+"</b>"
@@ -333,7 +397,6 @@ against each candidate along the horizontal access.")
 	nodes.forEach(function (A) {
 	    row = table.insertRow(-1)
 	    cell = row.insertCell(-1)
-	    console.log(cell.style)
 	    text = (humanNamesCheckbox.checked ? candidateIdToName[A] : A)
 	    cell.innerHTML = "<b>"+text+"</b>"
 	    cells[A] = {}
@@ -348,10 +411,9 @@ against each candidate along the horizontal access.")
 	    })
 	})
 
-	for (var idx in edges) {
-	    var edge = edges[idx]
+	edges.forEach(function(edge) {
 	    cells[edge.source][edge.target].innerHTML = edge.caption
-	}
+	})
     }
 
     // borrowed from here: https://ourcodeworld.com/articles/read/189/how-to-create-a-file-and-generate-a-download-with-javascript-in-the-browser-without-a-server
