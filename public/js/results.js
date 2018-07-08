@@ -57,10 +57,10 @@
 	showElectorNamesCheckbox.onchange = refreshResults
 	piv.html(OptionsDiv, "span", " Show Elector Names<br>")
 
-	Piv.html(View.workspace, "h1", "Snapshots", headerStyle)
+	Piv.html(View.workspace, "h1", "Load a Snapshot", headerStyle)
 	SnapshotsDiv = Piv.div(View.workspace, "Snapshots", "text1")
 
-	Piv.html(View.workspace, "h1", "Import/Export", headerStyle)
+	Piv.html(View.workspace, "h1", "Import/Export a Snapshot", headerStyle)
 	FilesDiv = Piv.div(View.workspace, "Files", "text1")
 	exportButton = piv.html(FilesDiv, "button", "Export Snapshot")
 	piv.html(FilesDiv, "span", "<br><br><b>OR</b><br>")
