@@ -93,8 +93,12 @@
     
 	Piv.html(View.workspace, "h1", "Head-to-Head Graph", headerStyle)
 	PlotDiv = Piv.div(View.workspace, "Plot", "plot_area text1")
-	
-        // start workflow
+
+        // start workflow(s)
+	var snapshotId = getUrlParameter("snap")
+	if (snapshotId) {
+	    getSnapshot(snapshotId)
+	}
         getSnapshots()
     }
 
@@ -199,7 +203,7 @@
     function getCandidateFormatFn(snapshot) {
 	var fn
 	if (humanNamesCheckbox.checked) {
-	    fn = (x => candidateIdToName[x])
+	    fn = (x => " "+candidateIdToName[x]+" ")
 	} else {
 	    fn = (x => x)
 	}
@@ -232,7 +236,7 @@
         Object.keys(ballots).forEach(elector_id => {
 	    var ballot_text = ''
 	    if (showElectorNamesCheckbox.checked) {
-		ballot_text += electorIdToName[elector_id] + ": "
+		ballot_text += "<b>"+electorIdToName[elector_id] + "</b>: "
 	    }
 	    ballot_text += formatCandidates(ballots[elector_id])
 	    ballot_text += "<br>"
@@ -370,8 +374,39 @@
 	var alchemy = new Alchemy(config)
     }
 
+    function verticalText(parent, innerHTML) {
+	var vpadding = 2
+    	var inner = document.createElement("div")
+	var outer = document.createElement("div")
+	parent.appendChild(outer)
+	outer.appendChild(inner)
+	inner.style.whiteSpace = "nowrap"
+	inner.innerHTML = innerHTML
+
+	var width = inner.offsetWidth
+	var height = inner.offsetHeight
+
+	outer.style.display = "inline-block"
+	outer.style.height = (width+vpadding)+"px"
+	outer.style.width = height+"px"
+	outer.margin = "auto"
+
+	inner.style.transformOrigin = "top left"
+	inner.style.transform = "rotate(-90.0deg)"
+	inner.style.top = (width+vpadding/2) + "px"
+
+	return inner
+    }
+
+    function addBorder(element) {
+	element.style.borderStyle = "solid"
+	element.style.borderWidth = "1px"
+    }
+    
     function showTable(alchemy_data) {
 	TableDiv.innerHTML = ""
+
+	var cellWidth = "3em"
 
 	piv.html(TableDiv, "p", "Each would-be victory in a head-to-head matchup is represented by a \
 number in the following table.  Start with a candidate along the \
@@ -383,7 +418,6 @@ against each candidate along the horizontal access.")
 	// TODO: move this to a style sheet
 	table.style.borderCollapse = "collapse"
 	table.style.textAlign = "center"
-	table.style.vertialAlign = "middle"
 	
 	var nodes = alchemy_data.nodes.map(node => node.id).sort()
 	var edges = alchemy_data.edges
@@ -394,10 +428,11 @@ against each candidate along the horizontal access.")
 	row.insertCell(-1)
 	nodes.forEach(function(B) {
 	    cell = row.insertCell(-1)
-	    // TODO: make this not overflow when it is 3+ characters
-	    cell.style.transform = "rotate(-90deg)"
+	    cell.style.verticalAlign = "bottom"
+	    cell.style.align = "center"
+	    cell.style.width = cellWidth
 	    text = (humanNamesCheckbox.checked ? candidateIdToName[B] : B)
-	    cell.innerHTML = "<b>"+text+"</b>"
+	    verticalText(cell, "<b>"+text+"</b>")
 	})
 
 	// cells[A][B] = stats about A beating B
@@ -409,6 +444,7 @@ against each candidate along the horizontal access.")
 	    cell = row.insertCell(-1)
 	    text = (humanNamesCheckbox.checked ? candidateIdToName[A] : A)
 	    cell.innerHTML = "<b>"+text+"</b>"
+	    cell.style.textAlign = "right"
 	    cells[A] = {}
 	    nodes.forEach(function(B) {
 		// TODO: move this to a style sheet

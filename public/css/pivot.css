@@ -13,7 +13,7 @@ body {
   width: 100%;
   overflow: scroll;
   /* text-align: center; */
-  font-weight: 100;
+  font-weight: normal;
 }
 div, ol, ul, li, a, img, form, label, input, iframe, button {
   position: relative;
