@@ -18,7 +18,7 @@
     var current_snapshot = null
     var candidateIdToName = null
     var electorIdToName = null
-    
+
     // page components
     var OptionsDiv;
     var humanNamesCheckbox
@@ -44,7 +44,7 @@
         View.setHeader("Election Results", ElectionId)
         View.statusbar.innerHTML = ""
         Piv.electionsMenu(View.sidenav, ElectionId)
-        Piv.removeHrefsForCurrentLoc()
+        // Piv.removeHrefsForCurrentLoc()
 
 	// populate page components
 	var headerStyle = {"class": "font-size-1"}
@@ -90,7 +90,7 @@
 
 	Piv.html(View.workspace, "h1", "Head-to-Head Stats", headerStyle)
 	TableDiv = Piv.div(View.workspace, "Table", "text1")
-    
+
 	Piv.html(View.workspace, "h1", "Head-to-Head Graph", headerStyle)
 	PlotDiv = Piv.div(View.workspace, "Plot", "plot_area text1")
 
@@ -402,7 +402,7 @@
 	element.style.borderStyle = "solid"
 	element.style.borderWidth = "1px"
     }
-    
+
     function showTable(alchemy_data) {
 	TableDiv.innerHTML = ""
 
@@ -413,12 +413,12 @@ number in the following table.  Start with a candidate along the \
 vertical access.  The numbers in that row indicate the strengths of \
 the victories that the candidate would have in head-to-head matchups \
 against each candidate along the horizontal access.")
-	
+
 	var table = piv.html(TableDiv, "table", "")
 	// TODO: move this to a style sheet
 	table.style.borderCollapse = "collapse"
 	table.style.textAlign = "center"
-	
+
 	var nodes = alchemy_data.nodes.map(node => node.id).sort()
 	var edges = alchemy_data.edges
 	var row, cell, text
@@ -437,7 +437,7 @@ against each candidate along the horizontal access.")
 
 	// cells[A][B] = stats about A beating B
 	var cells = {}
-	
+
 	// y-axis
 	nodes.forEach(function (A) {
 	    row = table.insertRow(-1)
@@ -486,7 +486,7 @@ against each candidate along the horizontal access.")
 
 	reader.readAsText(event.target.files[0])
     }
-    
+
     function exportSnapshot() {
 	if (current_snapshot == null) {
 	    alert("please open a snapshot first")

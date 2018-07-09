@@ -18,7 +18,7 @@ Piv.anchorListDiv(View.workspace, "", {
 Rankeditems = Piv.html(View.workspace, "ol", "", {"id": "rankeditems", "class": "itemlist incrementsCounter"});
 Unrankeditems = Piv.html(View.workspace, "ol", "", {"id": "unrankeditems", "class": "itemlist"});
 
-Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
+// Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
 
 Piv.loadBallot(election, Piv.displayBallot, li1, Rankeditems, Unrankeditems)

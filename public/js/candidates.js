@@ -27,7 +27,7 @@ View.statusbar.innerHTML = ""
 // )
 Piv.electionsMenu(View.sidenav, ElectionId)
 
-Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
+// Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
 
 // Piv.div(View.workspace, "", "w100 font-size-3 padding-1 textLeft color-white", "Candidates")

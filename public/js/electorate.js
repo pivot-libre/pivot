@@ -41,7 +41,7 @@ View.statusbar.innerHTML = ""
 // )
 Piv.electionsMenu(View.sidenav, ElectionId)
 
-Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
+// Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 loadElectorate(ElectionId, displayElectorate)
 
 // function definitions
