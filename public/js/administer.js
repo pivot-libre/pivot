@@ -26,23 +26,23 @@ Piv.http.get(["/api/elections/" + ElectionId, "/api/elections/" + ElectionId + "
 
 // function definitions
 function showElectionDetails(details, stats) {
-  Piv.div(View.workspace, "", "text3 row1", "Election name: " + details.name)
+  // Piv.div(View.workspace, "", "text3 row1", "Election name: " + details.name)
 
   // stats
-  Piv.div(View.workspace, "", "text3 row1", "Outstanding invites: " + stats.outstanding_invites)
-  Piv.div(View.workspace, "", "text3 row1", "Approved ballots: " + stats.approved_current)
-  Piv.div(View.workspace, "", "text3 row1", "Unapproved ballots: " + stats.approved_none)
-  Piv.div(View.workspace, "", "text3 row1", "Previously approved ballots: " + stats.approved_previous)
+  // Piv.div(View.workspace, "", "text3 row1", "Outstanding invites: " + stats.outstanding_invites)
+  // Piv.div(View.workspace, "", "text3 row1", "Approved ballots: " + stats.approved_current)
+  // Piv.div(View.workspace, "", "text3 row1", "Unapproved ballots: " + stats.approved_none)
+  // Piv.div(View.workspace, "", "text3 row1", "Previously approved ballots: " + stats.approved_previous)
 
   //calculate results
-  var calcResultsButton = Piv.div(View.workspace, "", "clickable1", "Calculate Results", "", "click", calcElectionResults, [details.id])
+  var calcResultsButton = Piv.div(Piv.div(View.workspace, "", "w100 margin-bottom-1"), "", "clickable1", "Calculate Results", "", "click", calcElectionResults, [details.id])
   Piv.http.get(["/api/elections/" + details.id + "/result_snapshots"], function(response) {
     SnapshotsTaken = response.length
     if (SnapshotsTaken > 0) calcResultsButton.innerHTML = "Calculate Results" + " (" + response.length + " snapshot(s) taken)"
   })
 
   //delete button
-  Piv.div(View.workspace, "", "clickable1", "Delete Election", "", "click", deleteElection, [details.id])
+  Piv.div(Piv.div(View.workspace, "", "w100 margin-bottom-1"), "", "clickable1", "Delete Election", "", "click", deleteElection, [details.id])
 }
 
 function calcElectionResults(electionId) {
