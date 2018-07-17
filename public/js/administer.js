@@ -20,7 +20,7 @@ View.setHeader("Administer", ElectionId)
 // )
 Piv.electionsMenu(View.sidenav, ElectionId)
 
-Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
+// Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 
 Piv.http.get(["/api/elections/" + ElectionId, "/api/elections/" + ElectionId + "/voter_stats"], showElectionDetails)
 
