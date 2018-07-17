@@ -101,18 +101,19 @@ input[type=submit],
   /* background-color: #05535b; */
   background-color: #64765b;  /* chrome paisley leaf */
 }
+/* the seletion selector breaks firefox for the other selectors, so it goes by itself */
+.input-text-1::selection {
+  background-color: #9aad90; /* chrome paisley light */
+  background-image: url("https://www.transparenttextures.com/patterns/black-thread-light.png");
+  background-size: auto;
+}
 .mainheader,
-/* .workspace, */
-#maincolumn,
 .clickable4:not([href]),
-/* a:hover:not(.clickable4), */
-/* a:not([href]):not(.clickable4), */
 button:hover,
 input[type=submit]:hover,
 .clickable1:hover:not(.disabled),
-.input-text-1::selection,
+#maincolumn,
 .bg-color-3 {
-  /* background-color: #3798d4; */
   background-color: #9aad90; /* chrome paisley light */
   background-image: url("https://www.transparenttextures.com/patterns/black-thread-light.png");
   background-size: auto;
