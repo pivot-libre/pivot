@@ -29,7 +29,11 @@ At this point you are ready to run the script. The script accepts a single optio
 Example:
 
 ```shell
+#Seed database with test data, create example users.json
+php artisan db:seed --class=TravisSeeder
+#Install Python dependencies
 pip install -r requirements.txt
+#Run the Python integration tests
 cd tests/python
 python tests.py --url http://pivot.test
 ```
