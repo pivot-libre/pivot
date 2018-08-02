@@ -24,13 +24,14 @@ PHPUnit tests can be executed simply by running `phpunit` on the command line at
 
 Some integration tests are written in Python. The python script reads from tests/python/users.json. Create two users in the Pivot web UI, create personal access tokens, and then copy both users emails and tokens into the json file.
 
-At this point you are ready to run the script. The script accepts a single optional param - a url pointing to the /api endpoint of a running Pivot app. If no value is specified, a default local homestead url is assumed.
+At this point you are ready to run the script. The script accepts a single optional param - a url pointing to the root of a running Pivot app. If no value is specified, a default local homestead url is assumed.
 
 Example:
 
 ```shell
+pip install -r requirements.txt
 cd tests/python
-python tests.py http://pivot.app/api
+python tests.py --url http://pivot.test
 ```
 
 ## Compiling Assets
