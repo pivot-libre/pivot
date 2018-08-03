@@ -20,18 +20,29 @@ php artisan passport:install    # Create Oauth2 Tokens
 
 The project has two ways of executing tests.
 
+### PHP
+
 PHPUnit tests can be executed simply by running `phpunit` on the command line at the root of the repository.
 
-Some integration tests are written in Python. The python script reads from tests/python/users.json. Create two users in the Pivot web UI, create personal access tokens, and then copy both users emails and tokens into the json file.
+### Python
+Some integration tests are written in Python. The python test script accepts some parameters. The most important one is `--url` - a url pointing to the root of a running Pivot app. If no value is specified, a default local homestead url is assumed.
 
-At this point you are ready to run the script. The script accepts a single optional param - a url pointing to the /api endpoint of a running Pivot app. If no value is specified, a default local homestead url is assumed.
+The python test script reads from `tests/python/users.json`. `users.json` is not present by default. The following code example generates a `users.json` for you. Later optional instructions will tell you how to create one from scratch.
 
 Example:
 
 ```shell
+#Seed database with test data, create example users.json
+php artisan db:seed --class=TravisSeeder
+#Install Python dependencies
+pip install -r requirements.txt
+#Run the Python integration tests
 cd tests/python
-python tests.py http://pivot.app/api
+python tests.py --url http://pivot.test
 ```
+
+#### Customizing users.json
+You can optionally customize `tests/python/users.json` if you want the python tests to use something other than the automatically-generated accounts. `users.json` needs two users. You can register custom users in the Pivot web UI, log in to their `/profile` pages, (Ex: `http://pivot.test/profile`, create personal access tokens for them, and then copy the tokens and emails into the json file.
 
 ## Compiling Assets
 
