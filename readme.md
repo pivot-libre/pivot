@@ -27,7 +27,7 @@ PHPUnit tests can be executed simply by running `phpunit` on the command line at
 ### Python
 Some integration tests are written in Python. The python test script accepts some parameters. The most important one is `--url` - a url pointing to the root of a running Pivot app. If no value is specified, a default local homestead url is assumed.
 
-The python test script reads from `tests/python/users.json`. `users.json` is not present by default. The following code example generates a users.json for you. Later optional instructions will tell you how to create one from scratch.
+The python test script reads from `tests/python/users.json`. `users.json` is not present by default. The following code example generates a `users.json` for you. Later optional instructions will tell you how to create one from scratch.
 
 Example:
 
@@ -42,7 +42,7 @@ python tests.py --url http://pivot.test
 ```
 
 #### Customizing users.json
-You can optionally customize tests/python/users.json if you want to use something other than the automatically-generated accounts. `users.json` needs two users. You can create custom users in the Pivot web UI, create personal access tokens for them, and then copy the tokens and emails into the json file.
+You can optionally customize `tests/python/users.json` if you want the python tests to use something other than the automatically-generated accounts. `users.json` needs two users. You can register custom users in the Pivot web UI, log in to their `/profile` pages, (Ex: `http://pivot.test/profile`, create personal access tokens for them, and then copy the tokens and emails into the json file.
 
 ## Compiling Assets
 
