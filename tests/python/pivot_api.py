@@ -15,7 +15,7 @@ class LatencyStats:
             avg[k] = sum(values) / len(values)
         keys = sorted(avg.keys(), key=lambda k: -avg[k])
         for k in keys:
-            print(str(int(avg[k]*1000)).rjust(4) + ' ms   ' + k + ' [%d calls]' % len(self.latencies[k]))
+            print str(int(avg[k]*1000)).rjust(4) + ' ms   ' + k + ' [%d calls]' % len(self.latencies[k])
 
 class API:
     def __init__(self, url, curltrace):
@@ -40,7 +40,7 @@ class API:
             f.write(out)
 
     def dump_stats(self):
-        print("\n============= LATENCY STATUS ============\n")
+        print "\n============= LATENCY STATUS ============\n"
         self.latency_stats.dump()
 
     def dump_curl(self, method, headers, url, data=None):
@@ -62,7 +62,7 @@ class API:
         
     # generic API
     def user_get(self, user, url):
-        print('GET '+url)
+        print 'GET '+url
         headers = {'Authorization': 'Bearer '+user['token']}
 
         # add curl equivalent to trace
@@ -83,7 +83,7 @@ class API:
                 self.next_should_fail = False
                 return
             else:
-                print('could not parse: ' + d[:100] + ' (%d bytes)...' % len(d))
+                print 'could not parse: ' + d[:100] + ' (%d bytes)...' % len(d)
                 self.dump(d)
                 assert(0)
         # no failure detected
@@ -91,8 +91,8 @@ class API:
         return return_data
 
     def user_post(self, user, url, body):
-        print('POST '+url)
-        headers = {'Authorization': 'Bearer '+user['token'], 'Content-Type': 'text/json'}
+        print 'POST '+url
+        headers = {'Authorization': 'Bearer '+user['token']}
         data = json.dumps(body)
 
         # add curl equivalent to trace
@@ -113,7 +113,7 @@ class API:
                 self.next_should_fail = False
                 return
             else:
-                print('could not parse: ' + d[:100] + ' (%d bytes)...' % len(d))
+                print 'could not parse: ' + d[:100] + ' (%d bytes)...' % len(d)
                 self.dump(d)
                 assert(0)
         # no failure detected
@@ -121,7 +121,7 @@ class API:
         return return_data
 
     def user_delete(self, user, url):
-        print('DELETE '+url)
+        print 'DELETE '+url
         headers = {'Authorization': 'Bearer '+user['token']}
 
         # add curl equivalent to trace
@@ -142,7 +142,7 @@ class API:
                 self.next_should_fail = False
                 return
             else:
-                print('could not parse: ' + d[:100] + ' (%d bytes)...' % len(d))
+                print 'could not parse: ' + d[:100] + ' (%d bytes)...' % len(d)
                 self.dump(d)
                 assert(0)
         # no failure detected
@@ -180,10 +180,6 @@ class API:
         url = 'elections/%d/electors' % election['id']
         return self.user_get(user, url)
 
-    def get_electors_for_self(self, user, election):
-        url = 'elections/%d/electors_for_self' % election['id']
-        return self.user_get(user, url)
-
     def get_elector(self, user, election, elector_id):
         url = 'elections/%d/electors/%d' % (election['id'], elector_id)
         return self.user_get(user, url)
@@ -208,27 +204,13 @@ class API:
         url = 'elections/%d/result' % election['id']
         return self.user_get(user, url)
 
-    # gets the elector_id for the specified user on the specified election.
-    # asserts there is only one elector for that user on that election.
-    def get_only_elector_id(self, user, election):
-        electors = self.get_electors_for_self(user, election)
-        assert(len(electors) == 1)
-        return electors[0]['id']
-
-    def batchvote(self, user, election, votes, elector_id=None):
-        print('HERE1')
-        if elector_id == None:
-            elector_id = self.get_only_elector_id(user, election)
-        print('HERE2')
+    def batchvote(self, user, election, votes):
         url = 'elections/%d/batchvote' % election['id']
-        print({'elector_id': elector_id, 'votes': votes})
-        return self.user_post(user, url, {'elector_id': elector_id, 'votes': votes})
+        return self.user_post(user, url, {'votes': votes})
 
-    def batchvote_view(self, user, election, elector_id=None):
-        if elector_id == None:
-            elector_id = self.get_only_elector_id(user, election)
-        url = 'elections/%d/batchvote_view' % election['id']
-        return self.user_post(user, url, {'elector_id': elector_id})
+    def batchvote_view(self, user, election):
+        url = 'elections/%d/batchvote' % election['id']
+        return self.user_get(user, url)
 
     def batch_candidates(self, user, election, candidates):
         url = 'elections/%d/batch_candidates' % election['id']
