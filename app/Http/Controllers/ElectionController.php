@@ -164,6 +164,8 @@ class ElectionController extends Controller
         $election = Election::findOrFail($election_id);
         $elector_id = $request->json()->get('elector_id');
 
+        $this->authorize('vote', $election);
+
         Log::debug("attempt batchvote with elector_id=".$elector_id);
 
         // auth note: if an elector exists for this user, batchvote is allowed; otherwise, this fails
@@ -197,8 +199,11 @@ class ElectionController extends Controller
         $this->validate($request, [
             'elector_id' => 'required|exists:electors,id'
         ]);
+
         $election = Election::findOrFail($election_id);
         $elector_id = $request->json()->get('elector_id');
+
+        $this->authorize('vote', $election);
 
         // auth note: if an elector exists for this user, batchvote is allowed; otherwise, this fails
         $elector = $election->electors()->where('id', $elector_id)->where('user_id', Auth::id())->firstOrFail();
