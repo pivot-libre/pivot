@@ -7,7 +7,6 @@ use App\Election;
 use App\Elector;
 use App\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ElectorController extends Controller
 {
@@ -41,12 +40,6 @@ class ElectorController extends Controller
         $this->authorize('view_electors', $election);
 
         return $election->electors()->accepted()->get();
-    }
-
-    public function electors_for_self(Election $election)
-    {
-        // auth note: viewing electors you control requires no special privilege
-        return $election->electors()->where('user_id', Auth::id())->get();
     }
 
     /**

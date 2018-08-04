@@ -9,7 +9,6 @@ use App\CandidateRank;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class ElectionController extends Controller
 {
@@ -156,23 +155,17 @@ class ElectionController extends Controller
     {
         $this->validate($request, [
             'votes.*.candidate_id' => 'required|exists:candidates,id',
-            'votes.*.rank' => 'required|integer',
-            'elector_id' => 'required|exists:electors,id'
+            'votes.*.rank' => 'required|integer'
         ]);
-
         /** @var Election $election */
         $election = Election::findOrFail($election_id);
-        $elector_id = $request->json()->get('elector_id');
-
         $this->authorize('vote', $election);
 
-        Log::debug("attempt batchvote with elector_id=".$elector_id);
+        $elector = $election->electors()->where('user_id', Auth::id())->firstOrFail();
 
-        // auth note: if an elector exists for this user, batchvote is allowed; otherwise, this fails
-        $elector = $election->electors()->where('id', $elector_id)->where('user_id', Auth::id())->firstOrFail();
+        $ranks = [];
 
         // iterate over list of rankings and create/update candidate ranks in a transaction.
-        $ranks = [];
         DB::transaction(function () use (&$ranks, $request, $elector){
             foreach($request->json()->get('votes') as $vote) {
                 $candidate_id = $vote['candidate_id'];
@@ -191,22 +184,17 @@ class ElectionController extends Controller
             }
         });
 
+
         return $ranks;
     }
 
     public function batchvote_view(Request $request, $election_id)
     {
-        $this->validate($request, [
-            'elector_id' => 'required|exists:electors,id'
-        ]);
-
         $election = Election::findOrFail($election_id);
-        $elector_id = $request->json()->get('elector_id');
-
         $this->authorize('vote', $election);
 
-        // auth note: if an elector exists for this user, batchvote is allowed; otherwise, this fails
-        $elector = $election->electors()->where('id', $elector_id)->where('user_id', Auth::id())->firstOrFail();
+        $elector = Elector::where('election_id', '=', $election_id)->
+        where('user_id', '=', Auth::user()->id)->firstOrFail();
         return $elector->ranks;
     }
 

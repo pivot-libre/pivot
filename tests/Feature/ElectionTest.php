@@ -78,8 +78,7 @@ class ElectionTest extends TestCase
                     'candidate_id' => $candidateC->id,
                     'rank' => 3
                 ]
-            ],
-            'elector_id' => $elector->id,
+            ]
         ]);
 
         $response->assertStatus(200);
@@ -98,20 +97,13 @@ class ElectionTest extends TestCase
         ]);
 
         $invalidElectionId = $election->id + 9999;
-
-       $elector = factory(Elector::class)->create([
-            'user_id' => $user->id,
-            'election_id' => $election->id,
-        ]);
-
         $response = $this->actingAs($user, 'api')->postJson("api/elections/{$invalidElectionId}/batchvote", [
             'votes' => [
                 [
                     'candidate_id' => $candidateA->id,
                     'rank' => 2
                 ],
-            ],
-            'elector_id' => $elector->id
+            ]
         ]);
         $this->assertInstanceOf(ModelNotFoundException::class, $response->exception);
     }
@@ -122,11 +114,6 @@ class ElectionTest extends TestCase
         $user = factory(User::class)->create();
 
         $election = factory(Election::class)->create();
-
-        $elector = factory(Elector::class)->create([
-            'user_id' => $user->id,
-            'election_id' => $election->id,
-        ]);
 
         $candidateA = factory(Candidate::class)->create([
             'name' => 'candidate-A'
@@ -139,8 +126,7 @@ class ElectionTest extends TestCase
                     'candidate_id' => $candidateA->id,
                     'rank' => 2
                 ],
-            ],
-            'elector_id' => $elector->id
+            ]
         ]);
 
         $this->assertInstanceOf(AuthenticationException::class, $response->exception);

@@ -28,7 +28,7 @@ def test1(api):
     # electors
     invite_status = api.invite(userA, election, userA['email'])
     code = invite_status['election_id']
-    print(code)
+    print code
     api.accept(userA, code)
     invite_status = api.invite(userA, election, userB['email'])
     code = str(invite_status['election_id'])
@@ -36,7 +36,7 @@ def test1(api):
     print(electors)
     assert(len(electors) == 1)
     acceptables = api.acceptable(userB)
-    print(acceptables)
+    print acceptables
     codes = [inv['code'] for inv in acceptables]
     assert (code in codes)
     api.accept(userB, code)
@@ -70,8 +70,8 @@ def test1(api):
     api.set_ready(userA, election, ready['latest_version'])
 
     # result
-    print(api.election_result(userA, election))
-    print(api.election_result(userB, election))
+    print api.election_result(userA, election)
+    print api.election_result(userB, election)
 
 def test2(api):
     """
@@ -101,11 +101,11 @@ def test2(api):
     ready = api.get_ready(userA, election)
     api.set_ready(userA, election, ready['latest_version'])
     results = api.election_result(userA, election)
-    print(results)
+    print results
     order = flatten_results(results['order'])
     result_names = [result['name'] for result in order]
     assert(result_names == [u'candidate-A', u'candidate-B', u'candidate-C', u'candidate-D'])
-    print(result_names)
+    print result_names
 
 def test3(api):
     """
@@ -116,10 +116,10 @@ def test3(api):
     userB = users[1]
 
     election = api.create_election(userA, 'test3-election')
-    print(api.add_elector(election, userA, userB))
-    print(api.get_electors(userA, election))
+    print api.add_elector(election, userA, userB)
+    print api.get_electors(userA, election)
     # an elector may view the list of electors
-    print(api.get_electors(userB, election))
+    print api.get_electors(userB, election)
 
 def test4(api):
     """
@@ -152,8 +152,8 @@ def test5(api):
         {'candidate_id': A['id'], 'rank': 1},
     ]
     api.batchvote(userB, election, votes)
-    print(api.delete_candidate(userA, election, A))
-    print(api.delete_election(userA, election))
+    print api.delete_candidate(userA, election, A)
+    print api.delete_election(userA, election)
 
 def test6(api):
     """
@@ -170,12 +170,12 @@ def test6(api):
     code = invite1['election_id']
     # multiple accepts should return the same first timestamp
     accept1 = api.accept(userB, code)
-    print(accept1)
+    print accept1
     accept2 = api.accept(userB, code)
-    print(accept1)
-    print(accept2)
+    print accept1
+    print accept2
     assert(accept1['id'] == accept2['id'])
-    print(accept1['invite_accepted_at'], accept2['invite_accepted_at'])
+    print accept1['invite_accepted_at'], accept2['invite_accepted_at']
     assert(accept1['invite_accepted_at'] == accept2['invite_accepted_at'])
     # should not be able to create duplicate invites even after accepting a prior invite
     invite3 = api.invite(userA, election, userB['email'])
@@ -352,8 +352,8 @@ def test10(api):
     electorB = api.add_elector(election, userA, userB)
     electors = api.get_electors(userA, election)
     assert(len(electors) == 1)
-    print(api.get_elector(userA, election, electorB['id']))
-    print(api.delete_elector(userA, election, electorB))
+    print api.get_elector(userA, election, electorB['id'])
+    print api.delete_elector(userA, election, electorB)
     electors = api.get_electors(userA, election)
     assert(len(electors) == 0)
     
@@ -391,11 +391,11 @@ def test11(api):
     snap_id = api.create_result_snapshot(userA, election)['id']
     snap = api.get_result_snapshot(userA, election, snap_id)
     result = snap.get('result_blob')
-    print('EXPECTED: ' + str(votes))
+    print 'EXPECTED: ' + str(votes)
     order = flatten_results(result['order'])
-    print('RESULTS: ' + str([c['id'] for c in order]))
+    print 'RESULTS: ' + str([c['id'] for c in order])
     for i, candidate in enumerate(order):
-        print(candidate)
+        print candidate
         assert(candidate['id'] == votes[i]['candidate_id'])
     snaps = api.list_result_snapshots(userA, election)
     assert(len(snaps) == 1)
@@ -410,7 +410,7 @@ def test11(api):
     assert(len(api.list_result_snapshots(userA, election)) == 1)
 
     # admin should be able to delete
-    print(api.delete_result_snapshot(userA, election, snap_id))
+    print api.delete_result_snapshot(userA, election, snap_id)
     assert(len(api.list_result_snapshots(userA, election)) == 0)
 
 def test12(api):
@@ -469,15 +469,6 @@ def test13(api):
     expected = 'there were 0 ballots ready for the election'
     assert(result['error'] == expected)
 
-def test14(api):
-    # test multiple electors controlled by same user
-    users = api.load_users()
-    userA = users[0]
-
-    election = api.create_election(userA, 'test-election')
-    electorA = api.add_elector(election, userA, userA)
-    print(api.get_electors_for_self(userA, election))
-
 def create_users(url):
     from selenium import webdriver
     from selenium.webdriver.common.keys import Keys
@@ -517,7 +508,7 @@ def create_users(url):
         assert(found_button)
         
         time.sleep(3)
-        print('grab token')
+        print 'grab token'
         found_code = False
         for code in driver.find_elements_by_xpath("//code"):
             if code.is_displayed():
@@ -525,7 +516,7 @@ def create_users(url):
                 token = code.text
                 break
         assert(found_code)
-        print(token)
+        print token
 
         # Close Button
         found_button = False
@@ -573,15 +564,15 @@ def main(url, genusers, curltrace, regex):
     with API(url=url+'/api', curltrace=curltrace) as api:
         for test_fn in test_fns:
             if re.match(regex, test_fn.func_name):
-                print("\n============= %s ============\n" % test_fn.func_name)
+                print "\n============= %s ============\n" % test_fn.func_name
                 test_fn(api)
             else:
                 skips.append(test_fn.func_name)
         api.dump_stats()
     if len(skips):
-        print("\n============= SKIPPED ============\n")
-        print(', '.join(skips))
-        print()
+        print "\n============= SKIPPED ============\n"
+        print ', '.join(skips)
+        print
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run some tests.')
