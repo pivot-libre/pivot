@@ -12,6 +12,7 @@ var Rankeditems, Unrankeditems
 Piv.evmanage.setManager(View.workspace, ["click"])
 
 View.setHeader("Cast Ballot", ElectionId)
+View.statusbar.innerHTML = ""
 Piv.electionsMenu(View.sidenav, ElectionId)
 
 // Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
