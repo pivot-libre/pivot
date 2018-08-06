@@ -87,7 +87,8 @@
       <div id="statusbar" class="w50 textLeft font20">
         Hi {{ Auth::user()->name }}, welcome to Pivot!
       </div>
-      <div class="w50 textRight">
+      <div class="w25 textRight font20">{{ Auth::user()->name }}</div>
+      <div class="w25 textRight">
         <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="clickable2">Sign Out</a>
         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
             {{ csrf_field() }}
