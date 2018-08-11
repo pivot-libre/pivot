@@ -92,7 +92,13 @@ input[type=submit],
 /* the seletion selector breaks firefox for the other selectors, so it goes by itself */
 .input-text-1::selection {
   background-color: #9aad90; /* chrome paisley light */
-  background-image: url("https://www.transparenttextures.com/patterns/black-thread-light.png");
+  /*
+   * Background pattern from Toptal Subtle Patterns.
+   * https://www.toptal.com/designers/subtlepatterns/black-thread/
+   * Licensed under CC-BY-SA 3.0 US
+   * https://creativecommons.org/licenses/by-sa/3.0/us/legalcode
+   */
+  background-image: url("/img/black-thread-light.png");
   background-size: auto;
 }
 .mainheader,
@@ -103,7 +109,14 @@ input[type=submit]:hover,
 #maincolumn,
 .bg-color-3 {
   background-color: #9aad90; /* chrome paisley light */
-  background-image: url("https://www.transparenttextures.com/patterns/black-thread-light.png");
+  /*
+   * Background pattern from Toptal Subtle Patterns.
+   * https://www.toptal.com/designers/subtlepatterns/black-thread/
+   * Licensed under CC-BY-SA 3.0 US
+   * https://creativecommons.org/licenses/by-sa/3.0/us/legalcode
+   */
+
+  background-image: url("/img/black-thread-light.png");
   background-size: auto;
 }
 #topNav,
