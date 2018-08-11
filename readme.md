@@ -2,6 +2,11 @@
 
 [![PDD status](http://www.0pdd.com/svg?name=pivot-libre/pivot)](http://www.0pdd.com/p?name=pivot-libre/pivot)
 
+
+## License
+
+Everything is licensed under the Apache 2.0 License with the exception of black-threads-light.png which is licensed from [Toptal](https://www.toptal.com/designers/subtlepatterns/black-thread/) under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/us/legalcode).
+
 ## Installation
 
 Before you start make sure you're running PHP >= 7.1 and have
