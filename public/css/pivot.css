@@ -581,3 +581,11 @@ input[type=submit],
     width: 600px;
     height: 600px;
 }
+
+@media print {
+	body, div {
+		height: auto;
+		overflow: visible !important;
+		display: block;
+	}
+}
