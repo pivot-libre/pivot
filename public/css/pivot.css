@@ -1,6 +1,5 @@
 html {
-  height: 100%;
-  overflow-y: scroll;
+	height: 100%;
 }
 body {
   box-sizing: border-box;
@@ -11,7 +10,6 @@ body {
   text-decoration: none;
   height: 100%;
   width: 100%;
-  overflow: scroll;
   font-weight: normal;
 }
 div, ol, ul, li, a, img, form, label, input, iframe, button {
@@ -206,7 +204,6 @@ a[href],
 #maincolumn {
   height: 100%;
   width: 82%;
-  overflow-y: scroll;
   margin: 0 0 0 18%;
   text-align: left;
 }
