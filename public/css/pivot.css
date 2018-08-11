@@ -4,7 +4,6 @@ html {
 body {
   box-sizing: border-box;
   margin: 0;
-  padding: 5px;
   font-family: "Raleway","Alegreya Sans",sans-serif;
   font-size: 0px;
   text-decoration: none;
@@ -101,12 +100,12 @@ input[type=submit],
   background-image: url("/img/black-thread-light.png");
   background-size: auto;
 }
-.mainheader,
+
+body,
 .clickable4:not([href]),
 button:hover,
 input[type=submit]:hover,
 .clickable1:hover:not(.disabled),
-#maincolumn,
 .bg-color-3 {
   background-color: #9aad90; /* chrome paisley light */
   /*
@@ -139,7 +138,8 @@ a.a1:hover,
 .bg-color-6 {
   background-color: #05535b;  /* bluish */
 }
-body,
+
+#sidenav,
 .container1,
 .bg-color-7 {
   background-color: #e6dec7;  /* chrome paisley tan */
@@ -150,6 +150,7 @@ body,
   background-color: #d2d2b9;  /* chrome paisley tan leaf mix */
   background-color: #c7cebb;  /* chrome paisley tan half white leaf mix */
 }
+
 .mainheader,
 .text3,
 .color-2 {
@@ -219,12 +220,15 @@ a[href],
   width: 82%;
   margin: 0 0 0 18%;
   text-align: left;
+  top: 0;
 }
 #sidenav {
   position: fixed;
   left: 0;
-  top: 48px;
+  top: 0;
+  padding-top: 48px;
   width: 18.5%;
+  height: 100%;
 }
 @media only screen and (min-width: 1400px) {
   #maincolumn {
