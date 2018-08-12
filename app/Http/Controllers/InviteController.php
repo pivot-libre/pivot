@@ -84,7 +84,8 @@ class InviteController extends Controller
         $this->authorize('update', $election);
 
         $email = $request->json()->get('email');
-        $elector = $election->invite($email);
+        $voter_name = $request->json()->get('voter_name');
+        $elector = $election->invite($email, $voter_name);
         return $elector;
     }
 
@@ -125,12 +126,12 @@ class InviteController extends Controller
         // invite_email matching the user's email, then the user has
         // the right to accept the "invite"
 
-        # TODO(tylerharter): clean this up?  Putting election_id in "code" variable is silly
-        $election_id = (int)$request->json()->get('code');
+        # TODO(tylerharter): clean this up?  Putting elector_id in "code" variable is silly
+        $elector_id = (int)$request->json()->get('code');
         $user = Auth::user();
         $email = $user->email;
 
-        $elector = Elector::where('invite_email', $email)->where('election_id', $election_id)->firstOrFail();
+        $elector = Elector::where('invite_email', $email)->where('id', $elector_id)->firstOrFail();
 
         if ($elector->invite_accepted_at == null)
         {
@@ -140,7 +141,7 @@ class InviteController extends Controller
         }
 
         # hack, because eloquent reformats dates after a save
-        $elector = Elector::find($elector->id);
+        $elector = Elector::find($elector_id);
         return $elector;
     }
 
@@ -153,7 +154,7 @@ class InviteController extends Controller
 
         foreach ($electors as $elector) {
             $election = $elector->election;
-            $code = (string)$election->id;
+            $code = (string)$elector->id;
             $row = array("election_name" => $election->name,
                          "election_id" => $election->id,
                          "code" => $code);

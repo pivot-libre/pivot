@@ -138,9 +138,9 @@ class Election extends Model
         return null;
     }
 
-    public function invite($email)
+    public function invite($email, $voter_name)
     {
-        $elector = $this->electors()->where(['invite_email' => $email])->first();
+        $elector = $this->electors()->where(['invite_email' => $email, 'voter_name' => $voter_name])->first();
         $mail_error = null;
 
         if (empty($elector))
@@ -148,6 +148,7 @@ class Election extends Model
             $elector = new Elector();
             $elector->election()->associate($this);
             $elector->invite_email = $email;
+            $elector->voter_name = $voter_name;
             $elector->save();
 
             $mail_error = $this->send_invite_email($email);
