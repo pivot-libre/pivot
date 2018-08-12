@@ -24,7 +24,7 @@ Route::group(['middleware' => 'auth:api'], function (Router $api) {
     $api->apiResource('elections', 'ElectionController');
     $api->group(['prefix' => 'elections/{election}'], function (Router $api) {
         $api->post('batchvote', 'ElectionController@batchvote')->name('election.batchvote');
-        $api->get('batchvote', 'ElectionController@batchvote_view')->name('election.batchvote_view');
+        $api->post('batchvote_view', 'ElectionController@batchvote_view')->name('election.batchvote_view');
         $api->get('get_ready', 'ElectionController@get_ready')->name('election.get_ready');
         $api->post('set_ready', 'ElectionController@set_ready')->name('election.set_ready');
         $api->get('voter_stats', 'ElectionController@voter_stats')->name('election.voter_stats');
@@ -35,6 +35,7 @@ Route::group(['middleware' => 'auth:api'], function (Router $api) {
         $api->apiResource('candidates', 'CandidateController');
 
         $api->resource('electors', 'ElectorController', ['only' => ['index', 'show', 'destroy']]);
+        $api->get('electors_for_self', 'ElectorController@electors_for_self')->name('elector.electors_for_self');
 
         // TODO: get rid of result API, using only result-snapshot API
         $api->resource('result', 'ResultController', ['only' => ['index']]);

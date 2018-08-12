@@ -23,12 +23,41 @@ var piv = piv = piv || {};  //(need the ; in order to do this syntax)
     }
   }
 
-  //load ballot
-  var loadBallot = lib.loadBallot = function(electionId, onSuccessFunction, perCandidateFunc, rankeditems, unrankeditems) {
-    var onLoadBallotDataFunc = function(ballotDef, userRankings) {
-      onSuccessFunction(ballotDef, userRankings, perCandidateFunc, rankeditems, unrankeditems)
+  // a user may control multiple electors in an election.  Get the list of them
+  var loadControlledElectors = lib.loadControlledElectors = function(electionId, onSuccess) {
+    var onLoadElectors = function(electors) {
+      console.log('Electors this user controls: %o', electors)
+      onSuccess(electors)
     }
-    getMultResources(['/api/elections/' + electionId + '/candidates', '/api/elections/' + electionId + '/batchvote'], onLoadBallotDataFunc)
+
+    getMultResources(['/api/elections/' + electionId + '/electors_for_self'], onLoadElectors)
+  }
+
+  // show dropdown of controlled electors for user to chose from (TODO)
+  var displayControlledElectors = lib.displayControlledElectors = function(electors, onSelectElector) {
+    var electorId = electors[0]['id'] // TODO: allow selection of this
+    console.log('Use elector_id: %d', electorId)
+    onSelectElector(electorId)
+  }
+
+  //load ballot for particular elector controlled by user
+  var loadBallot = lib.loadBallot = function(electionId, electorId, onSuccessFunction, perCandidateFunc, rankeditems, unrankeditems) {
+    var onLoadBallot = function(candidates, ballot) {
+      // step 3: populate ballot
+      onSuccessFunction(candidates, ballot, perCandidateFunc, rankeditems, unrankeditems)
+    }
+
+    var onLoadElectorsAndCandidates = function(candidates) {
+      // step 2: get elector's votes on those candidates
+      postToMultResources(['/api/elections/' + electionId + '/batchvote_view'],
+                          [{'elector_id': electorId}],
+                          function(ballot) {
+                            return onLoadBallot(candidates, ballot)
+                          })
+    }
+
+    // step 1: candidates
+    getMultResources(['/api/elections/' + electionId + '/candidates'], onLoadElectorsAndCandidates)
   }
 
   var displayBallot = lib.displayBallot = function(ballotDefinition, rankedBallot, perCandidateFunc, rankeditems, unrankeditems) {

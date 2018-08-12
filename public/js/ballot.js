@@ -7,6 +7,7 @@
   var View = Piv.view
   var ReviewedStatusDomels = {}, TieSelectedButton
   var Rankeditems, Unrankeditems
+  var CurrElectorId = null
 
   // actions (do stuff)
   Piv.evmanage.setManager(View.workspace, ["click"])
@@ -61,7 +62,15 @@
   })
   Piv.div(reviewedButton, "", "", "Reviewed")
 
-  Piv.loadBallot(ElectionId, Piv.displayBallot, li1, Rankeditems, Unrankeditems)
+  console.log("load electors")
+  Piv.loadControlledElectors(ElectionId, function(electors) {
+    console.log("loaded electors")
+    Piv.displayControlledElectors(electors, function(electorId) {
+      console.log("selected elector")
+      CurrElectorId = electorId
+      Piv.loadBallot(ElectionId, electorId, Piv.displayBallot, li1, Rankeditems, Unrankeditems)
+    })
+  })
 
   setUpDragHandling(Dragula, [Rankeditems, Unrankeditems])
 
@@ -260,10 +269,12 @@
       saveStatus = "queued"
       return "queued"
     }
+
     saveStatus = "saving"
     updateStatusDisplay("Saving...")
     var candidateRanks = {}
     candidateRanks.votes = makeRankingsArray()
+    candidateRanks.elector_id = CurrElectorId
     batchVote(ElectionId, candidateRanks)
     return "saving"
   }
