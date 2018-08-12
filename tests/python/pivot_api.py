@@ -192,9 +192,9 @@ class API:
         url = 'elections/%d/candidates/%d/rank' % (election['id'], candidate['id'])
         return self.user_post(user, url, {"rank": rank})
 
-    def invite(self, user, election, email):
+    def invite(self, user, election, email, voter_name=None):
         url = 'elections/%d/invite' % (election['id'])
-        return self.user_post(user, url, {"email": email})
+        return self.user_post(user, url, {"email": email, "voter_name": voter_name})
 
     def accept(self, user, code):
         url = 'invite/accept'
@@ -238,9 +238,9 @@ class API:
         url = 'elections/%d/batch_candidates' % election['id']
         return self.user_get(user, url)
 
-    def add_elector(self, election, admin, user):
-        invite_status = self.invite(admin, election, user['email'])
-        code = invite_status['election_id']
+    def add_elector(self, election, admin, user, voter_name=None):
+        invite_status = self.invite(admin, election, user['email'], voter_name)
+        code = invite_status['id']
         return self.accept(user, code)
 
     def get_ready(self, user, election):

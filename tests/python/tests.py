@@ -27,11 +27,11 @@ def test1(api):
 
     # electors
     invite_status = api.invite(userA, election, userA['email'])
-    code = invite_status['election_id']
+    code = invite_status['id']
     print(code)
     api.accept(userA, code)
     invite_status = api.invite(userA, election, userB['email'])
-    code = str(invite_status['election_id'])
+    code = str(invite_status['id'])
     electors = api.get_electors(userA, election)
     print(electors)
     assert(len(electors) == 1)
@@ -83,7 +83,7 @@ def test2(api):
 
     election = api.create_election(userA, 'Triceritops Rex')
     invite_status = api.invite(userA, election, userA['email'])
-    code = invite_status['election_id']
+    code = invite_status['id']
     api.accept(userA, code)
 
     A = api.create_candidate(userA, election, 'candidate-A')
@@ -131,7 +131,7 @@ def test4(api):
 
     election = api.create_election(userA, 'test4-election')
     invite_status = api.invite(userA, election, userA['email'])
-    code = invite_status['election_id']
+    code = invite_status['id']
 
     # it should not be possible to accept an invitation that was not sent to you,
     # so this should fail
@@ -167,7 +167,7 @@ def test6(api):
     invite1 = api.invite(userA, election, userB['email'])
     invite2 = api.invite(userA, election, userB['email'])
     assert(invite1['id'] == invite2['id'])
-    code = invite1['election_id']
+    code = invite1['id']
     # multiple accepts should return the same first timestamp
     accept1 = api.accept(userB, code)
     print(accept1)
@@ -267,7 +267,7 @@ def test8(api):
     
     # invite
     invite_status = api.invite(userA, election, userB['email'])
-    code = invite_status['election_id']
+    code = invite_status['id']
     verify_voterB_status('outstanding_invites')
 
     # accept
@@ -367,7 +367,7 @@ def test11(api):
 
     election = api.create_election(userA, 'test11-election')
     invite_status = api.invite(userA, election, userB['email'])
-    code = invite_status['election_id']
+    code = invite_status['id']
     electorB = api.accept(userB, code)
 
     D = api.create_candidate(userA, election, 'candidate-D')
@@ -475,8 +475,34 @@ def test14(api):
     userA = users[0]
 
     election = api.create_election(userA, 'test-election')
-    electorA = api.add_elector(election, userA, userA)
-    print(api.get_electors_for_self(userA, election))
+    elector0 = api.add_elector(election, userA, userA)
+    elector1 = api.add_elector(election, userA, userA, 'voter1')
+    elector2 = api.add_elector(election, userA, userA, 'voter2')
+    elector3 = api.add_elector(election, userA, userA, 'voter3')
+    electors = api.get_electors_for_self(userA, election)
+    print electors
+    assert(len(electors) == 4)
+
+    # cannot add self twice
+    api.add_elector(election, userA, userA)
+    electors = api.get_electors_for_self(userA, election)
+    print electors
+    assert(len(electors) == 4)
+
+    # cannot add another voter twice
+    api.add_elector(election, userA, userA, 'voter1')
+    electors = api.get_electors_for_self(userA, election)
+    print electors
+    assert(len(electors) == 4)
+
+    acceptables_before = api.acceptable(userA)
+    invite4 = api.invite(userA, election, userA['email'], 'voter4')
+    print
+    print(invite4)
+    print
+    invite5 = api.invite(userA, election, userA['email'], 'voter5')
+    acceptables_after = api.acceptable(userA)
+    assert(len(acceptables_after) == len(acceptables_before) + 2)
 
 def create_users(url):
     from selenium import webdriver
