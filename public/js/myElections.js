@@ -6,7 +6,7 @@
   var View = Piv.view
   var MyElectionsView = {}
   var ElectionsDomel
-  var HasShowElectionsRun, InvitesData
+  var HasShowElectionsRun
 
   // actions (do stuff)
   Piv.data = MyElectionsView.elections = {}
@@ -26,23 +26,29 @@
   Piv.http.get(["/api/elections/", "/api/invite/acceptable"], showAllMyElections)
 
   function showAllMyElections(elections, invitesData) {
-    var invites = {}, invite
-    // console.log(invitesData)
+    // key: election_id, val: array of invitation codes
+    var invites = {}
+
     for (var key in invitesData) {
-      invite = invitesData[key]
-      // invites[invite.election_id] = invite.code
-      invites[invite.election_id] = invite
+      var invite = invitesData[key]
+      var election_id = invite.election_id
+      if (!(election_id in invites)) {
+        invites[election_id] = []
+      }
+      invites[election_id].push(invite.code)
     }
-    var election
+
     for (var key in elections) {
-      election = elections[key]
-      showElection(ElectionsDomel, election.name, election.id, election.can_vote, "canViewResults", election.can_edit, invites[election.id] ? invites[election.id].code : "")
+      var election = elections[key]
+      showElection(ElectionsDomel, election.name, election.id, election.can_vote, "canViewResults", election.can_edit, invites[election.id] ? invites[election.id] : null)
       delete invites[election.id]
     }
+
     for (var key in invites) {
-      invite = invites[key]
-      showElection(ElectionsDomel, invite.election_name, invite.election_id, "can_vote", "canViewResults", "", invite.code)
+      var invite = invites[key]
+      showElection(ElectionsDomel, invite.election_name, invite.election_id, "can_vote", "canViewResults", "", invites[key])
     }
+
     var resources = []
     var resources = []
     var elections = []
@@ -58,7 +64,7 @@
     })
   }
 
-  function showElection(container, name, id, canVote, canViewResults, canEdit, inviteCode) {
+  function showElection(container, name, id, canVote, canViewResults, canEdit, inviteCodes) {
     var thisElection = MyElectionsView.elections[id] = {}
     var hiddenStyle = "visibility:hidden;", hiddenAttObj = {"style": hiddenStyle, "class": "clickable5"}, resultsButton, defaultHref = "", defaultButton = ""
 
@@ -66,7 +72,9 @@
 
     // var nameButton = thisElection.nameButton = Piv.html(container, "a", name, {"class": "w50", "href": defaultHref});
     var nameButton = thisElection.nameButton = Piv.html(container, "a", name, {"class": "w50"});
-    if (inviteCode) addEventAcceptToButton(id, inviteCode, nameButton)
+    if (inviteCodes) {
+      addEventAcceptToButton(id, inviteCodes, nameButton)
+    }
 
     if (canEdit) {
       defaultHref = "candidates/" + id
@@ -74,10 +82,12 @@
     }
     else { Piv.html(container, "a", "Administer", hiddenAttObj) }
 
-    if (canVote || inviteCode) {
+    if (canVote || inviteCodes) {
       defaultHref = "ballot/" + id
       defaultButton = Piv.html(container, "a", "Vote", {"href": defaultHref, "class": "clickable5"})
-      if (inviteCode) addEventAcceptToButton(id, inviteCode, defaultButton)
+      if (inviteCodes) {
+        addEventAcceptToButton(id, inviteCodes, defaultButton)
+      }
     }
     else { thisElection.voteButton = Piv.html(container, "a", "Vote", hiddenAttObj) }
     nameButton.setAttribute("href", defaultHref)
@@ -101,12 +111,18 @@
     el2.addEventListener("mouseleave", function() {Piv.removeClass(el1, hoverclass)})
   }
 
-  function addEventAcceptToButton(electionId, code, button) {
+  function addEventAcceptToButton(electionId, inviteCodes, button) {
     // console.log(code)
     button.removeAttribute("style")
     button.setAttribute("href", "ballot/" + electionId)
     button.addEventListener("click", function() {
-      Piv.http.post(["/api/invite/accept"], [{"code": code}])
+      var urls = []
+      var args = []
+      inviteCodes.forEach(function(code) {
+        urls.push("/api/invite/accept")
+        args.push({"code": code})
+      })
+      Piv.http.post(urls, args)
     })
   }
   // close the self-executing function and feed the piv library to it
