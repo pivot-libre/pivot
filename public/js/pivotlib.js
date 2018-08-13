@@ -437,38 +437,29 @@ var piv = piv = piv || {};  //(need the ; in order to do this syntax)
     collection.statuses = {}
     if (indexesSingle) {
       collection.indexesSingle = {}
-      for (var i = 0; i < indexesSingle.length; i++) { collection.indexesSingle[indexesSingle[i]] = {} }
+      for (var i = 0; i < indexesSingle.length; i++) {
+        collection.indexesSingle[indexesSingle[i]] = {}
+      }
     }
-    // collection.indexesMulti = {}
-    // collection.push = function(vobject, status, singleIndexProps, multiIndexProps) {
 
-    // collection.push = function(vobject, status, singleIndexProps) {
     collection.push = function(vobject, status) {
       status = (status || vobject.status) || "current"
       vobject.index = collection.list.push(vobject) - 1
       vobject.status = status
       lib.setTreeData(collection, ["statuses", status, vobject.index], vobject)
       for (var key in collection.indexesSingle) {
-        // if (!(key in vobject)) continue  //noe this could still result in wonky indexes; should make this better
-        if (!vobject[key]) continue  //noe this could still result in wonky indexes; should make this better
+        // every index field must be set
+        if (!vobject[key]) {
+          continue  //noe this could still result in wonky indexes; should make this better
+        }
+
+        // TODO: what if multiple vobjects have the same key?
         collection.indexesSingle[key][vobject[key]] = vobject
-        // lib.setTreeData(collection, ["indexesSingle", key, vobject[property]], vobject)
       }
-      // if (singleIndexProps) {
-      //   for (var i = 0; i < singleIndexProps.length; i++) {
-      //     var property = singleIndexProps[i]
-      //     if (!vobject[property]) continue  //noe this could still result in wonky indexes; should make this better
-      //     lib.setTreeData(collection, ["indexesSingle", property, vobject[property]], vobject)
-      //   }
-      //   // if (multiIndexProps) {
-      //   //   for (var i = 0; i < multiIndexProps.length; i++) {
-      //   //     var property = multiIndexProps[i]
-      //   //     if (!vobject[property]) continue  //noe this could still result in wonky indexes; should make this better
-      //   //     lib.pushTreeData(collection, ["indexesMulti", property, vobject[property]], vobject)
-      //   //   }
-      // }
+
       return vobject.index
     }
+
     collection.status = function(vobject, status) {
       if (!status) return vobject.status  //don't do anything if the status is unchanged
       if (status == vobject.status) return status  //don't do anything if the status is the same as before
@@ -477,22 +468,36 @@ var piv = piv = piv || {};  //(need the ; in order to do this syntax)
       vobject.status = status  //update the status field on the vobject
       return status
     }
+
     collection.remove = function(vobject) {
       var status = vobject.status
-      if (!status) return
-      for (var key in collection.indexesSingle) { if (vobject[key]) delete collection.indexesSingle[key][vobject[key]] }  //remove from single response indexes
+      if (!status)
+        return
+      //remove from single response indexes
+      for (var key in collection.indexesSingle) {
+        if (vobject[key])
+          delete collection.indexesSingle[key][vobject[key]]
+      }
       delete collection.statuses[vobject.status][vobject.index]  //delete the entry for this vobject in whatever index it's in
       vobject.status = false  //noe this needs to be improved
     }
+
     collection.reset = function() {
       collection.list = []
       collection.statuses = {}
     }
+
     collection.length = function(status) {
-      if (!status) return collection.list.length
-      if (!collection.statuses[status]) return 0
+      if (!status) {
+        // won't this be wrong, because entries never seem to be deleted from here?
+        return collection.list.length
+      }
+      if (!collection.statuses[status]) {
+        return 0
+      }
       return Object.keys(collection.statuses[status]).length
     }
+
     return collection
   }
 

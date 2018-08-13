@@ -60,6 +60,7 @@ class Election extends Model
             ->select('users.name',
                 'users.email',
                 'electors.id',
+                'electors.voter_name',
                 'electors.invite_email',
                 'electors.invite_accepted_at',
                 'elections.ballot_version',
@@ -77,12 +78,21 @@ class Election extends Model
                 $key = 'approved_previous';
             }
 
-            $name = $row->name;
+            $user_name = $row->name;
+            $voter_name = $row->voter_name;
             $email = $row->email != null ? $row->email : $row->invite_email;
             $elector_id = $row->id;
-            # name may be null if invite hasn't been accepted.  Caller
-            # should expect this.
-            array_push($stats[$key], array("name" => $name, "email" => $email, "elector_id" => $elector_id));
+            # user_name may be different from voter_name if this is a proxy-voting use case.
+            # user_name may be null if the elector hasn't created an
+            # account yet.  voter_name will be non null iff user is
+            # proxy voting on behalf of voter.
+            $elector = array(
+                "user_name" => $user_name,
+                "voter_name" => $voter_name,
+                "email" => $email,
+                "elector_id" => $elector_id
+            );
+            array_push($stats[$key], $elector);
         }
 
         return $stats;
