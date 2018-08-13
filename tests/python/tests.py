@@ -254,7 +254,7 @@ def test8(api):
                 assert(count == 1)
                 assert(len(voters) == 1)
                 assert(voters[0]['email'] == userB['email'])
-                assert('name' in voters[0])
+                assert('user_name' in voters[0])
             else:
                 assert(count == 0)
                 assert(len(voters) == 0)

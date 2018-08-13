@@ -364,7 +364,7 @@ class Election extends Model
             foreach ($pivotElectors as $state => $electors) {
                 foreach ($electors as $e) {
                     $row = array("id"=>$e["elector_id"],
-                                 "name"=>$e["name"],
+                                 "name"=>$e["voter_name"] ? $e["voter_name"] : $e["user_name"],
                                  "email"=>$e["email"],
                                  "state"=>$state);
                     array_push($debug_private["electors"], $row);
