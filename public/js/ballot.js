@@ -16,7 +16,9 @@
   View.statusbar.innerHTML = ""
   Piv.electionsMenu(View.sidenav, ElectionId)
 
-  // Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
+  var ElectorDiv = Piv.div(View.workspace, "Electors", "text1")
+  Piv.html(ElectorDiv, "span", "Who are you voting as? ", {})
+  var ElectorCombo = Piv.html(ElectorDiv, "select", "", {})
 
   Piv.div(View.workspace, "", "w100 font-size-3 padding-1 textLeft color-white", "Ranked")
   var RankedSection = Piv.div(View.workspace, "", "container1")
@@ -24,15 +26,11 @@
   Piv.div(RankedSection, "", "textRight w100", TieSelectedButton)
   Rankeditems = Piv.div("", "", "incrementsCounter grabbable w100")
   Piv.div(RankedSection, "", "w100", Piv.div("", "", "w100 textLeft", Rankeditems))
-  // Piv.div(View.workspace, "", "w100 font20 textLeft", "Ranked")
-  // Rankeditems = Piv.div(View.workspace, "", "incrementsCounter grabbable w100")
 
   Piv.div(View.workspace, "", "w100 font-size-3 padding-1 textLeft color-white", "Unranked")
   var UnrankedSection = Piv.div(View.workspace, "", "container1")
   Unrankeditems = Piv.div("", "", "cursor-pointer w100")
   Piv.div(UnrankedSection, "", "w100", Piv.div("", "", "w100 textLeft", Unrankeditems))
-  // Piv.div(View.workspace, "", "w100 font20 textLeft", "Unranked")
-  // Unrankeditems = Piv.div(View.workspace, "", "cursor-pointer w100")
 
   ReviewedStatusDomels.div = Piv.div(View.workspace, "", "textRight w100")
   var reviewedButton = Piv.html(ReviewedStatusDomels.div, "label", "", {"class": "clickable1"})
@@ -65,11 +63,23 @@
   console.log("load electors")
   Piv.loadControlledElectors(ElectionId, function(electors) {
     console.log("loaded electors")
-    Piv.displayControlledElectors(electors, function(electorId) {
-      console.log("selected elector")
+    console.log(electors)
+
+    // add them to the combo box
+    electors.forEach(function(elector){
+      var display = elector.voter_name ? elector.voter_name : "&lt;self&gt;"
+      Piv.html(ElectorCombo, "option", display, {"value": elector.id})
+    })
+
+    function selectElector() {
+      var electorId = ElectorCombo.options[ElectorCombo.selectedIndex].value
+      console.log("selected elector " + electorId)
       CurrElectorId = electorId
       Piv.loadBallot(ElectionId, electorId, Piv.displayBallot, li1, Rankeditems, Unrankeditems)
-    })
+    }
+
+    selectElector()
+    ElectorCombo.onchange = selectElector
   })
 
   setUpDragHandling(Dragula, [Rankeditems, Unrankeditems])
