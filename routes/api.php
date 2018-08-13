@@ -25,7 +25,7 @@ Route::group(['middleware' => 'auth:api'], function (Router $api) {
     $api->group(['prefix' => 'elections/{election}'], function (Router $api) {
         $api->post('batchvote', 'ElectionController@batchvote')->name('election.batchvote');
         $api->post('batchvote_view', 'ElectionController@batchvote_view')->name('election.batchvote_view');
-        $api->get('get_ready', 'ElectionController@get_ready')->name('election.get_ready');
+        $api->post('get_ready', 'ElectionController@get_ready')->name('election.get_ready');
         $api->post('set_ready', 'ElectionController@set_ready')->name('election.set_ready');
         $api->get('voter_stats', 'ElectionController@voter_stats')->name('election.voter_stats');
         $api->get('voter_details', 'ElectionController@voter_details')->name('election.voter_details');

@@ -243,13 +243,17 @@ class API:
         code = invite_status['id']
         return self.accept(user, code)
 
-    def get_ready(self, user, election):
+    def get_ready(self, user, election, elector_id=None):
+        if elector_id == None:
+            elector_id = self.get_only_elector_id(user, election)
         url = 'elections/%d/get_ready' % election['id']
-        return self.user_get(user, url)
+        return self.user_post(user, url, {'elector_id': elector_id})
 
-    def set_ready(self, user, election, version):
+    def set_ready(self, user, election, version, elector_id=None):
+        if elector_id == None:
+            elector_id = self.get_only_elector_id(user, election)
         url = 'elections/%d/set_ready' % election['id']
-        return self.user_post(user, url, {'approved_version': version})
+        return self.user_post(user, url, {'approved_version': version, 'elector_id': elector_id})
 
     def voter_stats(self, user, election):
         url = 'elections/%d/voter_stats' % election['id']

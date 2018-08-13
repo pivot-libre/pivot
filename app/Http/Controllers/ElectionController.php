@@ -215,8 +215,11 @@ class ElectionController extends Controller
     {
         $election = Election::where('id', '=', $election_id)->firstOrFail();
         $this->authorize('vote', $election);
-        $elector = Elector::where('election_id', '=', $election_id)->
-        where('user_id', '=', Auth::user()->id)->firstOrFail();
+        $elector_id = $request->json()->get('elector_id');
+        $elector = Elector::where('election_id', '=', $election_id)
+                 ->where('user_id', '=', Auth::user()->id)
+                 ->where('id', '=', $elector_id)
+                 ->firstOrFail();
 
         // what is the approval version, and is it current?
         $approved_version = $elector->ballot_version_approved;
@@ -234,8 +237,11 @@ class ElectionController extends Controller
     {
         $election = Election::where('id', '=', $election_id)->firstOrFail();
         $this->authorize('vote', $election);
-        $elector = Elector::where('election_id', '=', $election_id)->
-        where('user_id', '=', Auth::user()->id)->firstOrFail();
+        $elector_id = $request->json()->get('elector_id');
+        $elector = Elector::where('election_id', '=', $election_id)
+                 ->where('user_id', '=', Auth::user()->id)
+                 ->where('id', '=', $elector_id)
+                 ->firstOrFail();
 
         // what is the approval version, and is it current?
         $approved_version = $request->json()->get('approved_version');
