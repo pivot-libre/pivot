@@ -13,35 +13,21 @@
   var FilteredStatuses = {}
   var Electors, Invites
   var ElectorateTable
-  var ElectorateDirectory = Piv.makeVobjectCollection(["email"])
+  var ElectorateDirectory = Piv.makeVobjectCollection(["elector_id"])
   var StatusMap = {
-    // "approved_current": {"icon": "&#x2705;"},
     "approved_current": {"title": "Approved", "icon": "&#9733;"},
-    // "approved_previous": {"icon": "&#x1F55D;"},
     "approved_previous": {"title": "Needs Reapproval", "icon": "&#9851;"},
-    // "approved_none": {"icon": "&#x2B55;"},
     "approved_none": {"title": "Never Approved", "icon": "&#9744;"},
-    // "outstanding_invites": {"icon": "&#x270B;"}
     "outstanding_invites": {"title": "Never Viewed", "icon": "&#9755;"}
   }
   Piv.StatusMap = StatusMap
 
-  // actions (do stuff)
   Piv.evmanage.setManager(View.workspace, ["click", "keyup", "paste"])
   View.setHeader("Manage Electorate", ElectionId)
-  // Piv.html(View.workspace, "a", "< Previous step: Edit Candidates", {"class": "clickable1 margin-bottom-2", "href": "/candidates/" + ElectionId})
   View.statusbar.innerHTML = ""
 
-  // Piv.div(View.workspace, "", "w100 textRight font-size-4", "")
-  // Piv.anchorListDiv(View.sidenav, "", {
-  //     "Add/Edit candidates": "/candidates/" + ElectionId,
-  //     "Manage electorate": "/electorate/" + ElectionId,
-  //     "Election details": "/administer/" + ElectionId
-  //   }
-  // )
   Piv.electionsMenu(View.sidenav, ElectionId)
 
-  // Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
   loadElectorate(ElectionId, displayElectorate)
 
   // function definitions
@@ -52,7 +38,9 @@
   }
 
   function displayElectorate(electors) {
-    if (!Electors) { Electors = electors }
+    if (!Electors) {
+      Electors = electors
+    }
 
     Piv.div(View.workspace, "", "w100 font-size-3 padding-1 textLeft color-7", "Invitations")
     var invitesSection = Piv.div(View.workspace, "", "container1")
@@ -83,13 +71,19 @@
   function newInvite(table) {
     var row = Piv.div(table, "", "w75 overflow-visible nowrap hover-children")
     Piv.div(row, "", "text1square orderdisplay");
-    // Piv.div(row, "", "text1square", "&#9864;");
-    var input = Piv.html(row, "input", "", {"class": "input-text-1 w100 hover-1", "type": "text", "placeholder": "Enter an e-mail address"})
-    Piv.evmanage.listen(input, "keyup", newInviteMaybe, [table])
-    Piv.evmanage.listen(input, "paste", newInviteMaybe, [table])
+
+    var user_name = Piv.html(row, "input", "", {"class": "input-text-1 w50 hover-1", "type": "text", "placeholder": "Username (an email address)"})
+    var voter_name = Piv.html(row, "input", "", {"class": "input-text-1 w50 hover-1", "type": "text", "placeholder": "Voter Name"})
+
+    // input element events
+    Piv.evmanage.listen(user_name, "keyup", newInviteMaybe, [table])
+    Piv.evmanage.listen(user_name, "paste", newInviteMaybe, [table])
+    Piv.evmanage.listen(voter_name, "keyup", newInviteMaybe, [table])
+    Piv.evmanage.listen(voter_name, "paste", newInviteMaybe, [table])
+
     var lastKey = Number(Object.keys(InviteList)[Object.keys(InviteList).length - 1])
     var inviteKey = isNaN(lastKey) ? 0 : lastKey + 1
-    InviteList[inviteKey] = {"input": input, "row":row}
+    InviteList[inviteKey] = {"user_name": user_name, "voter_name": voter_name, "row":row}
 
     Piv.div(row, "", "clickable2", "&#9747;", "", "click", removeInviteVobject, [inviteKey])
   }
@@ -98,12 +92,12 @@
     var input = this.domel, lastrow
     var lastKey = Number(Object.keys(InviteList)[Object.keys(InviteList).length - 1])
     if (this.domel.value) {
-      if (input == InviteList[lastKey].input) newInvite(table)
+      if (input == InviteList[lastKey].user_name) newInvite(table)
     }
     else {
       if (Object.keys(InviteList).length < 2) return
       var nextToLastKey = Number(Object.keys(InviteList)[Object.keys(InviteList).length - 2])
-      if (this.domel == InviteList[nextToLastKey].input) {
+      if (this.domel == InviteList[nextToLastKey].user_name) {
         lastrow = InviteList[lastKey].row
         lastrow.parentElement.removeChild(lastrow)
         delete InviteList[lastKey]
@@ -117,7 +111,7 @@
     if (invitesLength < 2) return
 
     if (!invite) return
-    if (!invite.input.value) return  // don't delete the last input box if it is blank, because people might be confused about how to get it back
+    if (!invite.user_name.value) return  // don't delete the last input box if it is blank, because people might be confused about how to get it back
     delete InviteList[inviteKey]
     invite.row.parentElement.removeChild(invite.row)
   }
@@ -127,38 +121,58 @@
       console.log("Send in progress")
       return
     }
-    if (Piv.hasClass(this.domel, "disabled")) return
+    
+    if (Piv.hasClass(this.domel, "disabled")) {
+      return
+    }
+
     SendInProgress = true
     Piv.addClass(SendInvitesButton, "disabled")
     var innerHtml = SendInvitesButton.innerHTML
     SendInvitesButton.innerHTML = "Sending Invites..."
     View.statusbar.innerHTML = "Sending Invites..."
 
-    var email, emails = {}
     var resources = [], payloads = [], inviteKeys = []
+
+    // collect arguments for multiple posts
     for (var key in InviteList) {
-      email = InviteList[key].input.value
-      if (!email) continue
-      console.log(emails)
-      console.log(ElectorateDirectory)
-      if (emails[email] || ElectorateDirectory.indexesSingle.email[email]) {
-        removeInviteVobject(key)
+      var email = InviteList[key].user_name.value
+      var voter_name = InviteList[key].voter_name.value
+      if (!email) {
         continue
       }
-      emails[email] = true
+
       resources.push("/api/elections/" + ElectionId + "/invite")
-      payloads.push({"email": email})
+      payloads.push({
+        "email": email,
+        "voter_name": (!voter_name) ? null : voter_name
+      })
       inviteKeys.push(key)
     }
 
+    // do the posts
     Piv.http.post(resources, payloads, function() {
+      // remove invite vobjects and add any new electors we didn't
+      // already have
       for (var i = 0; i < arguments.length; i++) {
         removeInviteVobject(inviteKeys[i])
+
         var elector = arguments[i]
-        makeElectorVobject(elector.invite_email, elector.invite_email, elector.id, "outstanding_invites")
+        // if elector with given elector_id not already in the elector
+        // display, add it
+        if (!ElectorateDirectory.indexesSingle.elector_id[elector.id]) {
+          makeElectorVobject(
+            null,
+            elector.voter_name,
+            elector.invite_email,
+            elector.id,
+            "outstanding_invites"
+          )
+        }
       }
+
       repopulateElectorateStatusTable()
-      updateCountsAndFilters()  //noe
+      updateCountsAndFilters() // noe
       SendInProgress = false
       SendInvitesButton.innerHTML = innerHtml
       View.statusbar.innerHTML = "Sent!"
@@ -168,13 +182,10 @@
 
   function updateCountsAndFilters() {
     for (var key in StatusMap) {
-      if (ElectorateDirectory.length(key) < 1) {
-        // FilteredStatuses[key].status = false
-        Piv.addClass(FilteredStatuses[key].button, "display-none-1")
-      }
-      else {
-        // FilteredStatuses[key].status = true
+      if (ElectorateDirectory.length(key) >= 1) {
         Piv.removeClass(FilteredStatuses[key].button, "display-none-1")
+      } else {
+        Piv.addClass(FilteredStatuses[key].button, "display-none-1")
       }
     }
   }
@@ -183,7 +194,9 @@
     for (var key in StatusMap) {
       FilteredStatuses[key] = {}
       var button = FilteredStatuses[key].button = Piv.html(parent, "label", "", {"class": "clickable1 padding-1"})
-      if (ElectorateDirectory.length(key) < 1) Piv.addClass(button, "display-none-1")
+      if (ElectorateDirectory.length(key) < 1) {
+        Piv.addClass(button, "display-none-1")
+      }
       StatusMap[key].button = button
       var checkbox = Piv.checkbox(button, "", "", "", "checked", {"class": "margin-right-1"})
       FilteredStatuses[key].status = true;
@@ -212,23 +225,34 @@
   }
 
   function populateElectorateStatusTable(table, electors, invites) {
-    if (FilteredStatuses["approved_current"].status != false) displayElectorGroup(table, electors.approved_current, "approved_current")
-    if (FilteredStatuses["approved_previous"].status != false) displayElectorGroup(table, electors.approved_previous, "approved_previous")
-    if (FilteredStatuses["approved_none"].status != false) displayElectorGroup(table, electors.approved_none, "approved_none")
-    if (FilteredStatuses["outstanding_invites"].status != false) displayElectorGroup(table, electors.outstanding_invites, "outstanding_invites")
+    if (FilteredStatuses["approved_current"].status)
+      displayElectorGroup(table, electors.approved_current, "approved_current")
+    if (FilteredStatuses["approved_previous"].status)
+      displayElectorGroup(table, electors.approved_previous, "approved_previous")
+    if (FilteredStatuses["approved_none"].status)
+      displayElectorGroup(table, electors.approved_none, "approved_none")
+    if (FilteredStatuses["outstanding_invites"].status)
+      displayElectorGroup(table, electors.outstanding_invites, "outstanding_invites")
   }
 
   function displayElectorGroup(table, electors, status) {
-    var elector
     for (var key in electors) {
-      elector = electors[key]
-      renderElectorVobject(makeElectorVobject(elector.name || elector.email, elector.email, elector.elector_id, status), table)
+      var elector = electors[key]
+      var velector = makeElectorVobject(
+        elector.user_name,
+        elector.voter_name,
+        elector.email,
+        elector.elector_id,
+        status
+      )
+      renderElectorVobject(velector, table)
     }
   }
 
-  function makeElectorVobject(name, email, elector_id, status) {
+  function makeElectorVobject(user_name, voter_name, email, elector_id, status) {
     var vobject = {
-      "name": name,
+      "user_name": user_name ? user_name : "&lt;PENDING&gt;",
+      "voter_name": voter_name,
       "email": email,
       "status": status,
       "elector_id": elector_id
@@ -237,9 +261,12 @@
     var row = vobject.domel = Piv.html("", "label", "", {"class": "w100 border-bottom-2 overflow-visible nowrap hover-1"})
 
     Piv.div(row, "", "text3 textRight", StatusMap[status].icon)
-    Piv.div(row, "", "text3 textLeft w75", name ? name + " (" + email + ")" : email)
+    var display = vobject.user_name + (vobject.voter_name ? " <b>on behalf of</b> "+vobject.voter_name : "") + " (" + vobject.email + ")"
+    Piv.div(row, "", "text3 textLeft w75", display)
 
-    if ("outstanding_invites" == status) Piv.checkbox(row, "", "", "", "", {"class": "margin-right-1"},  clickElectorCheckbox, [vobject])
+    if ("outstanding_invites" == status) {
+      Piv.checkbox(row, "", "", "", "", {"class": "margin-right-1"},  clickElectorCheckbox, [vobject])
+    }
 
     return vobject
   }
