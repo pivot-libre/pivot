@@ -333,11 +333,17 @@ var piv = piv = piv || {};  //(need the ; in order to do this syntax)
 
   var http = lib.http = {}
   var httpMultiple = lib.http.send = function(method, resources, payloads, onSuccess, onFail) {
-    if (!resources) { resources = [] }
-    else if (!Array.isArray(resources)) { resources = [resources] }
-    if (!payloads) { payloads = [] }
-    else if (!Array.isArray(payloads)) { payloads = [payloads] }
-    // payloads = payloads || []  // set payloads to an array if it doesn't exist, to prevent errers when accessing payloads[i]
+    if (!resources) {
+      resources = []
+    } else if (!Array.isArray(resources)) {
+      resources = [resources]
+    }
+    
+    if (!payloads) {
+      payloads = []
+    } else if (!Array.isArray(payloads)) {
+      payloads = [payloads]
+    }
 
     var exFuncAry = function() {
       var funcReturns = []
@@ -348,9 +354,12 @@ var piv = piv = piv || {};  //(need the ; in order to do this syntax)
     //default onSuccess and onFail functions
     onSuccess = onSuccess || function() {
       console.group("httpMultiple:")
-      for (var i in arguments) { console.log(arguments[i]) }
+      for (var i in arguments) {
+        console.log(arguments[i])
+      }
       console.groupEnd()
     };
+
     onFail = onFail || function(error) {
       console.group("httpMultiple error:")
       console.log(resources)
@@ -362,7 +371,9 @@ var piv = piv = piv || {};  //(need the ; in order to do this syntax)
 
     var thenFunc = function () {
       var responseData = []
-      for (var i in arguments){ responseData.push(arguments[i].data) }
+      for (var i in arguments){
+        responseData.push(arguments[i].data)
+      }
       onSuccess.apply(null, responseData)
     }
 

@@ -40,7 +40,7 @@
         ReviewedStatusDomels.messageDiv.parentElement.removeChild(ReviewedStatusDomels.messageDiv)
         delete ReviewedStatusDomels.messageDiv
       }
-      Piv.http.post(["/api/elections/" + ElectionId + "/set_ready"], [{"approved_version": ReviewedStatusDomels.version}], function(response) {
+      Piv.http.post(["/api/elections/" + ElectionId + "/set_ready"], [{"approved_version": ReviewedStatusDomels.version, "elector_id": CurrElectorId}], function(response) {
         if (!response.is_latest) {
           ReviewedStatusDomels.checkbox.input.checked = false
           Piv.loadBallot(ElectionId, Piv.displayBallot, li1)
@@ -50,13 +50,9 @@
       })
     }
     else {
-      Piv.http.post(["/api/elections/" + ElectionId + "/set_ready"], [{"approved_version": null}], function(response) {
+      Piv.http.post(["/api/elections/" + ElectionId + "/set_ready"], [{"approved_version": null, "elector_id": CurrElectorId}], function(response) {
       })
     }
-  })
-  Piv.http.get(["/api/elections/" + ElectionId + "/get_ready"], function(response) {
-    ReviewedStatusDomels.version = response.latest_version
-    ReviewedStatusDomels.checkbox.input.checked = ReviewedStatusDomels.isApproved = response.is_latest
   })
   Piv.div(reviewedButton, "", "", "Reviewed")
 
@@ -76,6 +72,11 @@
       console.log("selected elector " + electorId)
       CurrElectorId = electorId
       Piv.loadBallot(ElectionId, electorId, Piv.displayBallot, li1, Rankeditems, Unrankeditems)
+
+      Piv.http.post(["/api/elections/" + ElectionId + "/get_ready"], [{"elector_id": CurrElectorId}], function(response) {
+        ReviewedStatusDomels.version = response.latest_version
+        ReviewedStatusDomels.checkbox.input.checked = ReviewedStatusDomels.isApproved = response.is_latest
+      })
     }
 
     selectElector()
