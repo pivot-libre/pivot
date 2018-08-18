@@ -44,7 +44,8 @@
 
     Piv.div(View.workspace, "", "w100 font-size-3 padding-1 textLeft color-7", "Invitations")
     var invitesSection = Piv.div(View.workspace, "", "container1")
-    Piv.div(invitesSection, "", "w100 font-size-4", "Enter e-mail addresses and send invitations to people who should be included in the electorate.")
+    Piv.div(invitesSection, "", "w100 font-size-4 margin-bottom-1", "Enter e-mail addresses to send invitations to people who should be included in the electorate.")
+    Piv.div(invitesSection, "", "w100 font-size-4", "If any electors require a proxy to vote on their behalf, you may enter the email of the proxy in the 'Username' field, and enter the name of the elector in the 'Voter Name' field after selecting the 'proxy for' checkbox.")
 
     SendInvitesButton = Piv.div("", "", "clickable1", "Send Invites", "", "click", sendInvites, ["noe"])
     Piv.div(invitesSection, "", "textRight w100", SendInvitesButton)
@@ -70,10 +71,18 @@
 
   function newInvite(table) {
     var row = Piv.div(table, "", "w75 overflow-visible nowrap hover-children")
+
     Piv.div(row, "", "text1square orderdisplay");
 
     var user_name = Piv.html(row, "input", "", {"class": "input-text-1 w50 hover-1", "type": "text", "placeholder": "Username (an email address)"})
+    var isProxy = Piv.checkbox(row)
+    Piv.div(isProxy.label, "", "color-2 padding-sides-small font-size-1 font-weight-200", "proxy for:")
+    // Piv.div(row, "", "font-size-1 input-text-1", "on behalf of:")
     var voter_name = Piv.html(row, "input", "", {"class": "input-text-1 w50 hover-1", "type": "text", "placeholder": "Voter Name"})
+    disable(voter_name)
+    // Piv.checkbox(row, "", "", "", "", {"class": "margin-right-1"},  clickInviteCheckbox, [voter_name])
+    // var checkbox = Piv.checkbox(row, "", "", "", "", {"class": "margin-right-1"})
+    Piv.evmanage.listen(isProxy.input, "click", clickInviteCheckbox, [voter_name])
 
     // input element events
     Piv.evmanage.listen(user_name, "keyup", newInviteMaybe, [table])
@@ -86,6 +95,26 @@
     InviteList[inviteKey] = {"user_name": user_name, "voter_name": voter_name, "row":row}
 
     Piv.div(row, "", "clickable2", "&#9747;", "", "click", removeInviteVobject, [inviteKey])
+  }
+
+  function disable(domel) {
+    domel.disabled = true
+    domel.value = ""
+    Piv.addClass(domel, "disabled")
+  }
+  function enable(domel) {
+    domel.disabled = false
+    // domel.focus()
+    Piv.removeClass(domel, "disabled")
+  }
+  function clickInviteCheckbox(voter_name) {
+    console.log(voter_name)
+    console.log(this)
+    if (this.domel.checked) {
+      enable(voter_name)
+      return
+    }
+    disable(voter_name)
   }
 
   function newInviteMaybe(table) {
@@ -121,7 +150,7 @@
       console.log("Send in progress")
       return
     }
-    
+
     if (Piv.hasClass(this.domel, "disabled")) {
       return
     }
