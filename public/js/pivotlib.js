@@ -338,7 +338,7 @@ var piv = piv = piv || {};  //(need the ; in order to do this syntax)
     } else if (!Array.isArray(resources)) {
       resources = [resources]
     }
-    
+
     if (!payloads) {
       payloads = []
     } else if (!Array.isArray(payloads)) {
@@ -533,7 +533,8 @@ var piv = piv = piv || {};  //(need the ; in order to do this syntax)
     var vobject = {}, label, input, atts = {}, ui
     label = vobject.label = html("", "label", "", labelatts)
     atts.type = "checkbox"
-    atts.style = "display:none;"
+    // atts.style = "display:none;"
+    atts.style = "opacity:0; width:0px;"
     if (id) atts.id = id
     if (name) atts.name = name
     input = vobject.input = html(label, "input", "", atts, "click", evhandler, evargs)
