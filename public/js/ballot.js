@@ -16,10 +16,10 @@
   View.statusbar.innerHTML = ""
   Piv.electionsMenu(View.sidenav, ElectionId)
 
-  var ElectorDiv = Piv.div(View.workspace, "Electors", "text1")
-  Piv.html(ElectorDiv, "span", "Who are you voting as? ", {})
-  var ElectorCombo = Piv.html(ElectorDiv, "select", "", {})
+  //selecting which elector you're voting as
+  var ElectorDiv = Piv.div(View.workspace, "Electors", "w100 font-size-1 padding-1 textLeft color-white")
 
+  //candidates that the user has ranked
   Piv.div(View.workspace, "", "w100 font-size-3 padding-1 textLeft color-white", "Ranked")
   var RankedSection = Piv.div(View.workspace, "", "container1")
   TieSelectedButton = Piv.div("", "", "clickable1 disabled", "Tie Selected", "", "click", tieSelected)
@@ -27,6 +27,7 @@
   Rankeditems = Piv.div("", "", "incrementsCounter grabbable w100")
   Piv.div(RankedSection, "", "w100", Piv.div("", "", "w100 textLeft", Rankeditems))
 
+  //candidates that the user has not ranked
   Piv.div(View.workspace, "", "w100 font-size-3 padding-1 textLeft color-white", "Unranked")
   var UnrankedSection = Piv.div(View.workspace, "", "container1")
   Unrankeditems = Piv.div("", "", "cursor-pointer w100")
@@ -61,9 +62,27 @@
     console.log("loaded electors")
     console.log(electors)
 
+    if (electors.length == 1) {
+      var elector = electors[0]
+      CurrElectorId = elector.id
+
+      // ElectorDiv.parentElement.removeChild(ElectorDiv)
+
+      Piv.loadBallot(ElectionId, elector.id, Piv.displayBallot, li1, Rankeditems, Unrankeditems)
+      Piv.http.post(["/api/elections/" + ElectionId + "/get_ready"], [{"elector_id": elector.id}], function(response) {
+        ReviewedStatusDomels.version = response.latest_version
+        ReviewedStatusDomels.checkbox.input.checked = ReviewedStatusDomels.isApproved = response.is_latest
+      })
+      return
+    }
+
+    Piv.div(ElectorDiv, "", "", "Voting as")
+    var ElectorCombo = Piv.html(ElectorDiv, "select", "", {"class": "select1"})
+    // Piv.div(ElectorDiv, "", "clickable2", ElectorCombo)
+
     // add them to the combo box
     electors.forEach(function(elector){
-      var display = elector.voter_name ? elector.voter_name : "&lt;self&gt;"
+      var display = elector.voter_name ? elector.voter_name : "yourself (" + elector.invite_email + ")"
       Piv.html(ElectorCombo, "option", display, {"value": elector.id})
     })
 
