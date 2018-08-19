@@ -218,7 +218,9 @@ a[href],
 
 /* basic layout */
 #maincolumn {
+	position: fixed;
   height: 100%;
+	overflow-y: scroll;
   width: 82%;
   margin: 0 0 0 18%;
   text-align: left;
