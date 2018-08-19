@@ -1,5 +1,5 @@
 html {
-	height: 100%;
+	/* height: 100%; */
 }
 body {
   box-sizing: border-box;
@@ -7,7 +7,7 @@ body {
   font-family: "Raleway","Alegreya Sans",sans-serif;
   font-size: 0px;
   text-decoration: none;
-  height: 100%;
+  /* height: 100%; */
   width: 100%;
   font-weight: normal;
 }
@@ -101,7 +101,7 @@ input[type=submit],
   background-size: auto;
 }
 
-body,
+#maincolumn,
 .clickable4:not([href]),
 button:hover,
 input[type=submit]:hover,
@@ -139,7 +139,8 @@ a.a1:hover,
   background-color: #05535b;  /* bluish */
 }
 
-#sidenav,
+body,
+/* #leftcolumn, */
 .container1,
 .bg-color-7 {
   background-color: #e6dec7;  /* chrome paisley tan */
@@ -223,19 +224,20 @@ a[href],
   text-align: left;
   top: 0;
 }
-#sidenav {
+#leftcolumn {
   position: fixed;
   left: 0;
   top: 0;
   padding-top: 48px;
   width: 18.5%;
   height: 100%;
+	overflow-y: scroll;
 }
 @media only screen and (min-width: 1400px) {
   #maincolumn {
     width: 64%;
   }
-  #sidenav {
+  #leftcolumn {
   }
 }
 .clickable4[href]:hover {

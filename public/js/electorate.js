@@ -26,7 +26,7 @@
   View.setHeader("Manage Electorate", ElectionId)
   View.statusbar.innerHTML = ""
 
-  Piv.electionsMenu(View.sidenav, ElectionId)
+  Piv.electionsMenu(ElectionId)
 
   loadElectorate(ElectionId, displayElectorate)
 

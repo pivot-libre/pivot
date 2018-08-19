@@ -11,7 +11,7 @@ var piv = piv = piv || {};  //(need the ; in order to do this syntax)
   var view = lib.view = {};
   view.workspace = document.querySelector(".workspace")
   view.statusbar = document.querySelector("#statusbar")
-  view.sidenav = document.querySelector("#sidenav")
+  view.leftcolumn = document.querySelector("#leftcolumn")
   var mainheader = document.querySelector(".mainheader")
   view.setHeader = function(text, election, delim) {
     mainheader.innerHTML = text
@@ -260,7 +260,8 @@ var piv = piv = piv || {};  //(need the ; in order to do this syntax)
     }
   }
 
-  var electionsMenu = lib.electionsMenu = function(parent, electionId) {
+  var electionsMenu = lib.electionsMenu = function(electionId) {
+    var parent = view.leftcolumn
     http.get(["/api/elections/", "/api/invite/acceptable"], function(elections, invitesData) {
       var election = {}, invite = {}
       for (var i = 0; i < elections.length; i++) {

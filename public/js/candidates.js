@@ -25,7 +25,7 @@
   //     "Election details": "/administer/" + ElectionId
   //   }
   // )
-  Piv.electionsMenu(View.sidenav, ElectionId)
+  Piv.electionsMenu(ElectionId)
 
   // Piv.removeHrefsForCurrentLoc()  //remove hrefs that link to the current page
 

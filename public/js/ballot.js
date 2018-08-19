@@ -14,7 +14,7 @@
 
   View.setHeader("Cast Ballot", ElectionId)
   View.statusbar.innerHTML = ""
-  Piv.electionsMenu(View.sidenav, ElectionId)
+  Piv.electionsMenu(ElectionId)
 
   //selecting which elector you're voting as
   var ElectorDiv = Piv.div(View.workspace, "Electors", "w100 font-size-1 padding-1 textLeft color-white")

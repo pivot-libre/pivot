@@ -43,7 +43,7 @@
         // generic setup
         View.setHeader("Election Results", ElectionId)
         View.statusbar.innerHTML = ""
-        Piv.electionsMenu(View.sidenav, ElectionId)
+        Piv.electionsMenu(ElectionId)
         // Piv.removeHrefsForCurrentLoc()
 
 	// populate page components
