@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use DummyFullModelClass;
 use App\Election;
 use App\Elector;
@@ -46,6 +47,20 @@ class ElectorController extends Controller
     public function electors_for_self(Election $election)
     {
         // auth note: viewing electors you control requires no special privilege
+        $user = Auth::user();
+
+        // accept all invitations for this user to this election
+        $electors = Elector::where('invite_email', $user->email)
+                           ->where('invite_accepted_at', null)
+                           ->where('election_id', $election->id)
+                           ->get();
+
+        foreach ($electors as $elector) {
+            $elector->user()->associate($user);
+            $elector->invite_accepted_at = Carbon::now();
+            $elector->save();
+        }
+
         return $election->electors()->where('user_id', Auth::id())->get();
     }
 
