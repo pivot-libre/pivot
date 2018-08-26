@@ -30,7 +30,7 @@ class VerifyController extends Controller
         $verification->save();
 
         try {
-            $url = Config::get('app.url').'/register?token='.($verification->token).'&email='.($email);
+            $url = Config::get('app.url').'/register?token='.($verification->token).'&email='.urlencode($email);
             $msg = 'Continue your registration here: '.$url;
 
             Mail::raw($msg, function ($message) use ($email) {

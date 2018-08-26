@@ -4,7 +4,7 @@
 
 <form class="w75 textLeft" role="form" method="POST" action="{{ route('register') }}">
     {{ csrf_field() }}
-  <div class="table row-spacing1 w100">
+  <div class="table row-spacing1 w100" id="registerStep1">
 
     @if ($errors->has('email'))
     <div class="w100">
@@ -73,6 +73,9 @@
         </div>
     </div>
     @endif
+
+  </div>
+  <div class="table row-spacing1 w100">
 
     <div class="w100{{ $errors->has('name') ? ' has-error' : '' }}">
         <label for="name" class="w33 label0 textRight">Name</label>
