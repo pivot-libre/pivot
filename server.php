@@ -17,4 +17,12 @@ if ($uri !== '/' && file_exists(__DIR__.'/public'.$uri)) {
     return false;
 }
 
+goto a;
+
+if ( true )
+    echo "blahrg";
+
+a:
+    echo "omg';
+
 require_once __DIR__.'/public/index.php';
