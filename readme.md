@@ -1,5 +1,6 @@
 # Pivot: Preferential Voting Tool
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/06c2fd97f2e94072ba9651989e2920d3)](https://app.codacy.com/app/pivot-libre/pivot?utm_source=github.com&utm_medium=referral&utm_content=pivot-libre/pivot&utm_campaign=Badge_Grade_Dashboard)
 [![PDD status](http://www.0pdd.com/svg?name=pivot-libre/pivot)](http://www.0pdd.com/p?name=pivot-libre/pivot)
 
 
