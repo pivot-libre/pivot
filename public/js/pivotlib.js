@@ -9,6 +9,7 @@ var piv = piv = piv || {};  //(need the ; in order to do this syntax)
 
   //pivot-specific view stuff
   var view = lib.view = {};
+  view.body = document.querySelector("body")
   view.workspace = document.querySelector(".workspace")
   view.statusbar = document.querySelector("#statusbar")
   view.leftcolumn = document.querySelector("#leftcolumn")

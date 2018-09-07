@@ -101,6 +101,7 @@ input[type=submit],
   background-size: auto;
 }
 
+body.printable,
 #maincolumn,
 .clickable4:not([href]),
 button:hover,
@@ -225,6 +226,22 @@ a[href],
   margin: 0 0 0 18%;
   text-align: left;
   top: 0;
+}
+@media print {
+  .no-print, .no-print *
+  {
+    display: none !important;
+  }
+}
+.printable .hide-on-printable {
+  display: none;
+}
+.printable #maincolumn {
+  position: relative;
+  width: auto;
+  height: 0;
+  overflow: visible;
+  margin: 0;
 }
 #leftcolumn {
   position: fixed;
