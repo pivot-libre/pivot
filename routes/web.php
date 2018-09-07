@@ -54,6 +54,9 @@ Route::group(['middleware' => 'auth'], function() {
   Route::get('/results/{election}', function ($election) {
       return view('results', ['election' => $election]);
   });
+
+  Route::get('/printableResults/{electionId}/{snapshotId}', 'ResultSnapshotController@print');
+
   Route::get('/ballotReview/{election}', function ($election) {
       return view('ballotReview', ['election' => $election]);
   });
