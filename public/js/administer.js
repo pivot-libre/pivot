@@ -54,11 +54,9 @@
   }
   function deleteElection(electionId) {
     if (!electionId) {return}
-    axios.delete('/api/elections/' + electionId)
-      .then(response => {
-        // console.log(response.data);
-        window.location.href = "/myElections"
-      });
+    Piv.http.delete("/api/elections/" + electionId, function() {
+      window.location.href = "/myElections"
+    })
   }
 
   // close the self-executing function and feed the piv library to it
