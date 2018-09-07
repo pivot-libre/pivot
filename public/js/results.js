@@ -41,10 +41,14 @@
 	console.log("Debugging: " + debug_mode)
 
         // generic setup
+        Piv.evmanage.setManager(View.workspace, ["click"])
         View.setHeader("Election Results", ElectionId)
         View.statusbar.innerHTML = ""
         Piv.electionsMenu(ElectionId)
         // Piv.removeHrefsForCurrentLoc()
+
+        // Piv.html(View.workspace, "a", "Print", {"class": "clickable1", "href": "/results-printable/" + ElectionId});
+        Piv.div(View.workspace, "", "clickable1 no-print", "Print", "", "click", togglePrintable, []);
 
 	// populate page components
 	var headerStyle = {"class": "font-size-1"}
@@ -500,6 +504,17 @@ against each candidate along the horizontal access.")
         Piv.div(View.workspace, "", "w100 text3", "Debug for this election are not currently available.")
         if (!error) return
         Piv.div(View.workspace, "", "100 text3", error.response.data.message)
+    }
+    function togglePrintable() {
+      console.log("hi")
+      console.log(this)
+      if (Piv.hasClass(View.body, "printable")) {
+        Piv.removeClass(View.body, "printable")
+        this.domel.innerHTML = "Print"
+        return
+      }
+      Piv.addClass(View.body, "printable")
+      this.domel.innerHTML = "Back"
     }
 
     main(piv, election)
