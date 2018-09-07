@@ -369,7 +369,7 @@ input[type=submit]:active,
 }
 .label0,
 /* label, */
-input,margin-right-1
+input,
 .input-text-1,
 .text3,
 a,
@@ -385,12 +385,24 @@ input[type=submit],
   padding: 10px;
   border-radius: .15em;
   transition: all .25s;
+}
+.label0,
+/* label, */
+.input-text-1,
+.text3,
+a,
+button,
+input[type=submit],
+.clickable1,
+/* .clickable1 select, */
+.clickable2,
+.clickable3,
+.clickable {
   -webkit-user-select: none;  /* Chrome all / Safari all */
   -moz-user-select: none;     /* Firefox all */
   -ms-user-select: none;      /* IE 10+ */
   user-select: none;          /* Likely future */
 }
-
 /* revamp */
 .text1square {
   height: 41px;
