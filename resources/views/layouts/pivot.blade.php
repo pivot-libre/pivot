@@ -16,6 +16,17 @@
     <link href="{{ asset('css/dragula.css') }}" rel="stylesheet">
 
     <!-- Scripts -->
+    <!-- Automatically provides/replaces `Promise` if missing or broken. -->
+    <script>
+    console.log("hi nathans")
+    </script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.js"></script> 
+
+    <!-- Minified version of `es6-promise-auto` below. -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>  -->
+
     <script>
         window.Laravel = {!! json_encode([
             'csrfToken' => csrf_token(),

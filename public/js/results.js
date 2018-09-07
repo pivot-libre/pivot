@@ -127,12 +127,21 @@
     }
 
     function gotSnapshots(snapshots) {
-        snapshots.forEach(snapshot => {
-            var button = piv.html(SnapshotsDiv, "button", snapshot.id)
-            button.onclick = function() {
-                getSnapshot(snapshot.id)
-            }
-        })
+
+      // => not supported in IE
+        // snapshots.forEach(snapshot => {
+        //     var button = piv.html(SnapshotsDiv, "button", snapshot.id)
+        //     button.onclick = function() {
+        //         getSnapshot(snapshot.id)
+        //     }
+        // })
+
+      snapshots.forEach( function(snapshot) {
+        var button = piv.html(SnapshotsDiv, "button", snapshot.id)
+        button.onclick = function() {
+          getSnapshot(snapshot.id)
+        }
+      })
     }
 
     function getSnapshot(SnapshotId) {
@@ -146,7 +155,8 @@
 	var delims = []
 	var split_chars = [">", "="]
 	while (true) {
-	    var indexes = split_chars.map(delim => ballot_text.indexOf(delim)).filter(idx => idx >= 0)
+    // var indexes = split_chars.map(delim => ballot_text.indexOf(delim)).filter(idx => idx >= 0)  // => not supported in IE
+    var indexes = split_chars.map(function(delim){ return ballot_text.indexOf(delim) }).filter( function(idx){ return idx >= 0 })
 
 	    if (indexes.length == 0) {
 		// no delims found
@@ -154,7 +164,8 @@
 		break
 	    }
 
-	    var min_idx = Math.min(...indexes)
+      // var min_idx = Math.min(...indexes)  //... not supported in IE
+      var min_idx = Math.min.apply(null, indexes)
 	    delims.push(ballot_text[min_idx])
 	    parts.push(ballot_text.substr(0, min_idx))
 	    ballot_text = ballot_text.substr(min_idx+1)
@@ -207,9 +218,11 @@
     function getCandidateFormatFn(snapshot) {
 	var fn
 	if (humanNamesCheckbox.checked) {
-	    fn = (x => " "+candidateIdToName[x]+" ")
+    // fn = (x => " "+candidateIdToName[x]+" ")
+    fn = function(x) { return " "+candidateIdToName[x]+" " }
 	} else {
-	    fn = (x => x)
+    // fn = (x => x)
+    fn = function(x) { return x}
 	}
 
 	return fn
@@ -225,27 +238,41 @@
 	var debug = snapshot.result_blob.debug
 	var debug_private = snapshot.result_blob.debug_private
 	var candidateFormatFn = getCandidateFormatFn(snapshot)
-	var formatCandidates = (x => ballotMap(x, candidateFormatFn))
+  // var formatCandidates = (x => ballotMap(x, candidateFormatFn))
+	var formatCandidates = function(x) { return ballotMap(x, candidateFormatFn) }
 
 	// candidates
         CandidatesDiv.innerHTML = ""
 	piv.html(CandidatesDiv, "span", "<b>Candidate ID: Candidate Name</b><br>")
-        debug_private.candidates.forEach(candidate => {
+        // debug_private.candidates.forEach(candidate => {
+        //     piv.html(CandidatesDiv, "span", candidate.id + ": " + candidate.name + "<br>")
+        // })
+        debug_private.candidates.forEach( function(candidate) {
             piv.html(CandidatesDiv, "span", candidate.id + ": " + candidate.name + "<br>")
         })
 
 	// ballots
         BallotsDiv.innerHTML = ""
 	var ballots = debug.ballots
-        Object.keys(ballots).forEach(elector_id => {
-	    var ballot_text = ''
-	    if (showElectorNamesCheckbox.checked) {
-		ballot_text += "<b>"+electorIdToName[elector_id] + "</b>: "
-	    }
-	    ballot_text += formatCandidates(ballots[elector_id])
-	    ballot_text += "<br>"
-            piv.html(BallotsDiv, "span", ballot_text)
-        })
+    //     Object.keys(ballots).forEach(elector_id => {
+	  //   var ballot_text = ''
+	  //   if (showElectorNamesCheckbox.checked) {
+		// ballot_text += "<b>"+electorIdToName[elector_id] + "</b>: "
+	  //   }
+	  //   ballot_text += formatCandidates(ballots[elector_id])
+	  //   ballot_text += "<br>"
+    //         piv.html(BallotsDiv, "span", ballot_text)
+    //     })
+
+      Object.keys(ballots).forEach( function(elector_id) {
+    var ballot_text = ''
+    if (showElectorNamesCheckbox.checked) {
+	ballot_text += "<b>"+electorIdToName[elector_id] + "</b>: "
+    }
+    ballot_text += formatCandidates(ballots[elector_id])
+    ballot_text += "<br>"
+          piv.html(BallotsDiv, "span", ballot_text)
+      })
 
 	// tie breaker, partial and total order
 	TiePartialDiv.innerHTML = formatCandidates(debug.tie_breaker)
@@ -254,8 +281,10 @@
 	// debug results (text only)
 	var ranks = Array.from(snapshot.result_blob.order.keys())
 	ranks.sort()
-	var order = ranks.map(rank => snapshot.result_blob.order[rank].map(candidate => candidate.id))
-	var order_text = order.map(ties => ties.join("=")).join(">")
+  // var order = ranks.map(rank => snapshot.result_blob.order[rank].map(candidate => candidate.id))
+	var order = ranks.map(function(rank) { return snapshot.result_blob.order[rank].map( function(candidate) {return candidate.id }) })
+  // var order_text = order.map(ties => ties.join("=")).join(">")
+	var order_text = order.map( function(ties) { return ties.join("=")} ).join(">")
 	DebugResultsDiv.innerHTML = formatCandidates(order_text)
 
 	// user-friendly results
@@ -272,25 +301,46 @@
 	var edge_counts = new Map()
 
 	// compute votes each way, between each pair
-	Object.keys(ballots).forEach(elector_id => {
-	    var ballot_text = ballots[elector_id]
-	    console.log(ballot_text)
-	    var ballot = ballot_text.split(">").map(x => x.split("="))
+	// Object.keys(ballots).forEach(elector_id => {
+	//     var ballot_text = ballots[elector_id]
+	//     console.log(ballot_text)
+	//     var ballot = ballot_text.split(">").map(x => x.split("="))
+  //
+	//     for (var i=0; i<ballot.length; i++) {
+	// 	var group1 = ballot[i]
+	// 	group1.forEach(function(A){
+	// 	    nodes.add(A)
+	// 	    ballot.slice(i+1).forEach(function(group2) {
+	// 		group2.forEach(function(B){
+	// 		    var key = [A,B].toString() // A beats B in this ballot
+	// 		    var count = edge_counts.has(key) ? edge_counts.get(key) : 0
+	// 		    count += 1
+	// 		    edge_counts.set(key, count)
+	// 		})
+	// 	    })
+	// 	})
+	//     }
+  //       })
 
-	    for (var i=0; i<ballot.length; i++) {
-		var group1 = ballot[i]
-		group1.forEach(function(A){
-		    nodes.add(A)
-		    ballot.slice(i+1).forEach(function(group2) {
-			group2.forEach(function(B){
-			    var key = [A,B].toString() // A beats B in this ballot
-			    var count = edge_counts.has(key) ? edge_counts.get(key) : 0
-			    count += 1
-			    edge_counts.set(key, count)
-			})
-		    })
-		})
-	    }
+  Object.keys(ballots).forEach(function(elector_id) {
+      var ballot_text = ballots[elector_id]
+      console.log(ballot_text)
+      var ballot = ballot_text.split(">").map( function(x) { return x.split("=") } )
+
+      for (var i=0; i<ballot.length; i++) {
+    var group1 = ballot[i]
+    group1.forEach(function(A){
+        nodes.add(A)
+        ballot.slice(i+1).forEach(function(group2) {
+      group2.forEach(function(B){
+          var key = [A,B].toString() // A beats B in this ballot
+          var count = edge_counts.has(key) ? edge_counts.get(key) : 0
+          count += 1
+          edge_counts.set(key, count)
+      })
+        })
+    })
+      }
         })
 
 	// generate list of alchemy edges
@@ -423,7 +473,8 @@ against each candidate along the horizontal access.")
 	table.style.borderCollapse = "collapse"
 	table.style.textAlign = "center"
 
-	var nodes = alchemy_data.nodes.map(node => node.id).sort()
+  // var nodes = alchemy_data.nodes.map(node => node.id).sort()
+	var nodes = alchemy_data.nodes.map(function(node) {return node.id}).sort()
 	var edges = alchemy_data.edges
 	var row, cell, text
 
