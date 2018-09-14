@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PivotLibre\Tideman\BallotParser;
 use PivotLibre\Tideman\Ballot;
+use PivotLibre\Tideman\Candidate;
+use PivotLibre\Tideman\CandidateList;
 
 class ResultSnapshotController extends Controller
 {
@@ -60,16 +62,21 @@ class ResultSnapshotController extends Controller
      */
     public function getSnapshotDataTable(array $snapshot)
     {
+//        var_dump($snapshot);
         $candidateIdPairs = $snapshot['debug_private']['candidates'];
-        var_dump($snapshot['debug_private']['electors']);
         $candidateIdToNameMap = $this->convertCandidateIdPairsToMap($candidateIdPairs);
         $electorIdToBallotStringMaps = $snapshot['debug']['ballots'];
         $electorIdToBallot = $this->convertBallotStringsToBallots($electorIdToBallotStringMaps);
         $electorIdToBallot = $this->addCandidateNamesToBallots($candidateIdToNameMap, $electorIdToBallot);
-
+        var_dump($electorIdToBallot);
         $electorIdPairs = $snapshot['debug_private']['electors'];
         $electorIdToNameMap = $this->convertElectorIdPairsToMap($electorIdPairs);
-        $electorNameToBallot = $this->reKeyArray($electorIdToBallot, $electorIdToNameMap);
+        //$electorNameToBallot = $this->reKeyArray($electorIdToBallot, $electorIdToNameMap);
+    }
+
+    public function convertBffStringWithIdsToNames(string $bffWithIds, $candidateIdToNameMap)
+    {
+        return [];
     }
 
     public function convertElectorIdPairsToMap(array $electorIdPairs)
@@ -87,7 +94,7 @@ class ResultSnapshotController extends Controller
     {
         return $this->convertPairsToMap($candidateIdPairs, 'id', 'name');
     }
-    
+     
     /**
      * This function returns a re-keyed associative array
      * @param array $array the associative array to re-key.
@@ -148,13 +155,48 @@ class ResultSnapshotController extends Controller
      */
     public function addCandidateNamesToBallots(array $idToCandidateNameMap, array $voterIdToBallotMap)
     {
-        foreach($voterIdToBallotMap as $voterId => &$ballot) {
-            array_walk_recursive($ballot, function(&$candidate) use ($idToCandidateNameMap) {
-                $candidateId = $candidate->getId();
-                $candidateName = $idToCandidateNameMap[$candidateId];
-                $candidate = new Candidate($candidateId, $candidateName);
-            });;
-        }
+        $nameCandidate = function($candidate) use ($idToCandidateNameMap) {
+                    $candidateId = $candidate->getId();
+                    $candidateName = $idToCandidateNameMap[$candidateId];
+                    $candidate = new Candidate($candidateId, $candidateName);
+//                    $candidate = [
+//                        "id" => $candidateId,
+//                        "name" => $candidateName
+//                    ];
+                    return $candidate;
+                };
+
+        $recreateCandidateList = function($candidateList) use ($nameCandidate) {
+            return new CandidateList(...array_map($nameCandidate, $candidateList->toArray()));
+        };
+
+        $recreateBallot = function($ballot) use ($recreateCandidateList) {
+            return new Ballot(...array_map($recreateCandidateList, $ballot->toArray()));
+        };
+
+        $voterIdToBallotMap = array_map($recreateBallot, $voterIdToBallotMap);
+
+///        $voterIdToBallotMap = array_map(function($ballot){
+///            return new Ballot(...array_map(function($candidateList){
+///                return new CandidateList(...array_map(function($candidate) use ($idToCandidateNameMap) {
+///                    $candidateId = $candidate->getId();
+///                    $candidateName = $idToCandidateNameMap[$candidateId];
+///                    $candidate = new Candidate($candidateId, $candidateName);
+///                    return $candidate;
+///                }, $candidateList));
+///            }, $ballot->toArray()));
+///        }, $voterIdToBallotMap);
+
+///        foreach($voterIdToBallotMap as $voterId => &$ballot) {
+///            foreach($ballot as &$candidateList) {
+///                foreach($candidateList as &$candidate) {
+///                    $candidateId = $candidate->getId();
+///                    $candidateName = $idToCandidateNameMap[$candidateId];
+///                    $candidate = new Candidate($candidateId, $candidateName);
+///                }
+///                var_dump($candidateList);
+///            }
+///        }
         return $voterIdToBallotMap;
     }
 
