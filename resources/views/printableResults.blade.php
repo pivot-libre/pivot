@@ -5,9 +5,14 @@
     <title>Pivot Libre Election Results</title>
   </head>
   <body>
-	  <pre>
-		{{ $snapshot }}
-	</pre>
+        <h1>Ballots</h1>
+	    <pre>
+		{{ print_r($ballots) }}
+	    </pre>
+        <h1>Election</h1>
+            <pre>
+                {{ print_r($election) }}
+            </pre>
   </body>
 </html>
 
