@@ -13,36 +13,45 @@
             <dt>Results Date</dt>
             <dd>{{ $snapshotTime->format(DateTime::ATOM) }}</dd>
         </dl>
+        <h2>Electors</h2>
+        <div>
+            @foreach($electorNames as $electorName)
+                <span class="electorName">{{ $electorName }}</span>
+                @if(!$loop->last)
+                <span class="electorSeparator">,</span>
+                @endif
+            @endforeach
+        </div>
        <h2>Ballots</h2>
             @foreach($electorsAndBallots as $electorAndBallot)
 	        <div>
                     <span class="electorName">{{ $electorAndBallot['elector']['name'] }}</span>
-                    <span class="candidateranking">
+                    <span class="candidateRanking">
                         @foreach($electorAndBallot['ballot'] as $candidateList)
                             @foreach($candidateList as $candidate)
-                                <span class="candidatename">{{ $candidate['name'] }}</span>
+                                <span class="candidateName">{{ $candidate['name'] }}</span>
                                 @if(!$loop->last)
-                                    <span class="candidateseparator">&nbsp;=&nbsp;</span>
+                                    <span class="candidateSeparator">&nbsp;=&nbsp;</span>
                                 @endif
                             @endforeach
                             @if(!$loop->last)
-                                <span class="candidateseparator">&nbsp;&gt;&nbsp;</span>
+                                <span class="candidateSeparator">&nbsp;&gt;&nbsp;</span>
                             @endif
                         @endforeach
                     </span>
                 </div>
             @endforeach
         <h2>Results</h2>
-            <span class="candidateranking">
+            <span class="candidateRanking">
                @foreach($result as $candidateList)
                     @foreach($candidateList as $candidate)
-                        <span class="candidatename">{{ $candidate['name'] }}</span>
+                        <span class="candidateName">{{ $candidate['name'] }}</span>
                         @if(!$loop->last)
-                            <span class="candidateseparator">&nbsp;=&nbsp;</span>
+                            <span class="candidateSeparator">&nbsp;=&nbsp;</span>
                         @endif
                     @endforeach
                     @if(!$loop->last)
-                        <span class="candidateseparator">&nbsp;&gt;&nbsp;</span>
+                        <span class="candidateSeparator">&nbsp;&gt;&nbsp;</span>
                     @endif
                 @endforeach
             </span>

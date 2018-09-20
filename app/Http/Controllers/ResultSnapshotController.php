@@ -51,9 +51,16 @@ class ResultSnapshotController extends Controller
         $snapshotBlob = $snapshot['result_blob'];
 	$result = $snapshotBlob['order'];
         $electorsAndBallots = $this->getElectorsAndBallots($snapshotBlob);
+        $electorNames = array_map(
+            function($pair){
+                return $pair['elector']['name'];
+            },
+            $electorsAndBallots
+        );
         $view = view('printableResults', [
-                'snapshotTime' => $snapshotTime,
 		'election' => $election,
+                'snapshotTime' => $snapshotTime,
+                'electorNames' => $electorNames,
 		'electorsAndBallots' => $electorsAndBallots,
                 'result' => $result
 	]);
