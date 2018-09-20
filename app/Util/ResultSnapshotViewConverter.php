@@ -18,7 +18,7 @@ class ResultSnapshotViewConverter
      * @param array $candidateIdPairs an array whose entries are each associative arrays with keys 'id' and 'name' and whose values describe candidates.
      * @return a list of lists describing a partial ordering of candidates
      */
-    public function convertTieBreaker(string $tieBreakerString, array $candidateIdPairs)
+    public function convertTieBreaker(string $tieBreakerString, array $candidateIdPairs) : array
     {
         $ballotParser = new BallotParser();
         $tieBreaker = $ballotParser->parse($tieBreakerString); 
@@ -31,7 +31,7 @@ class ResultSnapshotViewConverter
      * @param array $snapshotBlob the native representation of a snapshot
      * @return array whose elements each contain info on an elector and their ballot
      */
-    public function getElectorsAndBallots(array $snapshotBlob)
+    public function getElectorsAndBallots(array $snapshotBlob) : array
     {
         $candidateIdPairs = $snapshotBlob['debug_private']['candidates'];
         $candidateIdToNameMap = $this->convertCandidateIdPairsToMap($candidateIdPairs);
@@ -44,8 +44,13 @@ class ResultSnapshotViewConverter
         $electorsAndBallots = $this->associateElectorNamesWithBallots($electorIdToNameMap, $electorIdToBallot);
         return $electorsAndBallots;
     }
-
-    public function associateElectorNamesWithBallots(array $electorIdToNameMap, array $electorIdToBallot)
+    
+    /**
+     * @param array $electorIdToNameMap an associative array whose keys are elector ids and whose values are the corresponding elector names
+     * @param array $electorToBallot an associative array whose keys are elector ids and whose values are the corresponding Ballot objects
+     * @return an array, each entry of which is an associative array whose keys are 'elector' and 'ballot' and whose values describe the names and ids of the electors and candidates therein
+     */
+    public function associateElectorNamesWithBallots(array $electorIdToNameMap, array $electorIdToBallot) : array
     {
         $electorsAndBallots = [];
         foreach($electorIdToBallot as $electorId => $ballot) {
@@ -70,7 +75,7 @@ class ResultSnapshotViewConverter
      * corresponding elector name
      */
 
-    public function convertElectorIdPairsToMap(array $electorIdPairs)
+    public function convertElectorIdPairsToMap(array $electorIdPairs) : array
     {
         return $this->convertPairsToMap($electorIdPairs, 'id', 'name');
     }
@@ -82,7 +87,7 @@ class ResultSnapshotViewConverter
      * @return array an associative array whose keys are candidate ids and whose values are the 
      * corresponding candidate name
      */
-    public function convertCandidateIdPairsToMap(array $candidateIdPairs)
+    public function convertCandidateIdPairsToMap(array $candidateIdPairs) : array
     {
         return $this->convertPairsToMap($candidateIdPairs, 'id', 'name');
     }
@@ -94,7 +99,7 @@ class ResultSnapshotViewConverter
      * @return an associative array whose keys have been uniformly transformed according
      * to the associations in $oldKeyToNewKey
      */
-    public function reKeyArray(array $array, array $oldKeyToNewKey)
+    public function reKeyArray(array $array, array $oldKeyToNewKey) : array
     {
         $newArray = [];
         foreach($array as $oldKey => $value) {
@@ -114,7 +119,7 @@ class ResultSnapshotViewConverter
      * @param string $valueName the name of the associative array memver in $pairs that should be used as the value in the returned associative array
      * @return an associative array that maps the $keyName to $valueName
      */
-    public function convertPairsToMap(array $pairs, string $keyName, string $valueName)
+    public function convertPairsToMap(array $pairs, string $keyName, string $valueName) : array
     {
         $keyToValue = [];
         foreach($pairs as $pair) {
@@ -130,7 +135,7 @@ class ResultSnapshotViewConverter
      * ballot strings
      * @return array whose keys are voter ids and whose values are Ballot objects
      */
-    public function convertBallotStringsToBallots(array $ballotArrays)
+    public function convertBallotStringsToBallots(array $ballotArrays) : array
     {
         $voterIdToBallotMap = [];
         $ballotParser = new BallotParser();
@@ -145,7 +150,7 @@ class ResultSnapshotViewConverter
      * @param $voterIdToBallotMap array whose keys are voter ids and whose values are Ballot objects without candidate names.
      * @return array whose keys are voter ids and whose values are nested arrays describing a partially ordered list of candidates.
      */
-    public function convertBallotsToNamedCandidateArrays(array $idToCandidateNameMap, array $voterIdToBallotMap)
+    public function convertBallotsToNamedCandidateArrays(array $idToCandidateNameMap, array $voterIdToBallotMap) : array
     {
         $nameCandidate = function(Candidate $candidate) use ($idToCandidateNameMap) {
             $candidateId = $candidate->getId();
