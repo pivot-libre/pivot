@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Pivot Libre Election Result</title>
+    <title>Pivot Libre Election Result - {{ $election->getAttribute('name') }}</title>
   </head>
   <body>
         <h1>Pivot Libre Election Result</h1>
@@ -26,70 +26,22 @@
             @foreach($electorsAndBallots as $electorAndBallot)
 	        <div>
                     <span class="electorName">{{ $electorAndBallot['elector']['name'] }}</span>
-                    <span class="candidateRanking">
-                        @foreach($electorAndBallot['ballot'] as $candidateList)
-                            @foreach($candidateList as $candidate)
-                                <span class="candidateName">{{ $candidate['name'] }}</span>
-                                @if(!$loop->last)
-                                    <span class="candidateSeparator">&nbsp;=&nbsp;</span>
-                                @endif
-                            @endforeach
-                            @if(!$loop->last)
-                                <span class="candidateSeparator">&nbsp;&gt;&nbsp;</span>
-                            @endif
-                        @endforeach
-                    </span>
+                    @include('candidateRanking', ['candidateRanking' => $electorAndBallot['ballot']])
                 </div>
             @endforeach
         <h2>Tie Breaking</h2>
         <dl>
             <dt>Partially-Ordered Tie-Breaking Ballot</dt>
             <dd>
-                <span class="candidateRanking">
-                   @foreach($partiallyOrderedTieBreaker as $candidateList)
-                        @foreach($candidateList as $candidate)
-                            <span class="candidateName">{{ $candidate['name'] }}</span>
-                            @if(!$loop->last)
-                                <span class="candidateSeparator">&nbsp;=&nbsp;</span>
-                            @endif
-                        @endforeach
-                        @if(!$loop->last)
-                            <span class="candidateSeparator">&nbsp;&gt;&nbsp;</span>
-                        @endif
-                    @endforeach
-                </span>
+                @include('candidateRanking', ['candidateRanking' => $partiallyOrderedTieBreaker])
             </dd>
             <dt>Totally-Ordered Tie-Breaking Ballot</dt>
             <dd>
-                <span class="candidateRanking">
-                   @foreach($totallyOrderedTieBreaker as $candidateList)
-                        @foreach($candidateList as $candidate)
-                            <span class="candidateName">{{ $candidate['name'] }}</span>
-                            @if(!$loop->last)
-                                <span class="candidateSeparator">&nbsp;=&nbsp;</span>
-                            @endif
-                        @endforeach
-                        @if(!$loop->last)
-                            <span class="candidateSeparator">&nbsp;&gt;&nbsp;</span>
-                        @endif
-                    @endforeach
-                </span>
-            </dd>
+                @include('candidateRanking', ['candidateRanking' => $totallyOrderedTieBreaker])
+           </dd>
  
         <h2>Results</h2>
-            <span class="candidateRanking">
-               @foreach($result as $candidateList)
-                    @foreach($candidateList as $candidate)
-                        <span class="candidateName">{{ $candidate['name'] }}</span>
-                        @if(!$loop->last)
-                            <span class="candidateSeparator">&nbsp;=&nbsp;</span>
-                        @endif
-                    @endforeach
-                    @if(!$loop->last)
-                        <span class="candidateSeparator">&nbsp;&gt;&nbsp;</span>
-                    @endif
-                @endforeach
-            </span>
+            @include('candidateRanking', ['candidateRanking' => $result ])
   </body>
 </html>
 
