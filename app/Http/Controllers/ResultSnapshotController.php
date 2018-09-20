@@ -46,27 +46,32 @@ class ResultSnapshotController extends Controller
 	$election = Election::where('elections.id', '=', $electionId)->firstOrFail();	
 	$this->authorize('view_results', $election);
 
-	$snapshot = $this->show($election, $snapshotId)['result_blob'];
-	$electorsAndBallots = $this->getElectorsAndBallots($snapshot);
+	$snapshot = $this->show($election, $snapshotId);
+        $snapshotTime = $snapshot->getAttribute($snapshot->getCreatedAtColumn());
+        $snapshotBlob = $snapshot['result_blob'];
+	$result = $snapshotBlob['order'];
+        $electorsAndBallots = $this->getElectorsAndBallots($snapshotBlob);
         $view = view('printableResults', [
+                'snapshotTime' => $snapshotTime,
 		'election' => $election,
-		'ballots' => $electorsAndBallots
+		'electorsAndBallots' => $electorsAndBallots,
+                'result' => $result
 	]);
 	return $view;
     }
 
     /**
-     * @param array $snapshot the native representation of a snapshot
+     * @param array $snapshotBlob the native representation of a snapshot
      * @return array whose elements each contain info on an elector and their ballot
      */
-    public function getElectorsAndBallots(array $snapshot)
+    public function getElectorsAndBallots(array $snapshotBlob)
     {
-        $candidateIdPairs = $snapshot['debug_private']['candidates'];
+        $candidateIdPairs = $snapshotBlob['debug_private']['candidates'];
         $candidateIdToNameMap = $this->convertCandidateIdPairsToMap($candidateIdPairs);
-        $electorIdToBallotStringMaps = $snapshot['debug']['ballots'];
+        $electorIdToBallotStringMaps = $snapshotBlob['debug']['ballots'];
         $electorIdToBallot = $this->convertBallotStringsToBallots($electorIdToBallotStringMaps);
-        $electorIdToBallot = $this->addCandidateNamesToBallots($candidateIdToNameMap, $electorIdToBallot);
-        $electorIdPairs = $snapshot['debug_private']['electors'];
+        $electorIdToBallot = $this->convertBallotsToNamedCandidateArrays($candidateIdToNameMap, $electorIdToBallot);
+        $electorIdPairs = $snapshotBlob['debug_private']['electors'];
         $electorIdToNameMap = $this->convertElectorIdPairsToMap($electorIdPairs);
 
         $electorsAndBallots = $this->associateElectorNamesWithBallots($electorIdToNameMap, $electorIdToBallot);
@@ -171,23 +176,26 @@ class ResultSnapshotController extends Controller
     /**
      * @param $idToCandidateNameMap array whose keys are candidate ids and whose values are the associated candidate names
      * @param $voterIdToBallotMap array whose keys are voter ids and whose values are Ballot objects without candidate names.
-     * @return array whose keys are voter ids and whose values are Ballot objects that have candidate names.
+     * @return array whose keys are voter ids and whose values are nested arrays describing a partially ordered list of candidates.
      */
-    public function addCandidateNamesToBallots(array $idToCandidateNameMap, array $voterIdToBallotMap)
+    public function convertBallotsToNamedCandidateArrays(array $idToCandidateNameMap, array $voterIdToBallotMap)
     {
-        $nameCandidate = function($candidate) use ($idToCandidateNameMap) {
+        $nameCandidate = function(Candidate $candidate) use ($idToCandidateNameMap) {
             $candidateId = $candidate->getId();
             $candidateName = $idToCandidateNameMap[$candidateId];
-            $candidate = new Candidate($candidateId, $candidateName);
+            $candidate = [
+                'id' => $candidateId,
+                'name' => $candidateName
+            ];
             return $candidate;
         };
 
         $recreateCandidateList = function($candidateList) use ($nameCandidate) {
-            return new CandidateList(...array_map($nameCandidate, $candidateList->toArray()));
+            return array_map($nameCandidate, $candidateList->toArray());
         };
 
         $recreateBallot = function($ballot) use ($recreateCandidateList) {
-            return new Ballot(...array_map($recreateCandidateList, $ballot->toArray()));
+            return array_map($recreateCandidateList, $ballot->toArray());
         };
 
         $voterIdToBallotMap = array_map($recreateBallot, $voterIdToBallotMap);
