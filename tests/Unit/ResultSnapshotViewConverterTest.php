@@ -13,11 +13,7 @@ class ResultSnapshotViewConverterTest extends TestCase
         parent::setUp();
         $this->instance = new ResultSnapshotViewConverter();
     }
-    /**
-     * A basic test example.
-     *
-     * @return void
-     */
+    
     public function testConvertPairsToMap()
     {
         $pairs = [
@@ -39,7 +35,88 @@ class ResultSnapshotViewConverterTest extends TestCase
             'a' => 'alice',
             'b' => 'bob'
         ];
-        throw new Exception('baaaaaa');
         $this->assertEquals($expected, $actual);
     }
+
+    public function testConvertTieBreakerWithTotallyOrderedBallot() : void
+    {
+        //totally ordered
+        $tieBreakerString = 'A>C>B';
+        $candidateIdPairs = [
+            [
+                'id' => 'A',
+                'name' => 'Alice'
+            ],
+            [
+                'id' => 'B',
+                'name' => 'Bob'
+            ],
+            [
+                'id' => 'C',
+                'name' => 'Claire'
+            ]
+        ];
+        $actual = $this->instance->convertTieBreaker($tieBreakerString, $candidateIdPairs);
+        $expected = [
+            [
+                [
+                    'id' => 'A',
+                    'name' => 'Alice'
+                ]
+            ],
+            [
+                [
+                    'id' => 'C',
+                    'name' => 'Claire'
+                ]
+            ],
+            [
+                [
+                    'id' => 'B',
+                    'name' => 'Bob'
+                ]
+            ]
+        ];
+        $this->assertEquals($expected, $actual);
+    }
+    public function testConvertTieBreakerWithPartiallyOrderedBallot() : void
+    {
+        //partially ordered
+        $tieBreakerString = 'A>C=B';
+        $candidateIdPairs = [
+            [
+                'id' => 'A',
+                'name' => 'Alice'
+            ],
+            [
+                'id' => 'B',
+                'name' => 'Bob'
+            ],
+            [
+                'id' => 'C',
+                'name' => 'Claire'
+            ]
+        ];
+        $actual = $this->instance->convertTieBreaker($tieBreakerString, $candidateIdPairs);
+        $expected = [
+            [
+                [
+                    'id' => 'A',
+                    'name' => 'Alice'
+                ]
+            ],
+            [
+                [
+                    'id' => 'C',
+                    'name' => 'Claire'
+                ],
+                [
+                    'id' => 'B',
+                    'name' => 'Bob'
+                ]
+            ]
+        ];
+        $this->assertEquals($expected, $actual);
+    }
+
 }
