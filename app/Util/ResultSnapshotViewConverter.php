@@ -162,11 +162,11 @@ class ResultSnapshotViewConverter
             return $candidate;
         };
 
-        $recreateCandidateList = function($candidateList) use ($nameCandidate) {
+        $recreateCandidateList = function(CandidateList $candidateList) use ($nameCandidate) {
             return array_map($nameCandidate, $candidateList->toArray());
         };
 
-        $recreateBallot = function($ballot) use ($recreateCandidateList) {
+        $recreateBallot = function(Ballot $ballot) use ($recreateCandidateList) {
             return array_map($recreateCandidateList, $ballot->toArray());
         };
 
