@@ -51,7 +51,8 @@ class RegisterController extends Controller
     {
         $email = $request->input('email', '');
         $token = $request->input('token', '');
-        return view('auth.register', ['email' => $email, 'token' => $token]);
+        $isConfirmation = !empty($token); 
+        return view('auth.register', ['email' => $email, 'token' => $token, 'isConfirmation' => $isConfirmation]);
     }
 
     protected function verify_token(array $data)

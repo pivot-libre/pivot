@@ -37,10 +37,14 @@
     Piv.http.post(["/open/send_verify_email"], [{"email": email}], function(response) {
       if ("confirmation email sent" == response) {
 
-        instructionsEl.innerHTML = "Token created! <br> An email has been sent to " + email + " containing a verification token. Use the token from the Email in the Verification Token field to continue with your registration."
+        instructionsEl.innerHTML = "<p>Account registration started! </p><p>A confirmation email has been sent to " + email + ". Follow the link in the email to continue with your registration.</p>"
+        var registrationEmailFields = document.getElementById("emailRegistrationGroup");
+        registrationEmailFields.style.display = "none";
+        var tokenRequestGroup = document.getElementById("tokenRequestGroup");
+        tokenRequestGroup.style.display = "none";
       }
       else {
-        instructionsEl.innerHTML = "Token not sent <br>" + response
+        instructionsEl.innerHTML = "<p>Confirmation message not sent. Did you enter a valid email address?</p><p>" + response + "</p>";
       }
     })
   }
