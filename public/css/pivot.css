@@ -640,3 +640,8 @@ input[type=checkbox]:focus + .checkboxUI0,
 		display: block;
 	}
 }
+.centeredRegistrationButton {
+    margin: auto;
+    width: 50%;
+    display: block;
+}
