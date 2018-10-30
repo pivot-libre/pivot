@@ -10,18 +10,13 @@ use Illuminate\Support\Facades\Auth;
 
 class InviteController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth:api');
-    }
-
     /**
      * Display a listing of the resource.
      *
      * @SWG\Get(
      *     tags={"Invites"},
-     *     path="/election/{electionId}/invite",
-     *     summary="View pending invites",
+     *     path="/elections/{electionId}/invite",
+     *     summary="View electors who have not accepted their invite yet",
      *     operationId="inviteIndex",
      *     @SWG\Parameter(
      *         name="electionId",
@@ -43,7 +38,7 @@ class InviteController extends Controller
     {
         $this->authorize('update', $election);
 
-        return $election->invites;
+        return $election->electors()->whereNull('invite_accepted_at')->get();
     }
 
     /**
@@ -51,7 +46,7 @@ class InviteController extends Controller
      *
      * @SWG\Post(
      *     tags={"Invites"},
-     *     path="/election/{electionId}/invite",
+     *     path="/elections/{electionId}/invite",
      *     summary="Send an invite",
      *     operationId="createInvite",
      *     consumes={"application/json"},
@@ -89,12 +84,9 @@ class InviteController extends Controller
         $this->authorize('update', $election);
 
         $email = $request->json()->get('email');
-        $elector = $election->invite($email);
-
-        # we don't really use codes anymore, but we use the election ID for it so
-        # that we don't break the client side (cleanup later, by using election_id on client?)
-        $code = (string)$election->id;
-        return response()->json(array("id" => $elector->id, "code" => $code, "election_id" => $election->id));
+        $voter_name = $request->json()->get('voter_name');
+        $elector = $election->invite($email, $voter_name);
+        return $elector;
     }
 
     /**
@@ -134,12 +126,12 @@ class InviteController extends Controller
         // invite_email matching the user's email, then the user has
         // the right to accept the "invite"
 
-        # TODO(tylerharter): clean this up?  Putting election_id in "code" variable is silly
-        $election_id = (int)$request->json()->get('code');
+        # TODO(tylerharter): clean this up?  Putting elector_id in "code" variable is silly
+        $elector_id = (int)$request->json()->get('code');
         $user = Auth::user();
         $email = $user->email;
 
-        $elector = Elector::where('invite_email', $email)->where('election_id', $election_id)->firstOrFail();
+        $elector = Elector::where('invite_email', $email)->where('id', $elector_id)->firstOrFail();
 
         if ($elector->invite_accepted_at == null)
         {
@@ -149,7 +141,7 @@ class InviteController extends Controller
         }
 
         # hack, because eloquent reformats dates after a save
-        $elector = Elector::find($elector->id);
+        $elector = Elector::find($elector_id);
         return $elector;
     }
 
@@ -162,7 +154,7 @@ class InviteController extends Controller
 
         foreach ($electors as $elector) {
             $election = $elector->election;
-            $code = (string)$election->id;
+            $code = (string)$elector->id;
             $row = array("election_name" => $election->name,
                          "election_id" => $election->id,
                          "code" => $code);
@@ -170,52 +162,5 @@ class InviteController extends Controller
         }
 
         return array_values($results);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @SWG\Delete(
-     *     tags={"Invites"},
-     *     path="/election/{electionId}/invite/{code}",
-     *     summary="Delete an invite",
-     *     consumes={"application/json"},
-     *     produces={"application/json"},
-     *     operationId="deleteInvite",
-     *     @SWG\Parameter(
-     *         name="electionId",
-     *         in="path",
-     *         description="Election ID",
-     *         required=true,
-     *         type="string",
-     *     ),
-     *     @SWG\Parameter(
-     *         name="code",
-     *         in="path",
-     *         description="Invite Code",
-     *         required=true,
-     *         type="string",
-     *     ),
-     *     @SWG\Response(
-     *         response=200,
-     *         description="successful operation"
-     *     ),
-     *     @SWG\Response(
-     *         response="400",
-     *         description="Bad Request",
-     *     )
-     * )
-     *
-     * @param  \App\Election  $election
-     * @param  \App\Invite  $invite
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Election $election, Invite $invite)
-    {
-        $this->authorize('update', $election);
-
-        $invite->delete();
-
-        return response()->json(new \stdClass());
     }
 }

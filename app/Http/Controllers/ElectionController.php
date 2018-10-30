@@ -9,18 +9,14 @@ use App\CandidateRank;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ElectionController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth:api');
-    }
-
     /**
      * @SWG\Get(
      *     tags={"Election"},
-     *     path="/election",
+     *     path="/elections",
      *     operationId="electionIndex",
      *     summary="View all elections",
      *     @SWG\Response(response="200", description="Success", @SWG\Schema(
@@ -91,7 +87,7 @@ class ElectionController extends Controller
      *
      * * @SWG\Get(
      *     tags={"Election"},
-     *     path="/election/{electionId}",
+     *     path="/elections/{electionId}",
      *     summary="View information about an election",
      *     operationId="getElectionById",
      *     @SWG\Parameter(
@@ -158,39 +154,59 @@ class ElectionController extends Controller
 
     public function batchvote(Request $request, $election_id)
     {
-        $election = Election::where('id', '=', $election_id)->firstOrFail();
+        $this->validate($request, [
+            'votes.*.candidate_id' => 'required|exists:candidates,id',
+            'votes.*.rank' => 'required|integer',
+            'elector_id' => 'required|exists:electors,id'
+        ]);
+
+        /** @var Election $election */
+        $election = Election::findOrFail($election_id);
+        $elector_id = $request->json()->get('elector_id');
+
         $this->authorize('vote', $election);
-        
-        $elector = Elector::where('election_id', '=', $election_id)->
-                            where('user_id', '=', Auth::user()->id)->firstOrFail();
 
-        $ranks = array();
+        Log::debug("attempt batchvote with elector_id=".$elector_id);
 
-        // iterate over list of rankings
-        foreach($request->json()->get('votes') as $vote) {
-            // TODO: check this is a valid candidate?
-            $candidate_id = $vote['candidate_id'];
-            $rank_num = $vote['rank'];
+        // auth note: if an elector exists for this user, batchvote is allowed; otherwise, this fails
+        $elector = $election->electors()->where('id', $elector_id)->where('user_id', Auth::id())->firstOrFail();
 
-            $rank = CandidateRank::firstOrNew(['elector_id' => $elector->id, 'candidate_id' => $candidate_id]);
-            $rank->elector_id = $elector->id;
-            $rank->candidate_id = $candidate_id;
-            $rank->rank = $rank_num;
-            $rank->save();
+        // iterate over list of rankings and create/update candidate ranks in a transaction.
+        $ranks = [];
+        DB::transaction(function () use (&$ranks, $request, $elector){
+            foreach($request->json()->get('votes') as $vote) {
+                $candidate_id = $vote['candidate_id'];
+                $rank_num = $vote['rank'];
 
-            array_push($ranks, $rank);
-        }
+                $rank = CandidateRank::updateOrCreate(
+                    [
+                        'elector_id' => $elector->id,
+                        'candidate_id' => $candidate_id
+                    ],
+                    [
+                        'rank' => $rank_num
+                    ]
+                );
+                $ranks[] = $rank;
+            }
+        });
 
         return $ranks;
     }
 
     public function batchvote_view(Request $request, $election_id)
     {
-        $election = Election::where('id', '=', $election_id)->firstOrFail();
+        $this->validate($request, [
+            'elector_id' => 'required|exists:electors,id'
+        ]);
+
+        $election = Election::findOrFail($election_id);
+        $elector_id = $request->json()->get('elector_id');
+
         $this->authorize('vote', $election);
 
-        $elector = Elector::where('election_id', '=', $election_id)->
-                            where('user_id', '=', Auth::user()->id)->firstOrFail();
+        // auth note: if an elector exists for this user, batchvote is allowed; otherwise, this fails
+        $elector = $election->electors()->where('id', $elector_id)->where('user_id', Auth::id())->firstOrFail();
         return $elector->ranks;
     }
 
@@ -199,8 +215,11 @@ class ElectionController extends Controller
     {
         $election = Election::where('id', '=', $election_id)->firstOrFail();
         $this->authorize('vote', $election);
-        $elector = Elector::where('election_id', '=', $election_id)->
-                            where('user_id', '=', Auth::user()->id)->firstOrFail();
+        $elector_id = $request->json()->get('elector_id');
+        $elector = Elector::where('election_id', '=', $election_id)
+                 ->where('user_id', '=', Auth::user()->id)
+                 ->where('id', '=', $elector_id)
+                 ->firstOrFail();
 
         // what is the approval version, and is it current?
         $approved_version = $elector->ballot_version_approved;
@@ -218,8 +237,11 @@ class ElectionController extends Controller
     {
         $election = Election::where('id', '=', $election_id)->firstOrFail();
         $this->authorize('vote', $election);
-        $elector = Elector::where('election_id', '=', $election_id)->
-                            where('user_id', '=', Auth::user()->id)->firstOrFail();
+        $elector_id = $request->json()->get('elector_id');
+        $elector = Elector::where('election_id', '=', $election_id)
+                 ->where('user_id', '=', Auth::user()->id)
+                 ->where('id', '=', $elector_id)
+                 ->firstOrFail();
 
         // what is the approval version, and is it current?
         $approved_version = $request->json()->get('approved_version');
@@ -248,9 +270,9 @@ class ElectionController extends Controller
 
         $columns = DB::raw('count(*) AS elector_count, elections.ballot_version, electors.ballot_version_approved, (electors.invite_accepted_at IS NOT NULL) AS accepted');
         $query = Election::where('elections.id', '=', $election_id)
-                           ->join('electors', 'elections.id', '=', 'electors.election_id')
-                           ->select($columns)
-                           ->groupBy('elections.ballot_version', 'electors.ballot_version_approved', 'accepted');
+            ->join('electors', 'elections.id', '=', 'electors.election_id')
+            ->select($columns)
+            ->groupBy('elections.ballot_version', 'electors.ballot_version_approved', 'accepted');
 
         foreach ($query->get() as $row) {
             $count = $row['elector_count'];
@@ -273,43 +295,7 @@ class ElectionController extends Controller
     {
         $election = Election::where('id', '=', $election_id)->firstOrFail();
         $this->authorize('view_voter_details', $election);
-
-        $stats = array(
-            "outstanding_invites" => array(),
-            "approved_none" => array(),
-            "approved_current" => array(),
-            "approved_previous" => array()
-        );
-
-        $query = Election::where('elections.id', '=', $election_id)
-                           ->join('electors', 'elections.id', '=', 'electors.election_id')
-                           ->leftJoin('users', 'electors.user_id', '=', 'users.id')
-                           ->select('users.name',
-                                    'users.email',
-                                    'electors.invite_email',
-                                    'electors.invite_accepted_at',
-                                    'elections.ballot_version',
-                                    'electors.ballot_version_approved');
-
-        foreach ($query->get() as $row) {
-            $key = null;
-            if ($row->invite_accepted_at == null) {
-                $key = 'outstanding_invites';
-            } else if ($row->ballot_version_approved == null) {
-                $key = 'approved_none';
-            } else if ($row->ballot_version_approved == $row->ballot_version) {
-                $key = 'approved_current';
-            } else {
-                $key = 'approved_previous';
-            }
-
-            $name = $row->name;
-            $email = $row->email != null ? $row->email : $row->invite_email;
-            # name may be null if invite hasn't been accepted.  Caller
-            # should expect this.
-            array_push($stats[$key], array("name" => $name, "email" => $email));
-        }
-
+        $stats = $election->voter_details();
         return response()->json($stats);
     }
 
@@ -317,6 +303,10 @@ class ElectionController extends Controller
     {
         $election = Election::where('id', '=', $election_id)->firstOrFail();
         $this->authorize('update', $election);
+
+        // bump ballot version, reseting voter indications
+        $election->ballot_version += 1;
+        $election->save();
 
         # loop over input, looking for edits and inserts (we do not support batch delete)
         $candidates = $request->json()->get('candidates');
@@ -327,8 +317,8 @@ class ElectionController extends Controller
             if (array_key_exists('id', $candidate)) {
                 // edit
                 $row = Candidate::where('id', '=', $candidate['id'])
-                                ->where('election_id', '=', $election_id)
-                                ->firstOrFail();
+                    ->where('election_id', '=', $election_id)
+                    ->firstOrFail();
             } else {
                 // insert
                 $row = new Candidate();

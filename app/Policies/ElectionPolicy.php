@@ -19,7 +19,7 @@ class ElectionPolicy
      */
     public function view(User $user, Election $election)
     {
-        return $this->is_admin($election, $user) || $this->is_elector($election, $user);
+        return $user->isAdmin($election) || $user->isElector($election);
     }
 
     /**
@@ -32,7 +32,7 @@ class ElectionPolicy
     public function view_electors(User $user, Election $election)
     {
         // TODO: should electors be able to see other electors?
-        return $this->is_admin($election, $user) || $this->is_elector($election, $user);
+        return $user->isAdmin($election) || $user->isElector($election);
     }
 
     /**
@@ -45,7 +45,7 @@ class ElectionPolicy
     public function view_results(User $user, Election $election)
     {
         // TODO: should electors be able to view results?
-        return $this->is_admin($election, $user) || $this->is_elector($election, $user);
+        return $user->isAdmin($election) || $user->isElector($election);
     }
 
     /**
@@ -58,7 +58,7 @@ class ElectionPolicy
     public function view_voter_stats(User $user, Election $election)
     {
         // TODO: should electors be able to view stats?
-        return $this->is_admin($election, $user) || $this->is_elector($election, $user);
+        return $user->isAdmin($election) || $user->isElector($election);
     }
 
     /**
@@ -71,7 +71,7 @@ class ElectionPolicy
     public function view_voter_details(User $user, Election $election)
     {
         // TODO: should electors be able to view list of other electors?
-        return $this->is_admin($election, $user);
+        return $user->isAdmin($election);
     }
 
     /**
@@ -83,7 +83,7 @@ class ElectionPolicy
      */
     public function vote(User $user, Election $election)
     {
-        return $this->is_elector($election, $user);
+        return $user->isElector($election);
     }
     
     /**
@@ -95,7 +95,7 @@ class ElectionPolicy
      */
     public function update(User $user, Election $election)
     {
-        return $this->is_admin($election, $user);
+        return $user->isAdmin($election);
     }
 
     /**
@@ -107,30 +107,6 @@ class ElectionPolicy
      */
     public function delete(User $user, Election $election)
     {
-        return $this->is_admin($election, $user);
-    }
-
-    /**
-     * Determine whether the user is an election admin
-     *
-     * @param  \App\User  $user
-     * @param  \App\Election  $election
-     * @return bool
-     */
-    public function is_admin(Election $election, User $user)
-    {
-        return $election->creator->is($user);
-    }
-
-    /**
-     * Determine whether the user is an election admin
-     *
-     * @param  \App\User  $user
-     * @param  \App\Election  $election
-     * @return bool
-     */
-    public function is_elector(Election $election, User $user)
-    {
-        return $election->electors->contains($user);
+        return $user->isAdmin($election);
     }
 }

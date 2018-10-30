@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Candidate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
@@ -24,6 +25,9 @@ class RouteServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
+        Route::bind('candidate', function ($value) {
+            return Candidate::whereKey($value)->where('election_id', Route::current()->parameter('election'))->first();
+        });
     }
 
     /**

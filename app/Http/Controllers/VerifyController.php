@@ -11,11 +11,6 @@ use Illuminate\Support\Facades\Config;
 
 class VerifyController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('web');
-    }
-
     public function send_verify_email(Request $request)
     {
         // don't even try if the mail driver is not configured
@@ -35,7 +30,7 @@ class VerifyController extends Controller
         $verification->save();
 
         try {
-            $url = Config::get('app.url').'/register?token='.($verification->token).'&email='.($email);
+            $url = Config::get('app.url').'/register?token='.($verification->token).'&email='.urlencode($email);
             $msg = 'Continue your registration here: '.$url;
 
             Mail::raw($msg, function ($message) use ($email) {

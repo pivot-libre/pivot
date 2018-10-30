@@ -2,25 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use DummyFullModelClass;
 use App\Election;
 use App\Elector;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ElectorController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth:api');
-    }
-
     /**
      * Display a listing of the resource.
      *
      * @SWG\Get(
      *     tags={"Electors"},
-     *     path="/election/{electionId}/elector",
+     *     path="/elections/{electionId}/electors",
      *     summary="View the electorate for an election",
      *     operationId="electorIndex",
      *     @SWG\Parameter(
@@ -44,7 +41,27 @@ class ElectorController extends Controller
     {
         $this->authorize('view_electors', $election);
 
-        return $election->electors;
+        return $election->electors()->accepted()->get();
+    }
+
+    public function electors_for_self(Election $election)
+    {
+        // auth note: viewing electors you control requires no special privilege
+        $user = Auth::user();
+
+        // accept all invitations for this user to this election
+        $electors = Elector::where('invite_email', $user->email)
+                           ->where('invite_accepted_at', null)
+                           ->where('election_id', $election->id)
+                           ->get();
+
+        foreach ($electors as $elector) {
+            $elector->user()->associate($user);
+            $elector->invite_accepted_at = Carbon::now();
+            $elector->save();
+        }
+
+        return $election->electors()->where('user_id', Auth::id())->get();
     }
 
     /**
@@ -52,7 +69,7 @@ class ElectorController extends Controller
      *
      * @SWG\Get(
      *     tags={"Electors"},
-     *     path="/election/{electionId}/elector/{electorId}",
+     *     path="/elections/{electionId}/electors/{electorId}",
      *     summary="Get information about an elector",
      *     operationId="getElectorById",
      *     @SWG\Parameter(
@@ -75,18 +92,14 @@ class ElectorController extends Controller
      * )
      *
      * @param  \App\Election $election
-     * @param  \App\User $user
      * @return \Illuminate\Http\Response
      */
-    public function show(Election $election, User $user)
+    public function show(Election $election, $elector_id)
     {
         $this->authorize('view_electors', $election);
 
-        if ($election->electors->contains($user)) {
-            return $user;
-        }
-
-        abort(404, 'Not Found');
+        $elector = $election->electors()->accepted()->whereKey($elector_id)->firstOrFail();
+        return $elector;
     }
 
     /**
@@ -96,23 +109,16 @@ class ElectorController extends Controller
      * @param  \App\User $user
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Election $election, User $user)
+    public function destroy(Election $election, $elector_id)
     {
         $this->authorize('update', $election);
 
-        $electors = Elector::where([
+        $elector = Elector::where([
             'election_id' => $election->id,
-            'user_id' => $user->id,
-        ])->get();
+            'id' => $elector_id,
+        ])->firstOrFail();
 
-        foreach ($electors as $elector) {
-            if (isset($elector->invite)) {
-                $elector->invite->delete();
-            }
-
-            $elector->delete();
-        }
-
+        $elector->delete();
         return response()->json(new \stdClass());
     }
 }

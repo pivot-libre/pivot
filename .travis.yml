@@ -1,16 +1,31 @@
 language: php
-
 php:
   - 7.1
+dist: trusty
+sudo: required
+
+cache:
+  directories:
+    - node_modules
+    - vendor
+
+before_install:
+  - source ~/virtualenv/python2.7/bin/activate
+  - cp .env.travis .env
+  - mysql --version
+  - mysql -e 'create database homestead_test;'
+install:
+  - travis_retry composer install --no-interaction
+  - travis_retry pip install -r requirements.txt
 
 before_script:
   - cp .env.travis .env
-  - mysql -e 'create database homestead_test;'
-  - composer self-update
-  - composer install --no-interaction
   - php artisan key:generate
   - php artisan migrate --database=testing
   - php artisan passport:install
+  - php artisan serve&
+  - sleep 5
 
 script:
-- vendor/bin/phpunit
+  - vendor/bin/phpunit
+  - php artisan db:seed --class=TravisSeeder && python tests/python/tests.py --url http://127.0.0.1:8000

@@ -51,7 +51,8 @@ class RegisterController extends Controller
     {
         $email = $request->input('email', '');
         $token = $request->input('token', '');
-        return view('auth.register', ['email' => $email, 'token' => $token]);
+        $isConfirmation = !empty($token); 
+        return view('auth.register', ['email' => $email, 'token' => $token, 'isConfirmation' => $isConfirmation]);
     }
 
     protected function verify_token(array $data)
@@ -63,7 +64,7 @@ class RegisterController extends Controller
             }
         }
 
-        $verification = EmailVerification::where(['email' => $data['email']])->first();
+        $verification = EmailVerification::where(['email' => $data['email']])->firstOrFail();
         if ($verification->token == $data['token'])
         {
             return true;
@@ -100,7 +101,7 @@ class RegisterController extends Controller
             // TODO: create better error.  This fails in a very ugly way
             return 'bad token';
         }
-        
+
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],

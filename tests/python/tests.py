@@ -1,238 +1,9 @@
 #!/usr/bin/env python
-import os, sys, json, requests, time, re, argparse, inspect, re, random
-from collections import defaultdict as ddict
+import os, sys, json, requests, time, re, argparse, inspect, random, itertools
+from pivot_api import API
 
-class LatencyStats:
-    def __init__(self):
-        self.latencies = ddict(list)
-
-    def add(self, name, latency):
-        name = re.sub(r'\d+', '<N>', name)
-        self.latencies[name].append(latency)
-
-    def dump(self):
-        avg = {}
-        for k, values in self.latencies.iteritems():
-            avg[k] = sum(values) / len(values)
-        keys = sorted(avg.keys(), key=lambda k: -avg[k])
-        for k in keys:
-            print str(int(avg[k]*1000)).rjust(4) + ' ms   ' + k + ' [%d calls]' % len(self.latencies[k])
-
-class API:
-    def __init__(self, url, curltrace):
-        self.latency_stats = LatencyStats()
-        self.url = url
-        self.curl = open(curltrace, 'w') if curltrace else None
-        self.next_should_fail = False
-
-    def __enter__(self):
-        return self
-        
-    def __exit__(self, exc_type, exc_value, traceback):
-        if self.curl:
-            self.curl.close()
-        
-    def load_users(self):
-        with open('users.json') as f:
-            return json.loads(f.read())["users"]
-
-    def dump(self, out):
-        with open('dump.html', 'w') as f:
-            f.write(out)
-
-    def dump_stats(self):
-        print "\n============= LATENCY STATUS ============\n"
-        self.latency_stats.dump()
-
-    def dump_curl(self, method, headers, url, data=None):
-        if not self.curl:
-            return
-        h = ''
-        for k,v in headers.iteritems():
-            h += '-H "%s: %s"' % (k,v)
-        cmd = 'curl -X %s %s %s' % (method, self.url + '/' + url, h)
-        if data:
-            cmd += ' -d \'%s\'' % data
-        cmd += ' -w "@curl-format.txt" -L -v'
-        
-        self.curl.write(cmd + '\n\n')
-        self.curl.flush()
-
-    def expect_fail(self):
-        self.next_should_fail = True
-        
-    # generic API
-    def user_get(self, user, url):
-        print 'GET '+url
-        headers = {'Authorization': 'Bearer '+user['token']}
-
-        # add curl equivalent to trace
-        self.dump_curl('GET', headers, url)
-
-        # issue request and record latency
-        t0 = time.time()
-        r = requests.get(url = self.url + '/' + url, headers=headers)
-        d = r.content
-        t1 = time.time()
-        self.latency_stats.add('GET '+url, t1-t0)
-
-        # dump response to file if there was an error
-        try:
-            return_data = json.loads(d)
-        except:
-            if self.next_should_fail:
-                self.next_should_fail = False
-                return
-            else:
-                print 'could not parse: ' + d[:100] + ' (%d bytes)...' % len(d)
-                self.dump(d)
-                assert(0)
-        # no failure detected
-        assert(not self.next_should_fail)
-        return return_data
-
-    def user_post(self, user, url, body):
-        print 'POST '+url
-        headers = {'Authorization': 'Bearer '+user['token']}
-        data = json.dumps(body)
-
-        # add curl equivalent to trace
-        self.dump_curl('POST', headers, url, data)
-
-        # issue request and record latency
-        t0 = time.time()
-        r = requests.post(url = self.url + '/' + url, headers=headers, data=data)
-        d = r.content
-        t1 = time.time()
-        self.latency_stats.add('POST '+url, t1-t0)
-
-        # dump response to file if there was an error
-        try:
-            return_data = json.loads(d)
-        except:
-            if self.next_should_fail:
-                self.next_should_fail = False
-                return
-            else:
-                print 'could not parse: ' + d[:100] + ' (%d bytes)...' % len(d)
-                self.dump(d)
-                assert(0)
-        # no failure detected
-        assert(not self.next_should_fail)
-        return return_data
-
-    def user_delete(self, user, url):
-        print 'DELETE '+url
-        headers = {'Authorization': 'Bearer '+user['token']}
-
-        # add curl equivalent to trace
-        self.dump_curl('DELETE', headers, url)
-
-        # issue request and record latency
-        t0 = time.time()
-        r = requests.delete(url = self.url + '/' + url, headers=headers)
-        d = r.content
-        t1 = time.time()
-        self.latency_stats.add('DELETE '+url, t1-t0)
-
-        # dump response to file if there was an error
-        try:
-            return_data = json.loads(d)
-        except:
-            if self.next_should_fail:
-                self.next_should_fail = False
-                return
-            else:
-                print 'could not parse: ' + d[:100] + ' (%d bytes)...' % len(d)
-                self.dump(d)
-                assert(0)
-        # no failure detected
-        assert(not self.next_should_fail)
-        return return_data
-
-    # pivot API wrappers
-    def get_elections(self, user):
-        return self.user_get(user, 'election')
-
-    def create_election(self, user, name):
-        return self.user_post(user, 'election', {"name": name})
-
-    def delete_election(self, user, election):
-        url = 'election/%d' % election['id']
-        return self.user_delete(user, url)
-
-    def get_candidates(self, user, election):
-        url = 'election/%d/candidate' % election['id']
-        return self.user_get(user, url)
-
-    def get_electors(self, user, election):
-        url = 'election/%d/elector' % election['id']
-        return self.user_get(user, url)
-
-    def create_candidate(self, user, election, name):
-        url = 'election/%d/candidate' % election['id']
-        return self.user_post(user, url, {"name": name})
-
-    def delete_candidate(self, user, election, candidate):
-        url = 'election/%d/candidate/%d' % (election['id'], candidate['id'])
-        return self.user_delete(user, url)
-
-    def set_rank(self, user, election, candidate, rank):
-        url = 'election/%d/candidate/%d/rank' % (election['id'], candidate['id'])
-        return self.user_post(user, url, {"rank": rank})
-
-    def invite(self, user, election, email):
-        url = 'election/%d/invite' % (election['id'])
-        return self.user_post(user, url, {"email": email})
-
-    def accept(self, user, code):
-        url = 'invite/accept'
-        return self.user_post(user, url, {"code": code})
-
-    def acceptable(self, user):
-        url = 'invite/acceptable'
-        return self.user_get(user, url)
-
-    def election_result(self, user, election):
-        url = 'election/%d/result' % election['id']
-        return self.user_get(user, url)
-
-    def batchvote(self, user, election, votes):
-        url = 'election/%d/batchvote' % election['id']
-        return self.user_post(user, url, {'votes': votes})
-
-    def batchvote_view(self, user, election):
-        url = 'election/%d/batchvote' % election['id']
-        return self.user_get(user, url)
-
-    def batch_candidates(self, user, election, candidates):
-        url = 'election/%d/batch_candidates' % election['id']
-        return self.user_post(user, url, {'candidates': candidates})
-
-    def batch_candidates_view(self, user, election):
-        url = 'election/%d/batch_candidates' % election['id']
-        return self.user_get(user, url)
-
-    def add_elector(self, election, admin, user):
-        invite_status = self.invite(admin, election, user['email'])
-        code = invite_status['code']
-        self.accept(user, code)
-
-    def get_ready(self, user, election):
-        url = 'election/%d/get_ready' % election['id']
-        return self.user_get(user, url)
-
-    def set_ready(self, user, election, version):
-        url = 'election/%d/set_ready' % election['id']
-        return self.user_post(user, url, {'approved_version': version})
-
-    def voter_stats(self, user, election):
-        url = 'election/%d/voter_stats' % election['id']
-        return self.user_get(user, url)
-
-    def voter_details(self, user, election):
-        url = 'election/%d/voter_details' % election['id']
-        return self.user_get(user, url)
+def flatten_results(results):
+    return list(itertools.chain(*results))
 
 def test1(api):
     users = api.load_users()
@@ -256,18 +27,21 @@ def test1(api):
 
     # electors
     invite_status = api.invite(userA, election, userA['email'])
-    code = invite_status['code']
-    print code
+    code = invite_status['id']
+    print(code)
     api.accept(userA, code)
     invite_status = api.invite(userA, election, userB['email'])
-    code = invite_status['code']
+    code = str(invite_status['id'])
     electors = api.get_electors(userA, election)
+    print(electors)
     assert(len(electors) == 1)
     acceptables = api.acceptable(userB)
+    print(acceptables)
     codes = [inv['code'] for inv in acceptables]
     assert (code in codes)
     api.accept(userB, code)
     electors = api.get_electors(userA, election)
+    print(electors)
     assert(len(electors) == 2)
 
     # verify B can now see it after being added
@@ -292,9 +66,12 @@ def test1(api):
     assert(len(bv1)) == len(votes)
     assert(len(bv2)) == len(votes)
 
+    ready = api.get_ready(userA, election)
+    api.set_ready(userA, election, ready['latest_version'])
+
     # result
-    print api.election_result(userA, election)
-    print api.election_result(userB, election)
+    print(api.election_result(userA, election))
+    print(api.election_result(userB, election))
 
 def test2(api):
     """
@@ -306,7 +83,7 @@ def test2(api):
 
     election = api.create_election(userA, 'Triceritops Rex')
     invite_status = api.invite(userA, election, userA['email'])
-    code = invite_status['code']
+    code = invite_status['id']
     api.accept(userA, code)
 
     A = api.create_candidate(userA, election, 'candidate-A')
@@ -321,10 +98,14 @@ def test2(api):
         {'candidate_id': D['id'], 'rank': 4},
     ]
     bv1 = api.batchvote(userA, election, votes)
+    ready = api.get_ready(userA, election)
+    api.set_ready(userA, election, ready['latest_version'])
     results = api.election_result(userA, election)
-    result_names = [result['name'] for result in results['order']]
+    print(results)
+    order = flatten_results(results['order'])
+    result_names = [result['name'] for result in order]
     assert(result_names == [u'candidate-A', u'candidate-B', u'candidate-C', u'candidate-D'])
-    print result_names
+    print(result_names)
 
 def test3(api):
     """
@@ -335,10 +116,10 @@ def test3(api):
     userB = users[1]
 
     election = api.create_election(userA, 'test3-election')
-    api.add_elector(election, userA, userB)
-    print api.get_electors(userA, election)
+    print(api.add_elector(election, userA, userB))
+    print(api.get_electors(userA, election))
     # an elector may view the list of electors
-    print api.get_electors(userB, election)
+    print(api.get_electors(userB, election))
 
 def test4(api):
     """
@@ -350,7 +131,7 @@ def test4(api):
 
     election = api.create_election(userA, 'test4-election')
     invite_status = api.invite(userA, election, userA['email'])
-    code = invite_status['code']
+    code = invite_status['id']
 
     # it should not be possible to accept an invitation that was not sent to you,
     # so this should fail
@@ -371,8 +152,8 @@ def test5(api):
         {'candidate_id': A['id'], 'rank': 1},
     ]
     api.batchvote(userB, election, votes)
-    print api.delete_candidate(userA, election, A)
-    print api.delete_election(userA, election)
+    print(api.delete_candidate(userA, election, A))
+    print(api.delete_election(userA, election))
 
 def test6(api):
     """
@@ -386,15 +167,15 @@ def test6(api):
     invite1 = api.invite(userA, election, userB['email'])
     invite2 = api.invite(userA, election, userB['email'])
     assert(invite1['id'] == invite2['id'])
-    code = invite1['code']
+    code = invite1['id']
     # multiple accepts should return the same first timestamp
     accept1 = api.accept(userB, code)
-    print accept1
+    print(accept1)
     accept2 = api.accept(userB, code)
-    print accept1
-    print accept2
+    print(accept1)
+    print(accept2)
     assert(accept1['id'] == accept2['id'])
-    print accept1['invite_accepted_at'], accept2['invite_accepted_at']
+    print(accept1['invite_accepted_at'], accept2['invite_accepted_at'])
     assert(accept1['invite_accepted_at'] == accept2['invite_accepted_at'])
     # should not be able to create duplicate invites even after accepting a prior invite
     invite3 = api.invite(userA, election, userB['email'])
@@ -473,7 +254,7 @@ def test8(api):
                 assert(count == 1)
                 assert(len(voters) == 1)
                 assert(voters[0]['email'] == userB['email'])
-                assert('name' in voters[0])
+                assert('user_name' in voters[0])
             else:
                 assert(count == 0)
                 assert(len(voters) == 0)
@@ -486,7 +267,7 @@ def test8(api):
     
     # invite
     invite_status = api.invite(userA, election, userB['email'])
-    code = invite_status['code']
+    code = invite_status['id']
     verify_voterB_status('outstanding_invites')
 
     # accept
@@ -557,7 +338,172 @@ def test9(api):
     assert(len(names) == len(set1+set2))
     for name in set1+set2:
         assert(name in names)
-        
+
+def test10(api):
+    """
+    This tests elector deletion
+    """
+    users = api.load_users()
+    userA = users[0]
+    userB = users[1]
+
+    # create election
+    election = api.create_election(userA, 'test10-election')
+    electorB = api.add_elector(election, userA, userB)
+    electors = api.get_electors(userA, election)
+    assert(len(electors) == 1)
+    print(api.get_elector(userA, election, electorB['id']))
+    print(api.delete_elector(userA, election, electorB))
+    electors = api.get_electors(userA, election)
+    assert(len(electors) == 0)
+    
+def test11(api):
+    """
+    This tests result-snapshot storage, without considering actual results
+    """
+    users = api.load_users()
+    userA = users[0]
+    userB = users[1]
+
+    election = api.create_election(userA, 'test11-election')
+    invite_status = api.invite(userA, election, userB['email'])
+    code = invite_status['id']
+    electorB = api.accept(userB, code)
+
+    D = api.create_candidate(userA, election, 'candidate-D')
+    A = api.create_candidate(userA, election, 'candidate-A')
+    C = api.create_candidate(userA, election, 'candidate-C')
+    B = api.create_candidate(userA, election, 'candidate-B')
+
+    votes = [
+        {'candidate_id': A['id'], 'rank': 1}, # worst
+        {'candidate_id': B['id'], 'rank': 2},
+        {'candidate_id': C['id'], 'rank': 3},
+        {'candidate_id': D['id'], 'rank': 4}, # best
+    ]
+    bv1 = api.batchvote(userB, election, votes)
+
+    ready = api.get_ready(userB, election)
+    api.set_ready(userB, election, ready['latest_version'])
+
+    # admin should be able to snapshot
+    assert(len(api.list_result_snapshots(userA, election)) == 0)
+    snap_id = api.create_result_snapshot(userA, election)['id']
+    snap = api.get_result_snapshot(userA, election, snap_id)
+    result = snap.get('result_blob')
+    print('EXPECTED: ' + str(votes))
+    order = flatten_results(result['order'])
+    print('RESULTS: ' + str([c['id'] for c in order]))
+    for i, candidate in enumerate(order):
+        print(candidate)
+        assert(candidate['id'] == votes[i]['candidate_id'])
+    snaps = api.list_result_snapshots(userA, election)
+    assert(len(snaps) == 1)
+    assert(snaps[0]['id'] == snap_id)
+
+    # other electors should not be able to
+    api.expect_fail()
+    api.create_result_snapshot(userB, election)
+    assert(len(api.list_result_snapshots(userA, election)) == 1)
+    api.expect_fail()
+    api.delete_result_snapshot(userB, election, snap_id)
+    assert(len(api.list_result_snapshots(userA, election)) == 1)
+
+    # admin should be able to delete
+    print(api.delete_result_snapshot(userA, election, snap_id))
+    assert(len(api.list_result_snapshots(userA, election)) == 0)
+
+def test12(api):
+    # test ties
+    users = api.load_users()
+    userA = users[0]
+    userB = users[1]
+
+    election = api.create_election(userA, 'test-election')
+    electorA = api.add_elector(election, userA, userA)
+    
+    A = api.create_candidate(userA, election, 'candidate-A')
+    B = api.create_candidate(userA, election, 'candidate-B')
+
+    # TODO: nothing expected yet, because nobody is ready
+    # assert('order' in api.election_result(userA, election)) #1
+
+    votes = [
+        {'candidate_id': A['id'], 'rank': 1},
+    ]
+    api.batchvote(userA, election, votes)
+    api.set_ready(userA, election, api.get_ready(userA, election)['latest_version']) # approve
+    assert('order' in api.election_result(userA, election)) #2
+
+    votes = [
+        {'candidate_id': A['id'], 'rank': 1},
+        {'candidate_id': B['id'], 'rank': 1},
+    ]
+    api.batchvote(userA, election, votes)
+    api.set_ready(userA, election, api.get_ready(userA, election)['latest_version']) # approve
+    assert('order' in api.election_result(userA, election)) #3
+    
+    electorB = api.add_elector(election, userA, userB)
+    api.set_ready(userB, election, api.get_ready(userB, election)['latest_version']) # approve
+    assert('order' in api.election_result(userA, election)) #4
+
+    api.batchvote(userB, election, votes)
+    api.set_ready(userB, election, api.get_ready(userB, election)['latest_version']) # approve
+    assert('order' in api.election_result(userA, election)) #5
+
+def test13(api):
+    # test errors when there are no candidates
+    users = api.load_users()
+    userA = users[0]
+
+    election = api.create_election(userA, 'test-election')
+    electorA = api.add_elector(election, userA, userA)
+    
+    A = api.create_candidate(userA, election, 'candidate-A')
+    B = api.create_candidate(userA, election, 'candidate-B')
+
+    votes = [
+        {'candidate_id': A['id'], 'rank': 1},
+    ]
+    result = api.election_result(userA, election)
+    expected = 'there were 0 ballots ready for the election'
+    assert(result['error'] == expected)
+
+def test14(api):
+    # test multiple electors controlled by same user
+    users = api.load_users()
+    userA = users[0]
+
+    election = api.create_election(userA, 'test-election')
+    elector0 = api.add_elector(election, userA, userA)
+    elector1 = api.add_elector(election, userA, userA, 'voter1')
+    elector2 = api.add_elector(election, userA, userA, 'voter2')
+    elector3 = api.add_elector(election, userA, userA, 'voter3')
+    electors = api.get_electors_for_self(userA, election)
+    print electors
+    assert(len(electors) == 4)
+
+    # cannot add self twice
+    api.add_elector(election, userA, userA)
+    electors = api.get_electors_for_self(userA, election)
+    print electors
+    assert(len(electors) == 4)
+
+    # cannot add another voter twice
+    api.add_elector(election, userA, userA, 'voter1')
+    electors = api.get_electors_for_self(userA, election)
+    print electors
+    assert(len(electors) == 4)
+
+    acceptables_before = api.acceptable(userA)
+    invite4 = api.invite(userA, election, userA['email'], 'voter4')
+    print
+    print(invite4)
+    print
+    invite5 = api.invite(userA, election, userA['email'], 'voter5')
+    acceptables_after = api.acceptable(userA)
+    assert(len(acceptables_after) == len(acceptables_before) + 2)
+
 def create_users(url):
     from selenium import webdriver
     from selenium.webdriver.common.keys import Keys
@@ -568,7 +514,11 @@ def create_users(url):
     for i in range(1,user_count+1):
         chrome_options = ChromeOptions()
         chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--disable-gpu")
+
         driver = webdriver.Chrome(chrome_options=chrome_options)
+        driver.implicitly_wait(30)
+
 
         name = 'User %d' % i
         email = 'user%d-%06d@pivot.vote' % (i, random.randint(0,999999))
@@ -581,7 +531,6 @@ def create_users(url):
         driver.find_element_by_name("password_confirmation").submit()
         driver.get(url + '/profile')
         driver.find_element_by_link_text('Create New Token').click()
-        time.sleep(3) # find better way to wait till field is visible
         driver.find_element_by_name("name").send_keys("my token")
 
         # Create Button
@@ -594,7 +543,7 @@ def create_users(url):
         assert(found_button)
         
         time.sleep(3)
-        print 'grab token'
+        print('grab token')
         found_code = False
         for code in driver.find_elements_by_xpath("//code"):
             if code.is_displayed():
@@ -602,7 +551,7 @@ def create_users(url):
                 token = code.text
                 break
         assert(found_code)
-        print token
+        print(token)
 
         # Close Button
         found_button = False
@@ -616,30 +565,49 @@ def create_users(url):
 
         users['users'].append({'email': email, 'token': token})
 
-    with open('users.json', 'w') as f:
+    with open(os.path.dirname(os.path.realpath(__file__))+'/users.json', 'w') as f:
         f.write(json.dumps(users, indent=2, sort_keys=True))
+
+def sort_test_functions(test_fns):
+    def sort_key(name):
+        parts = []
+        for c in name:
+            if len(parts)>0 and parts[-1].isdigit() and c.isdigit():
+                parts[-1] += c
+            else:
+                parts.append(c)
+        for i in range(len(parts)):
+            if parts[i].isdigit():
+                parts[i] = int(parts[i])
+        return parts
+    test_fns.sort(key=lambda fn: sort_key(fn.func_name))
         
 def main(url, genusers, curltrace, regex):
     if genusers:
         create_users(url)
     
     # scan this Python file for things that look like tests
-    tests_fns = []
+    test_fns = []
     predicate = lambda f: inspect.isfunction(f) and f.__module__ == __name__
     for name, fn in inspect.getmembers(sys.modules[__name__], predicate = predicate):
         if name.startswith('test'):
-            tests_fns.append(fn)
-    tests_fns.sort(key=lambda fn: fn.func_name)
+            test_fns.append(fn)
+    sort_test_functions(test_fns)
 
     # execute each test
+    skips = []
     with API(url=url+'/api', curltrace=curltrace) as api:
-        for test_fn in tests_fns:
-            print "\n============= %s ============\n" % test_fn.func_name
+        for test_fn in test_fns:
             if re.match(regex, test_fn.func_name):
+                print("\n============= %s ============\n" % test_fn.func_name)
                 test_fn(api)
             else:
-                print 'SKIP '
+                skips.append(test_fn.func_name)
         api.dump_stats()
+    if len(skips):
+        print("\n============= SKIPPED ============\n")
+        print(', '.join(skips))
+        print()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run some tests.')
