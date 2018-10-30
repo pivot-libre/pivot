@@ -464,9 +464,9 @@
 
 	piv.html(TableDiv, "p", "Each would-be victory in a head-to-head matchup is represented by a \
 number in the following table.  Start with a candidate along the \
-vertical access.  The numbers in that row indicate the strengths of \
+vertical axis.  The numbers in that row indicate the strengths of \
 the victories that the candidate would have in head-to-head matchups \
-against each candidate along the horizontal access.")
+against each candidate along the horizontal axis.")
 
 	var table = piv.html(TableDiv, "table", "")
 	// TODO: move this to a style sheet
