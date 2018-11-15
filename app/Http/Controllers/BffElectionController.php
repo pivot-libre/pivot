@@ -64,4 +64,9 @@ class BffElectionController extends BaseController
         $result = $runner->run($ballots);
         return $result;
     }
+
+    public function form()
+    {
+        return view('bff_form');
+    }
 }

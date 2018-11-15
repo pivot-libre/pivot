@@ -18,7 +18,7 @@ Route::get('/profile/accept', 'ProfileController@accept');
 
 
 Route::get('/', function () {
-  return view('myElections');
+  return view('welcome');
 });
 // Route::get('/verify_email', function () {
 //   return view('auth/verifyEmail');
