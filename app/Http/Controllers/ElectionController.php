@@ -16,7 +16,7 @@ class ElectionController extends Controller
     /**
      * @SWG\Get(
      *     tags={"Election"},
-     *     path="/elections",
+     *     path="/api/elections",
      *     operationId="electionIndex",
      *     summary="View all elections",
      *     @SWG\Response(response="200", description="Success", @SWG\Schema(
@@ -87,7 +87,7 @@ class ElectionController extends Controller
      *
      * * @SWG\Get(
      *     tags={"Election"},
-     *     path="/elections/{electionId}",
+     *     path="/api/elections/{electionId}",
      *     summary="View information about an election",
      *     operationId="getElectionById",
      *     @SWG\Parameter(

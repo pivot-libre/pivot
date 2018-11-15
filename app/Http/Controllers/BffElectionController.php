@@ -2,22 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Routing\Controller as BaseController;
 use Carbon\Carbon;
 use App\Election;
 use App\Elector;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use PivotLibre\Tideman\BffElectionRunner;
 
-class StatelessElectionController extends Controller
+class BffElectionController extends BaseController
 {
     /**
-     * Run a stateless Ranked Pairs election via BFF ballots.
+     * Run a Ranked Pairs election via BFF ballots.
      *
      * @SWG\Post(
-     *     tags={"Stateless Election Result"},
-     *     path="/calculateResult",
-     *     summary="Run a stateless election using BFF ballots",
+     *     tags={"BFF Election Result"},
+     *     path="/open/calculateResult",
+     *     summary="Run an election using BFF ballots",
      *     operationId="calculateResult",
      *     consumes={"application/x-www-form-urlencoded"},
      *     produces={"text/plain"},
@@ -44,7 +46,7 @@ class StatelessElectionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function calculateResult(Request $request)
+    public function calculateResult(Request $request, Response $response)
     {
         if (!$request->has('tieBreaker')) {
             abort(400, "tieBreaker is a required parameter");

@@ -1,7 +1,7 @@
 <?php
 /**
  * @SWG\Swagger(
- *     basePath="/api",
+ *     basePath="/",
  *     @SWG\Info(
  *         title="Pivot API",
  *         version="0.1.0"
