@@ -6,7 +6,7 @@
     },
     "basePath": "/",
     "paths": {
-        "/open/calculateResult": {
+        "/open/try": {
             "post": {
                 "tags": [
                     "BFF Election Result"

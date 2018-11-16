@@ -18,7 +18,7 @@ class BffElectionController extends BaseController
      *
      * @SWG\Post(
      *     tags={"BFF Election Result"},
-     *     path="/open/calculateResult",
+     *     path="/open/try",
      *     summary="Run an election using BFF ballots",
      *     operationId="calculateResult",
      *     consumes={"application/x-www-form-urlencoded"},

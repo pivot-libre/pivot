@@ -5,13 +5,13 @@ body {
   box-sizing: border-box;
   margin: 0;
   font-family: "Raleway","Alegreya Sans",sans-serif;
-  font-size: 0px;
+  font-size: 1em;
   text-decoration: none;
   /* height: 100%; */
   width: 100%;
   font-weight: normal;
 }
-div, ol, ul, li, a, img, form, label, input, iframe, button {
+div, ol, ul, li, a, img, form, label, input, iframe, button, textarea {
   position: relative;
   display: inline-block;
   box-sizing: border-box;
@@ -375,6 +375,7 @@ input,
 a,
 button,
 input[type=submit],
+textarea,
 .clickable1,
 /* .clickable1 select, */
 .clickable2,
@@ -632,7 +633,15 @@ input[type=checkbox]:focus + .checkboxUI0,
     width: 600px;
     height: 600px;
 }
+.centered,.centeredRegistrationButton {
+    margin: auto;
+    width: 50%;
+    display: block;
+}
 
+.block {
+    display: block;
+}
 @media print {
 	body, div {
 		height: auto;
@@ -640,8 +649,4 @@ input[type=checkbox]:focus + .checkboxUI0,
 		display: block;
 	}
 }
-.centeredRegistrationButton {
-    margin: auto;
-    width: 50%;
-    display: block;
-}
+
