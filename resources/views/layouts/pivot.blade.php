@@ -62,7 +62,7 @@
   <div id="maincolumn">
     @if (!Auth::guest())
     <div class="w100 bg-color-7 hide-on-printable">
-      <div id="statusbar" class="w50 textLeft font20">
+      <div id="statusbar" class="textLeft font20">
         Hi {{ Auth::user()->name }}, welcome to Pivot!
       </div>
       <div class="w25 textRight font20">{{ Auth::user()->name }}</div>
@@ -74,7 +74,7 @@
       </div>
     </div>
     @endif
-    <div class="mainheader">Pivot - a better way to decide on things</div>
+    <div class="mainheader">Pivot - a better way to decide</div>
     <div class="workspace">
       @yield('content')
 

@@ -270,6 +270,7 @@ a[href],
   padding: 20px;
   font-size: 30px;
   font-weight: 500;
+  text-align: center;
 }
 .clickable4,
 .mainheader,
@@ -642,11 +643,10 @@ input[type=checkbox]:focus + .checkboxUI0,
 .block {
     display: block;
 }
-/*
-.tryBff textarea {
-    overflow-y: hidden;
+
+#statusbar {
+    width: 49%;
 }
-*/
 
 @media print {
 	body, div {
