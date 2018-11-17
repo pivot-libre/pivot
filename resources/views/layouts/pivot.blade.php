@@ -42,7 +42,7 @@
           </svg>
        </div>
       </div>
-      <div>Home</div>
+      <div>My Elections</div>
     </a>
     <a href="/create" class="clickable4">
       <div class="w100 textCenter">

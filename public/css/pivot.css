@@ -648,6 +648,10 @@ input[type=checkbox]:focus + .checkboxUI0,
     width: 49%;
 }
 
+.darkhoverbackground:hover {
+    background-color: #504a43;
+}
+
 @media print {
 	body, div {
 		height: auto;
