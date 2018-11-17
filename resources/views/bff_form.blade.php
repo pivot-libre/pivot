@@ -1,12 +1,11 @@
 @extends('layouts.pivot')
 @section('content')
-<div class="container w100">
+<div class="tryBff container w100">
     <h1>
         TRY IT!
     </h1>
-    <p>This page lets you try out elections on your own without logging in. Since this page is for experts, ballots are entered in textual BFF format.
+    <p>This page lets you try out elections on your own without logging in. Since this page is for experts, ballots are entered in a textual format - Ballot File Format. Details on the Ballot File Format are <a href="https://pivot-libre.github.io/bff/">here</a>.
     <p>Want a more user-friendly experience? <a class="clickable1" href="{{ route('login') }}">LOG IN</a></p>
-    <p>Don't have an account yet? <a class="clickable1" href="{{ route('register') }}">REGISTER</a></p>
     <form id="tryForm" class="w100">
         <p>Enter ballots, one per line.</label>
         <div class="block">
@@ -36,7 +35,12 @@
     </form>
     <div id="result" class="block hidden">
         <p>Result</p>
-        <textarea id="resultText" class="block w100" disabled>asdf</textarea>
+        <textarea
+            id="resultText"
+            class="block w100"
+            rows="1"
+            disabled
+            ></textarea>
     </div>
 </div>
 @endsection

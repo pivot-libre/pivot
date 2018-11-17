@@ -642,6 +642,12 @@ input[type=checkbox]:focus + .checkboxUI0,
 .block {
     display: block;
 }
+/*
+.tryBff textarea {
+    overflow-y: hidden;
+}
+*/
+
 @media print {
 	body, div {
 		height: auto;
