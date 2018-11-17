@@ -46,7 +46,7 @@ class BffElectionController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function calculateResult(Request $request, Response $response)
+    public function calculateResult(Request $request)
     {
         if (!$request->has('tieBreaker')) {
             abort(400, "tieBreaker is a required parameter");
