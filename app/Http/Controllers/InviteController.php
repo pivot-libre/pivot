@@ -15,7 +15,7 @@ class InviteController extends Controller
      *
      * @SWG\Get(
      *     tags={"Invites"},
-     *     path="/elections/{electionId}/invite",
+     *     path="/api/elections/{electionId}/invite",
      *     summary="View electors who have not accepted their invite yet",
      *     operationId="inviteIndex",
      *     @SWG\Parameter(
@@ -46,7 +46,7 @@ class InviteController extends Controller
      *
      * @SWG\Post(
      *     tags={"Invites"},
-     *     path="/elections/{electionId}/invite",
+     *     path="/api/elections/{electionId}/invite",
      *     summary="Send an invite",
      *     operationId="createInvite",
      *     consumes={"application/json"},
@@ -94,7 +94,7 @@ class InviteController extends Controller
      *
      * @SWG\Post(
      *     tags={"Invites"},
-     *     path="/invite/accept",
+     *     path="/api/invite/accept",
      *     summary="Accept an invite",
      *     consumes={"application/json"},
      *     produces={"application/json"},

@@ -14,7 +14,7 @@ class ResultController extends Controller
      *
      * @SWG\Get(
      *     tags={"Election"},
-     *     path="/election/{electionId}/result",
+     *     path="/api/election/{electionId}/result",
      *     summary="View results for an election",
      *     operationId="getElectionResults",
      *     @SWG\Parameter(

@@ -19,7 +19,7 @@
         "laravel/framework": "5.4.*",
         "laravel/passport": "^3.0",
         "laravel/tinker": "~1.0",
-        "pivot-libre/tideman": "0.2.0",
+        "pivot-libre/tideman": "0.4.0",
         "aws/aws-sdk-php": "~3.0",
         "guzzlehttp/guzzle": "~6.0"
     },
@@ -60,6 +60,7 @@
     "config": {
         "preferred-install": "dist",
         "sort-packages": true,
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "discard-changes": true
     }
 }

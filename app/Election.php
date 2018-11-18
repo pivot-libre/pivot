@@ -271,7 +271,7 @@ class Election extends Model
             return new CandidateList($candidate);
         }, $totalOrder);
         
-        return new NBallot(1, ...$totalOrder);
+        return new Ballot(...$totalOrder);
     }
 
     public static function ballotToText($nBallot) {

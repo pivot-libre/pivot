@@ -4,9 +4,52 @@
         "title": "Pivot API",
         "version": "0.1.0"
     },
-    "basePath": "/api",
+    "basePath": "/",
     "paths": {
-        "/elections/{electionId}/candidates": {
+        "/open/try": {
+            "post": {
+                "tags": [
+                    "BFF Election Result"
+                ],
+                "summary": "Run an election using BFF ballots",
+                "operationId": "calculateResult",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "name": "ballots",
+                        "in": "formData",
+                        "description": "One or more BFF ballots, one on each line",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tieBreaker",
+                        "in": "formData",
+                        "description": "One BFF Ballot for resolving intermediate ties",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "description": "JSON with a key `result` whose value is a BFF election result",
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/api/elections/{electionId}/candidates": {
             "get": {
                 "tags": [
                     "Candidates"
@@ -80,7 +123,7 @@
                 }
             }
         },
-        "/elections/{electionId}/candidates/{candidateId}": {
+        "/api/elections/{electionId}/candidates/{candidateId}": {
             "get": {
                 "tags": [
                     "Candidates"
@@ -175,7 +218,7 @@
                     {
                         "name": "payload",
                         "in": "body",
-                        "description": "Candidate to add",
+                        "description": "Candidate to update",
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/CreateCandidate"
@@ -192,7 +235,7 @@
                 }
             }
         },
-        "/elections": {
+        "/api/elections": {
             "get": {
                 "tags": [
                     "Election"
@@ -215,7 +258,7 @@
                 }
             }
         },
-        "/elections/{electionId}": {
+        "/api/elections/{electionId}": {
             "get": {
                 "tags": [
                     "Election"
@@ -247,7 +290,7 @@
                 }
             }
         },
-        "/elections/{electionId}/electors": {
+        "/api/elections/{electionId}/electors": {
             "get": {
                 "tags": [
                     "Electors"
@@ -279,7 +322,7 @@
                 }
             }
         },
-        "/elections/{electionId}/electors/{electorId}": {
+        "/api/elections/{electionId}/electors/{electorId}": {
             "get": {
                 "tags": [
                     "Electors"
@@ -315,7 +358,7 @@
                 }
             }
         },
-        "/elections/{electionId}/invite": {
+        "/api/elections/{electionId}/invite": {
             "get": {
                 "tags": [
                     "Invites"
@@ -389,7 +432,7 @@
                 }
             }
         },
-        "/invite/accept": {
+        "/api/invite/accept": {
             "post": {
                 "tags": [
                     "Invites"
@@ -426,7 +469,7 @@
                 }
             }
         },
-        "/election/{electionId}/result": {
+        "/api/election/{electionId}/result": {
             "get": {
                 "tags": [
                     "Election"
@@ -463,22 +506,27 @@
         "Candidate": {
             "properties": {
                 "id": {
+                    "description": "",
                     "type": "string",
                     "example": "123"
                 },
                 "election_id": {
+                    "description": "",
                     "type": "string",
                     "example": "123"
                 },
                 "name": {
+                    "description": "",
                     "type": "string",
                     "example": "Funds for road construction"
                 },
                 "created_at": {
+                    "description": "",
                     "type": "string",
                     "example": "2017-01-01 11:00:00"
                 },
                 "updated_at": {
+                    "description": "",
                     "type": "string",
                     "example": "2017-01-01 11:00:00"
                 }
@@ -491,6 +539,7 @@
         "Code": {
             "properties": {
                 "code": {
+                    "description": "",
                     "type": "string",
                     "example": "12345678"
                 }
@@ -503,6 +552,7 @@
         "CreateCandidate": {
             "properties": {
                 "name": {
+                    "description": "",
                     "type": "string",
                     "example": "Highland Avenue"
                 }
@@ -515,26 +565,32 @@
         "Election": {
             "properties": {
                 "id": {
+                    "description": "",
                     "type": "string",
                     "example": "123"
                 },
                 "creator_id": {
+                    "description": "",
                     "type": "string",
                     "example": "123"
                 },
                 "name": {
+                    "description": "",
                     "type": "string",
                     "example": "Funds for road construction"
                 },
                 "created_at": {
+                    "description": "",
                     "type": "string",
                     "example": "2017-01-01 11:00:00"
                 },
                 "updated_at": {
+                    "description": "",
                     "type": "string",
                     "example": "2017-01-01 11:00:00"
                 },
                 "deleted_at": {
+                    "description": "",
                     "type": "string",
                     "example": "2017-01-01 11:00:00"
                 }
@@ -547,30 +603,37 @@
         "ElectionWithCreator": {
             "properties": {
                 "id": {
+                    "description": "",
                     "type": "string",
                     "example": "123"
                 },
                 "creator_id": {
+                    "description": "",
                     "type": "string",
                     "example": "123"
                 },
                 "name": {
+                    "description": "",
                     "type": "string",
                     "example": "Funds for road construction"
                 },
                 "created_at": {
+                    "description": "",
                     "type": "string",
                     "example": "2017-01-01 11:00:00"
                 },
                 "updated_at": {
+                    "description": "",
                     "type": "string",
                     "example": "2017-01-01 11:00:00"
                 },
                 "deleted_at": {
+                    "description": "",
                     "type": "string",
                     "example": "2017-01-01 11:00:00"
                 },
                 "creator": {
+                    "description": "",
                     "$ref": "#/definitions/User"
                 }
             },
@@ -582,6 +645,7 @@
         "Email": {
             "properties": {
                 "email": {
+                    "description": "",
                     "type": "string",
                     "example": "john.doe@example.com"
                 }
@@ -594,26 +658,32 @@
         "Invite": {
             "properties": {
                 "id": {
+                    "description": "",
                     "type": "string",
                     "example": "123"
                 },
                 "code": {
+                    "description": "",
                     "type": "string",
                     "example": "12345678"
                 },
                 "email": {
+                    "description": "",
                     "type": "string",
                     "example": "john.doe@example.com"
                 },
                 "accepted_at": {
+                    "description": "",
                     "type": "string",
                     "example": "2017-01-01 11:00:00"
                 },
                 "created_at": {
+                    "description": "",
                     "type": "string",
                     "example": "2017-01-01 11:00:00"
                 },
                 "updated_at": {
+                    "description": "",
                     "type": "string",
                     "example": "2017-01-01 11:00:00"
                 }
@@ -626,30 +696,37 @@
         "InviteWithElection": {
             "properties": {
                 "id": {
+                    "description": "",
                     "type": "string",
                     "example": "123"
                 },
                 "code": {
+                    "description": "",
                     "type": "string",
                     "example": "12345678"
                 },
                 "email": {
+                    "description": "",
                     "type": "string",
                     "example": "john.doe@example.com"
                 },
                 "accepted_at": {
+                    "description": "",
                     "type": "string",
                     "example": "2017-01-01 11:00:00"
                 },
                 "created_at": {
+                    "description": "",
                     "type": "string",
                     "example": "2017-01-01 11:00:00"
                 },
                 "updated_at": {
+                    "description": "",
                     "type": "string",
                     "example": "2017-01-01 11:00:00"
                 },
                 "pivot": {
+                    "description": "",
                     "$ref": "#/definitions/PivotElection"
                 }
             },
@@ -661,10 +738,12 @@
         "PivotElection": {
             "properties": {
                 "election_id": {
+                    "description": "",
                     "type": "string",
                     "example": "123"
                 },
                 "invite_id": {
+                    "description": "",
                     "type": "string",
                     "example": "123"
                 }
@@ -677,22 +756,27 @@
         "User": {
             "properties": {
                 "id": {
+                    "description": "",
                     "type": "string",
                     "example": "123"
                 },
                 "name": {
+                    "description": "",
                     "type": "string",
                     "example": "John Doe"
                 },
                 "email": {
+                    "description": "",
                     "type": "string",
                     "example": "john.doe@example.com"
                 },
                 "created_at": {
+                    "description": "",
                     "type": "string",
                     "example": "2017-01-01 11:00:00"
                 },
                 "updated_at": {
+                    "description": "",
                     "type": "string",
                     "example": "2017-01-01 11:00:00"
                 }
