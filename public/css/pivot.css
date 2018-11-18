@@ -651,7 +651,13 @@ input[type=checkbox]:focus + .checkboxUI0,
 .darkhoverbackground:hover {
     background-color: #504a43;
 }
-
+.welcome-details {
+    text-align: center;
+}
+.welcome-details a {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
 @media print {
 	body, div {
 		height: auto;
