@@ -5,7 +5,7 @@
         <div class="centered">
           <img src="{{ asset('img/pivot-parrot.svg') }}" alt="Pivot Parrot Logo"/>
         </div>
-        <h3 class="centered" style="text-align:center;">Conduct <a style="padding: 0px; text-decoration:underline; font-size:inherit;" href="https://en.wikipedia.org/wiki/Ranked_pairs">Ranked Pairs</a> elections with Pivot!</h3>
+        <h3 class="centered" style="text-align:center;">Conduct <a style="padding: 0px; text-decoration:underline; font-size:inherit;" href="https://en.wikipedia.org/wiki/Ranked_pairs">Ranked Pairs</a> elections with Pivot</h3>
         <div class="w100 welcome-details"> 
             <a class="centered clickable1" href="{{ route('login') }}">LOG IN</a>
             <a class="centered clickable1" href="{{ route('register') }}">REGISTER</a>
