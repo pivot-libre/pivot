@@ -4,7 +4,7 @@
 [![PDD status](http://www.0pdd.com/svg?name=pivot-libre/pivot)](http://www.0pdd.com/p?name=pivot-libre/pivot)
 
 ## Description
-Pivot is a web app for conducting [Ranked Pairs](https://en.wikipedia.org/wiki/Ranked_pairs) elections. It is currently available for public testing on [pivot.vote/](https://pivot.vote/).
+Pivot is a web app for conducting [Ranked Pairs](https://en.wikipedia.org/wiki/Ranked_pairs) elections. It is currently available for public testing on [pivot.vote](https://pivot.vote/).
 
 
 ## License
