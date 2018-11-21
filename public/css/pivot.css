@@ -658,6 +658,18 @@ input[type=checkbox]:focus + .checkboxUI0,
     margin-top: 1em;
     margin-bottom: 1em;
 }
+.reporting {
+    position: absolute;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    padding: 1em;
+}
+.reporting a {
+    font-size: 0.75em;
+    color: #504a43;
+    display: block;
+}
 @media print {
 	body, div {
 		height: auto;

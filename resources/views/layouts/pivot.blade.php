@@ -55,6 +55,11 @@
       <div>Create Election</div>
     </a>
     @endif
+    <div class="reporting">
+        <a href="https://github.com/pivot-libre/pivot/issues/new?template=bug_report.md">Report A Bug</a>
+        <a href="https://github.com/pivot-libre/pivot/issues/new?template=feature_request.md">Request A Feature</a>
+        <a href="https://github.com/pivot-libre/pivot">Contribute To The Code</a>
+    </div>
   </div>
   <div id="maincolumn">
     @if (!Auth::guest())
