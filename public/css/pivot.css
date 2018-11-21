@@ -222,8 +222,10 @@ a[href],
 	position: fixed;
   height: 100%;
 	overflow-y: scroll;
+        overflow-x: hidden;
   width: 82%;
   margin: 0 0 0 18%;
+  padding-bottom:2em;
   text-align: left;
   top: 0;
 }
@@ -257,6 +259,9 @@ a[href],
     width: 64%;
   }
   #leftcolumn {
+  }
+  .reporting {
+    width: 64%;
   }
 }
 .clickable4[href]:hover {
@@ -659,16 +664,23 @@ input[type=checkbox]:focus + .checkboxUI0,
     margin-bottom: 1em;
 }
 .reporting {
-    position: absolute;
+    position: fixed;
     right: 0;
-    left: 0;
+    left: 17.5%;
     bottom: 0;
-    padding: 1em;
+    text-align: center; 
+    background-color: #f2eee3;
 }
 .reporting a {
     font-size: 0.75em;
     color: #504a43;
-    display: block;
+    padding: 1em;
+}
+
+@media only screen and (max-width: 1400px) {
+    .reporting {
+        width: 81.5%;
+    }
 }
 @media print {
 	body, div {

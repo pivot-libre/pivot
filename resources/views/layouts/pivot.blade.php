@@ -55,13 +55,9 @@
       <div>Create Election</div>
     </a>
     @endif
-    <div class="reporting">
-        <a href="https://github.com/pivot-libre/pivot/issues/new?template=bug_report.md">Report A Bug</a>
-        <a href="https://github.com/pivot-libre/pivot/issues/new?template=feature_request.md">Request A Feature</a>
-        <a href="https://github.com/pivot-libre/pivot">Contribute To The Code</a>
-    </div>
-  </div>
+ </div>
   <div id="maincolumn">
+    <div>
     @if (!Auth::guest())
     <div class="w100 bg-color-7 hide-on-printable">
       <div id="statusbar" class="textLeft font20">
@@ -77,11 +73,18 @@
     </div>
     @endif
     <div class="mainheader" style="font-weight:bold;">Pivot - a better way to decide</div>
-    <div class="workspace">
-      @yield('content')
+        <div class="workspace">
+        @yield('content')
+        </div>
+    </div>
+    <div class="reporting">
+        <a href="https://github.com/pivot-libre/pivot/issues/new?template=bug_report.md">Report A Bug</a>
+        <a href="https://github.com/pivot-libre/pivot/issues/new?template=feature_request.md">Request A Feature</a>
+        <a href="https://github.com/pivot-libre/pivot">Contribute To The Code</a>
+    </div>
+ 
+    </div>
 
-   </div>
-  </div>
 
 
   <!-- Scripts -->
