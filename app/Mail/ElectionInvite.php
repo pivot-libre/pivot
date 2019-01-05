@@ -6,6 +6,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Election;
+use App\Config;
 
 class ElectionInvite extends Mailable
 {
@@ -18,7 +20,7 @@ class ElectionInvite extends Mailable
      */
     public function __construct(Election $election)
     {
-        $this->electionId = $election;
+        $this->election = $election;
     }
 
     /**
@@ -28,10 +30,13 @@ class ElectionInvite extends Mailable
      */
     public function build()
     {
-        return $this->markdown('emails.election.invite')->with([
-            'electionId' => $this->election->getId(),
-            'electionName' => $this->election->getName(),
-            'appUrl' => Config::get('app.url')
-        ]);
+        $viewParams = [
+            'electionName' => $this->election->name,
+            'appUrl' => config('app.url'),
+            'appName' => config('app.name'),
+            'ballotUrl' => route('ballot', ['election' => $this->election->id])
+        ];
+
+        return $this->markdown('emails.elections.invite')->with($viewParams);
     }
 }

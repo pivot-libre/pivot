@@ -1,12 +1,9 @@
 @component('mail::message')
-# Introduction
+# [{{ $appName }}]({{ $appUrl }})
+You have been invited to rank options in the {{ $electionName }} election.
 
-The body of your message.
-
-@component('mail::button', ['url' => ''])
-Button Text
+@component('mail::button', ['url' => $ballotUrl ])
+Vote
 @endcomponent
 
-Thanks,<br>
-{{ config('app.name') }}
 @endcomponent

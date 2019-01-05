@@ -13,6 +13,7 @@ use PivotLibre\Tideman\CandidateList;
 use PivotLibre\Tideman\NBallot;
 use PivotLibre\Tideman\RankedPairsCalculator;
 use PivotLibre\Tideman\Grouper;
+use App\Mail\ElectionInvite;
 
 /**
  * @property Collection electors
@@ -128,24 +129,15 @@ class Election extends Model
         return $this->get_config_value('approved_only', $default_value);
     }
 
-    public function send_invite_email($email)
+    public function send_invite_email($email, $election)
     {
         // don't even try if the mail driver is not configured
-        if (env('MAIL_DRIVER', null) == null) {
-            return 'mail driver not configured';
+        if (env('MAIL_DRIVER', null) === null) {
+            throw new Exception('mail driver not configured');
         }
 
-        $msg = 'You have been invited to an election';
-
-        try {
-            Mail::raw($msg, function ($message) use ($email) {
-                $name = 'Elector';
-                $message->to($email, $name)->subject('Pivot Libre Election Invitation');
-            });
-        } catch(\Exception $e) {
-            return $e->getMessage();
-        }
-        return null;
+        $electionInvite = new ElectionInvite($election);
+        Mail::to($email)->send($electionInvite);
     }
 
     public function invite($email, $voter_name)
@@ -161,7 +153,7 @@ class Election extends Model
             $elector->voter_name = $voter_name;
             $elector->save();
 
-            $mail_error = $this->send_invite_email($email);
+            $mail_error = $this->send_invite_email($email, $this);
         }
 
         return $elector;

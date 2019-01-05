@@ -38,7 +38,7 @@ Route::group(['middleware' => 'auth'], function() {
   });
   Route::get('/ballot/{election}', function ($election) {
       return view('ballot', ['election' => $election]);
-  });
+  })->name('ballot');
   Route::get('/create', function () {
       return view('create');
   });
