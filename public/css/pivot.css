@@ -222,10 +222,8 @@ a[href],
 	position: fixed;
   height: 100%;
 	overflow-y: scroll;
-        overflow-x: hidden;
   width: 82%;
   margin: 0 0 0 18%;
-  padding-bottom:2em;
   text-align: left;
   top: 0;
 }
@@ -259,9 +257,6 @@ a[href],
     width: 64%;
   }
   #leftcolumn {
-  }
-  .reporting {
-    width: 63.5%;
   }
 }
 .clickable4[href]:hover {
@@ -662,26 +657,6 @@ input[type=checkbox]:focus + .checkboxUI0,
 .welcome-details a {
     margin-top: 1em;
     margin-bottom: 1em;
-}
-.reporting {
-    position: fixed;
-    right: 0;
-    left: 17.5%;
-    bottom: 0;
-    text-align: center; 
-    background-color: #f2eee3;
-}
-.reporting a {
-    font-size: 0.75em;
-    color: #504a43;
-    padding: 1em;
-    text-decoration: underline;
-}
-
-@media only screen and (max-width: 1400px) {
-    .reporting {
-        width: 81%;
-    }
 }
 @media print {
 	body, div {
