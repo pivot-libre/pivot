@@ -51,7 +51,7 @@
         Piv.div(View.workspace, "", "clickable1 no-print", "Print", "", "click", togglePrintable, []);
 
 	// populate page components
-	var headerStyle = {"class": "font-size-1"}
+	var headerStyle = {"class": "font-size-1", "style": "break-before: always;"}
 	debug_element(Piv.html(View.workspace, "h1", "Options", headerStyle))
 	debug_element(OptionsDiv = Piv.div(View.workspace, "Options", "text1"))
 	humanNamesCheckbox = piv.html(OptionsDiv, "input", "", {"type": "checkbox", "checked": true})
