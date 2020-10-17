@@ -314,7 +314,7 @@ class Election extends Model
             // calculated results
             $calculator = new RankedPairsCalculator($tieBreakerTotal);
             $numWinners = $this->candidates()->count();
-            $result = $calculator->calculate($numWinners, ...$nBallots);
+            $result = $calculator->calculate($numWinners, null, ...$nBallots);
             $tidemanWinners = $result->getRanking();
 
             // translate tideman candidate objects back to pivot candidate objects
