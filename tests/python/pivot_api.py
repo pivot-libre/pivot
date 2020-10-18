@@ -17,6 +17,8 @@ class LatencyStats:
         for k in keys:
             print(str(int(avg[k]*1000)).rjust(4) + ' ms   ' + k + ' [%d calls]' % len(self.latencies[k]))
 
+OUTPUT_TRUNCATION_LIMIT = 1000
+
 class API:
     def __init__(self, url, curltrace):
         self.latency_stats = LatencyStats()
@@ -83,7 +85,7 @@ class API:
                 self.next_should_fail = False
                 return
             else:
-                print('could not parse: ' + d[:100] + ' (%d bytes)...' % len(d))
+                print('could not parse: ' + d[:OUTPUT_TRUNCATION_LIMIT] + ' (%d bytes)...' % len(d))
                 self.dump(d)
                 assert(0)
         # no failure detected
@@ -113,7 +115,7 @@ class API:
                 self.next_should_fail = False
                 return
             else:
-                print('could not parse: ' + d[:100] + ' (%d bytes)...' % len(d))
+                print('could not parse: ' + d[:OUTPUT_TRUNCATION_LIMIT] + ' (%d bytes)...' % len(d))
                 self.dump(d)
                 assert(0)
         # no failure detected
@@ -142,7 +144,7 @@ class API:
                 self.next_should_fail = False
                 return
             else:
-                print('could not parse: ' + d[:100] + ' (%d bytes)...' % len(d))
+                print('could not parse: ' + d[:OUTPUT_TRUNCATION_LIMIT] + ' (%d bytes)...' % len(d))
                 self.dump(d)
                 assert(0)
         # no failure detected
