@@ -28,6 +28,4 @@ before_script:
 
 script:
   - vendor/bin/phpunit
-  - rm -f curl.log
-  - php artisan db:seed --class=TravisSeeder && python tests/python/tests.py --url http://127.0.0.1:8000 --curltrace curl.log
-  - cat curl.log
+  - php artisan db:seed --class=TravisSeeder && python tests/python/tests.py --url http://127.0.0.1:8000
