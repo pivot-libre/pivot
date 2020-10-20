@@ -221,7 +221,7 @@ a[href],
 #maincolumn {
 	position: fixed;
   height: 100%;
-	overflow-y: scroll;
+	overflow-y: auto;
   width: 82%;
   margin: 0 0 0 18%;
   text-align: left;
@@ -240,7 +240,7 @@ a[href],
   position: relative;
   width: auto;
   height: 0;
-  overflow: visible;
+  overflow-y: visible;
   margin: 0;
 }
 #leftcolumn {
@@ -250,7 +250,7 @@ a[href],
   padding-top: 48px;
   width: 18.5%;
   height: 100%;
-	overflow-y: scroll;
+	overflow-y: auto;
 }
 @media only screen and (min-width: 1400px) {
   #maincolumn {
