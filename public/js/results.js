@@ -27,8 +27,10 @@
     var FilesDiv
     var exportButton
     var importBox
-    var CandidatesDiv
-    var BallotsDiv
+	var CandidatesDiv
+	var BallotsHeader
+	var BallotsDiv
+	var HideBallotsButton
     var TiePartialDiv
     var TieTotalDiv
     var ResultsDiv
@@ -51,7 +53,7 @@
         Piv.div(View.workspace, "", "clickable1 no-print", "Print", "", "click", togglePrintable, []);
 
 	// populate page components
-	var headerStyle = {"class": "font-size-1", "style": "break-before: page;"}
+	var headerStyle = {"class": "font-size-1"}
 	debug_element(Piv.html(View.workspace, "h1", "Options", headerStyle))
 	debug_element(OptionsDiv = Piv.div(View.workspace, "Options", "text1"))
 	humanNamesCheckbox = piv.html(OptionsDiv, "input", "", {"type": "checkbox", "checked": true})
@@ -80,9 +82,16 @@
 	debug_element(Piv.html(View.workspace, "h1", "Candidates", headerStyle))
 	debug_element(CandidatesDiv = Piv.div(View.workspace, "Candidates", "text1"))
 
-	Piv.html(View.workspace, "h1", "Ballots", headerStyle)
-	BallotsDiv = Piv.div(View.workspace, "Ballots", "text1")
-
+	BallotsHeader = Piv.html(View.workspace, "h1", "Ballots", headerStyle)
+	
+	BallotsDiv = Piv.div(View.workspace, "Ballots", "text1")	
+	Piv.div(View.workspace, "ballot-controls-spacer", null, null,{style:"display:block;"})
+	HideBallotsButton = Piv.html(View.workspace, 'button', 'Hide Ballots')
+	HideBallotsButton.onclick = function () {
+		BallotsHeader.style = "display:none;"
+		BallotsDiv.style = "display:none;"
+		HideBallotsButton.style = "display:none;"
+	};
 	debug_element(Piv.html(View.workspace, "h1", "Tie-Breaker (Partial Order)", headerStyle))
 	debug_element(TiePartialDiv = Piv.div(View.workspace, "TiePartial", "text1"))
 
@@ -252,7 +261,10 @@
         })
 
 	// ballots
-        BallotsDiv.innerHTML = ""
+		BallotsHeader.style = ""
+		BallotsDiv.innerHTML = ""
+		BallotsDiv.style = ""
+		HideBallotsButton.style = "";
 	var ballots = debug.ballots
     //     Object.keys(ballots).forEach(elector_id => {
 	  //   var ballot_text = ''
