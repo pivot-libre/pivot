@@ -27,8 +27,10 @@
     var FilesDiv
     var exportButton
     var importBox
-    var CandidatesDiv
-    var BallotsDiv
+	var CandidatesDiv
+	var BallotsHeader
+	var BallotsDiv
+	var HideBallotsButton
     var TiePartialDiv
     var TieTotalDiv
     var ResultsDiv
@@ -80,9 +82,16 @@
 	debug_element(Piv.html(View.workspace, "h1", "Candidates", headerStyle))
 	debug_element(CandidatesDiv = Piv.div(View.workspace, "Candidates", "text1"))
 
-	Piv.html(View.workspace, "h1", "Ballots", headerStyle)
-	BallotsDiv = Piv.div(View.workspace, "Ballots", "text1")
-
+	BallotsHeader = Piv.html(View.workspace, "h1", "Ballots", headerStyle)
+	
+	BallotsDiv = Piv.div(View.workspace, "Ballots", "text1")	
+	Piv.div(View.workspace, "ballot-controls-spacer", null, null,{style:"display:block;"})
+	HideBallotsButton = Piv.html(View.workspace, 'button', 'Hide Ballots')
+	HideBallotsButton.onclick = function () {
+		BallotsHeader.style = "display:none;"
+		BallotsDiv.style = "display:none;"
+		HideBallotsButton.style = "display:none;"
+	};
 	debug_element(Piv.html(View.workspace, "h1", "Tie-Breaker (Partial Order)", headerStyle))
 	debug_element(TiePartialDiv = Piv.div(View.workspace, "TiePartial", "text1"))
 
@@ -252,7 +261,10 @@
         })
 
 	// ballots
-        BallotsDiv.innerHTML = ""
+		BallotsHeader.style = ""
+		BallotsDiv.innerHTML = ""
+		BallotsDiv.style = ""
+		HideBallotsButton.style = "";
 	var ballots = debug.ballots
     //     Object.keys(ballots).forEach(elector_id => {
 	  //   var ballot_text = ''
