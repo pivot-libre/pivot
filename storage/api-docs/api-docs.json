@@ -1,10 +1,9 @@
 {
-    "swagger": "2.0",
+    "openapi": "3.0.0",
     "info": {
         "title": "Pivot API",
-        "version": "0.1.0"
+        "version": "1.0.0"
     },
-    "basePath": "/",
     "paths": {
         "/open/try": {
             "post": {
@@ -12,36 +11,24 @@
                     "BFF Election Result"
                 ],
                 "summary": "Run an election using BFF ballots",
+                "description": "Run a Ranked Pairs election via BFF ballots.",
                 "operationId": "calculateResult",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "text/plain"
-                ],
                 "parameters": [
                     {
-                        "name": "ballots",
-                        "in": "formData",
-                        "description": "One or more BFF ballots, one on each line",
-                        "required": true,
-                        "type": "string"
+                        "$ref": "string"
                     },
                     {
-                        "name": "tieBreaker",
-                        "in": "formData",
-                        "description": "One BFF Ballot for resolving intermediate ties",
-                        "required": true,
-                        "type": "string"
+                        "$ref": "string"
                     }
                 ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {}
+                    }
+                },
                 "responses": {
                     "200": {
-                        "description": "Success",
-                        "schema": {
-                            "description": "JSON with a key `result` whose value is a BFF election result",
-                            "type": "string"
-                        }
+                        "$ref": "string"
                     },
                     "400": {
                         "description": "Bad Request"
@@ -55,6 +42,7 @@
                     "Candidates"
                 ],
                 "summary": "View candidates for an election",
+                "description": "Display a listing of the resource.",
                 "operationId": "candidateIndex",
                 "parameters": [
                     {
@@ -62,18 +50,14 @@
                         "in": "path",
                         "description": "Election to get",
                         "required": true,
-                        "type": "string"
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Candidate"
-                            }
-                        }
+                        "description": "Success"
                     },
                     "400": {
                         "description": "Bad Request"
@@ -85,37 +69,31 @@
                     "Candidates"
                 ],
                 "summary": "Add a candidate",
+                "description": "Add a new candidate for an election",
                 "operationId": "createCandidate",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "parameters": [
                     {
                         "name": "electionId",
                         "in": "path",
                         "description": "Election ID",
                         "required": true,
-                        "type": "string"
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     {
                         "name": "payload",
-                        "in": "body",
+                        "in": "query",
                         "description": "Candidate to add",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/CreateCandidate"
+                            "$ref": "#/components/schemas/CreateCandidate"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "successful operation",
-                        "schema": {
-                            "$ref": "#/definitions/Candidate"
-                        }
+                        "description": "successful operation"
                     },
                     "400": {
                         "description": "Bad Request"
@@ -129,6 +107,7 @@
                     "Candidates"
                 ],
                 "summary": "Get information about a candidate",
+                "description": "Show a candidate from an election",
                 "operationId": "getCandidateById",
                 "parameters": [
                     {
@@ -136,22 +115,23 @@
                         "in": "path",
                         "description": "Election to get",
                         "required": true,
-                        "type": "string"
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     {
                         "name": "candidateId",
                         "in": "path",
                         "description": "Candidate to get",
                         "required": true,
-                        "type": "string"
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
-                        "schema": {
-                            "$ref": "#/definitions/Candidate"
-                        }
+                        "description": "Success"
                     },
                     "400": {
                         "description": "Bad Request"
@@ -163,27 +143,26 @@
                     "Candidates"
                 ],
                 "summary": "Delete a candidate",
+                "description": "Delete a candidate from an election",
                 "operationId": "deleteCandidate",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "parameters": [
                     {
                         "name": "electionId",
                         "in": "path",
                         "description": "Election ID",
                         "required": true,
-                        "type": "string"
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     {
                         "name": "candidateId",
                         "in": "path",
                         "description": "Candidate ID to delete",
                         "required": true,
-                        "type": "string"
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -200,28 +179,25 @@
                     "Candidates"
                 ],
                 "summary": "Update a candidate",
+                "description": "Delete a candidate from an election",
                 "operationId": "updateCandidate",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "parameters": [
                     {
                         "name": "electionId",
                         "in": "path",
                         "description": "Election ID",
                         "required": true,
-                        "type": "string"
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     {
                         "name": "payload",
-                        "in": "body",
+                        "in": "query",
                         "description": "Candidate to update",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/CreateCandidate"
+                            "$ref": "#/components/schemas/CreateCandidate"
                         }
                     }
                 ],
@@ -244,13 +220,7 @@
                 "operationId": "electionIndex",
                 "responses": {
                     "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Election"
-                            }
-                        }
+                        "description": "Success"
                     },
                     "400": {
                         "description": "Bad Request"
@@ -264,6 +234,7 @@
                     "Election"
                 ],
                 "summary": "View information about an election",
+                "description": "Display the specified resource.",
                 "operationId": "getElectionById",
                 "parameters": [
                     {
@@ -271,18 +242,14 @@
                         "in": "path",
                         "description": "Election to get",
                         "required": true,
-                        "type": "string"
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/ElectionWithCreator"
-                            }
-                        }
+                        "description": "Success"
                     },
                     "400": {
                         "description": "Bad Request"
@@ -296,6 +263,7 @@
                     "Electors"
                 ],
                 "summary": "View the electorate for an election",
+                "description": "Display a listing of the resource.",
                 "operationId": "electorIndex",
                 "parameters": [
                     {
@@ -303,18 +271,14 @@
                         "in": "path",
                         "description": "Election to get",
                         "required": true,
-                        "type": "string"
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/User"
-                            }
-                        }
+                        "description": "Success"
                     },
                     "400": {
                         "description": "Bad Request"
@@ -328,6 +292,7 @@
                     "Electors"
                 ],
                 "summary": "Get information about an elector",
+                "description": "Display the specified resource.",
                 "operationId": "getElectorById",
                 "parameters": [
                     {
@@ -335,22 +300,23 @@
                         "in": "path",
                         "description": "Election to get",
                         "required": true,
-                        "type": "string"
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     {
                         "name": "electorId",
                         "in": "path",
                         "description": "Elector to get",
                         "required": true,
-                        "type": "string"
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
-                        "schema": {
-                            "$ref": "#/definitions/User"
-                        }
+                        "description": "Success"
                     },
                     "400": {
                         "description": "Bad Request"
@@ -364,6 +330,7 @@
                     "Invites"
                 ],
                 "summary": "View electors who have not accepted their invite yet",
+                "description": "Display a listing of the resource.",
                 "operationId": "inviteIndex",
                 "parameters": [
                     {
@@ -371,18 +338,14 @@
                         "in": "path",
                         "description": "Election to get",
                         "required": true,
-                        "type": "string"
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/InviteWithElection"
-                            }
-                        }
+                        "description": "Success"
                     },
                     "400": {
                         "description": "Bad Request"
@@ -394,37 +357,31 @@
                     "Invites"
                 ],
                 "summary": "Send an invite",
+                "description": "Store a newly created resource in storage.",
                 "operationId": "createInvite",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "parameters": [
                     {
                         "name": "electionId",
                         "in": "path",
                         "description": "Election ID",
                         "required": true,
-                        "type": "string"
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     {
                         "name": "payload",
-                        "in": "body",
+                        "in": "query",
                         "description": "Email to invite",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/Email"
+                            "$ref": "#/components/schemas/Email"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "successful operation",
-                        "schema": {
-                            "$ref": "#/definitions/Invite"
-                        }
+                        "description": "successful operation"
                     },
                     "400": {
                         "description": "Bad Request"
@@ -438,30 +395,22 @@
                     "Invites"
                 ],
                 "summary": "Accept an invite",
+                "description": "Update the specified resource in storage.",
                 "operationId": "acceptInvite",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "parameters": [
                     {
                         "name": "payload",
-                        "in": "body",
+                        "in": "query",
                         "description": "Code to accept an invite",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/Code"
+                            "$ref": "#/components/schemas/Code"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "successful operation",
-                        "schema": {
-                            "$ref": "#/definitions/Invite"
-                        }
+                        "description": "successful operation"
                     },
                     "400": {
                         "description": "Bad Request"
@@ -475,6 +424,7 @@
                     "Election"
                 ],
                 "summary": "View results for an election",
+                "description": "Get Election Results.",
                 "operationId": "getElectionResults",
                 "parameters": [
                     {
@@ -482,18 +432,14 @@
                         "in": "path",
                         "description": "Election to get results of",
                         "required": true,
-                        "type": "string"
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Candidate"
-                            }
-                        }
+                        "description": "Success"
                     },
                     "400": {
                         "description": "Bad Request"
@@ -502,288 +448,220 @@
             }
         }
     },
-    "definitions": {
-        "Candidate": {
-            "properties": {
-                "id": {
-                    "description": "",
-                    "type": "string",
-                    "example": "123"
+    "components": {
+        "schemas": {
+            "Candidate": {
+                "title": "Candidate",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "123"
+                    },
+                    "election_id": {
+                        "type": "string",
+                        "example": "123"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Funds for road construction"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "example": "2017-01-01 11:00:00"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "example": "2017-01-01 11:00:00"
+                    }
                 },
-                "election_id": {
-                    "description": "",
-                    "type": "string",
-                    "example": "123"
-                },
-                "name": {
-                    "description": "",
-                    "type": "string",
-                    "example": "Funds for road construction"
-                },
-                "created_at": {
-                    "description": "",
-                    "type": "string",
-                    "example": "2017-01-01 11:00:00"
-                },
-                "updated_at": {
-                    "description": "",
-                    "type": "string",
-                    "example": "2017-01-01 11:00:00"
-                }
+                "type": "object"
             },
-            "type": "object",
-            "xml": {
-                "name": "Candidate"
-            }
-        },
-        "Code": {
-            "properties": {
-                "code": {
-                    "description": "",
-                    "type": "string",
-                    "example": "12345678"
-                }
+            "Code": {
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "example": "12345678"
+                    }
+                },
+                "type": "object"
             },
-            "type": "object",
-            "xml": {
-                "name": "Code"
-            }
-        },
-        "CreateCandidate": {
-            "properties": {
-                "name": {
-                    "description": "",
-                    "type": "string",
-                    "example": "Highland Avenue"
-                }
+            "CreateCandidate": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Highland Avenue"
+                    }
+                },
+                "type": "object"
             },
-            "type": "object",
-            "xml": {
-                "name": "CreateCandidate"
-            }
-        },
-        "Election": {
-            "properties": {
-                "id": {
-                    "description": "",
-                    "type": "string",
-                    "example": "123"
+            "Election": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "123"
+                    },
+                    "creator_id": {
+                        "type": "string",
+                        "example": "123"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Funds for road construction"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "example": "2017-01-01 11:00:00"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "example": "2017-01-01 11:00:00"
+                    },
+                    "deleted_at": {
+                        "type": "string",
+                        "example": "2017-01-01 11:00:00"
+                    }
                 },
-                "creator_id": {
-                    "description": "",
-                    "type": "string",
-                    "example": "123"
-                },
-                "name": {
-                    "description": "",
-                    "type": "string",
-                    "example": "Funds for road construction"
-                },
-                "created_at": {
-                    "description": "",
-                    "type": "string",
-                    "example": "2017-01-01 11:00:00"
-                },
-                "updated_at": {
-                    "description": "",
-                    "type": "string",
-                    "example": "2017-01-01 11:00:00"
-                },
-                "deleted_at": {
-                    "description": "",
-                    "type": "string",
-                    "example": "2017-01-01 11:00:00"
-                }
+                "type": "object"
             },
-            "type": "object",
-            "xml": {
-                "name": "Election"
-            }
-        },
-        "ElectionWithCreator": {
-            "properties": {
-                "id": {
-                    "description": "",
-                    "type": "string",
-                    "example": "123"
+            "ElectionWithCreator": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "123"
+                    },
+                    "creator_id": {
+                        "type": "string",
+                        "example": "123"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Funds for road construction"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "example": "2017-01-01 11:00:00"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "example": "2017-01-01 11:00:00"
+                    },
+                    "deleted_at": {
+                        "type": "string",
+                        "example": "2017-01-01 11:00:00"
+                    },
+                    "creator": {
+                        "$ref": "#/components/schemas/User"
+                    }
                 },
-                "creator_id": {
-                    "description": "",
-                    "type": "string",
-                    "example": "123"
-                },
-                "name": {
-                    "description": "",
-                    "type": "string",
-                    "example": "Funds for road construction"
-                },
-                "created_at": {
-                    "description": "",
-                    "type": "string",
-                    "example": "2017-01-01 11:00:00"
-                },
-                "updated_at": {
-                    "description": "",
-                    "type": "string",
-                    "example": "2017-01-01 11:00:00"
-                },
-                "deleted_at": {
-                    "description": "",
-                    "type": "string",
-                    "example": "2017-01-01 11:00:00"
-                },
-                "creator": {
-                    "description": "",
-                    "$ref": "#/definitions/User"
-                }
+                "type": "object"
             },
-            "type": "object",
-            "xml": {
-                "name": "ElectionWithCreator"
-            }
-        },
-        "Email": {
-            "properties": {
-                "email": {
-                    "description": "",
-                    "type": "string",
-                    "example": "john.doe@example.com"
-                }
+            "Email": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "example": "john.doe@example.com"
+                    }
+                },
+                "type": "object"
             },
-            "type": "object",
-            "xml": {
-                "name": "Email"
-            }
-        },
-        "Invite": {
-            "properties": {
-                "id": {
-                    "description": "",
-                    "type": "string",
-                    "example": "123"
+            "Invite": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "123"
+                    },
+                    "code": {
+                        "type": "string",
+                        "example": "12345678"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "john.doe@example.com"
+                    },
+                    "accepted_at": {
+                        "type": "string",
+                        "example": "2017-01-01 11:00:00"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "example": "2017-01-01 11:00:00"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "example": "2017-01-01 11:00:00"
+                    }
                 },
-                "code": {
-                    "description": "",
-                    "type": "string",
-                    "example": "12345678"
-                },
-                "email": {
-                    "description": "",
-                    "type": "string",
-                    "example": "john.doe@example.com"
-                },
-                "accepted_at": {
-                    "description": "",
-                    "type": "string",
-                    "example": "2017-01-01 11:00:00"
-                },
-                "created_at": {
-                    "description": "",
-                    "type": "string",
-                    "example": "2017-01-01 11:00:00"
-                },
-                "updated_at": {
-                    "description": "",
-                    "type": "string",
-                    "example": "2017-01-01 11:00:00"
-                }
+                "type": "object"
             },
-            "type": "object",
-            "xml": {
-                "name": "Invite"
-            }
-        },
-        "InviteWithElection": {
-            "properties": {
-                "id": {
-                    "description": "",
-                    "type": "string",
-                    "example": "123"
+            "InviteWithElection": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "123"
+                    },
+                    "code": {
+                        "type": "string",
+                        "example": "12345678"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "john.doe@example.com"
+                    },
+                    "accepted_at": {
+                        "type": "string",
+                        "example": "2017-01-01 11:00:00"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "example": "2017-01-01 11:00:00"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "example": "2017-01-01 11:00:00"
+                    },
+                    "pivot": {
+                        "$ref": "#/components/schemas/PivotElection"
+                    }
                 },
-                "code": {
-                    "description": "",
-                    "type": "string",
-                    "example": "12345678"
-                },
-                "email": {
-                    "description": "",
-                    "type": "string",
-                    "example": "john.doe@example.com"
-                },
-                "accepted_at": {
-                    "description": "",
-                    "type": "string",
-                    "example": "2017-01-01 11:00:00"
-                },
-                "created_at": {
-                    "description": "",
-                    "type": "string",
-                    "example": "2017-01-01 11:00:00"
-                },
-                "updated_at": {
-                    "description": "",
-                    "type": "string",
-                    "example": "2017-01-01 11:00:00"
-                },
-                "pivot": {
-                    "description": "",
-                    "$ref": "#/definitions/PivotElection"
-                }
+                "type": "object"
             },
-            "type": "object",
-            "xml": {
-                "name": "InviteWithElection"
-            }
-        },
-        "PivotElection": {
-            "properties": {
-                "election_id": {
-                    "description": "",
-                    "type": "string",
-                    "example": "123"
+            "PivotElection": {
+                "properties": {
+                    "election_id": {
+                        "type": "string",
+                        "example": "123"
+                    },
+                    "invite_id": {
+                        "type": "string",
+                        "example": "123"
+                    }
                 },
-                "invite_id": {
-                    "description": "",
-                    "type": "string",
-                    "example": "123"
-                }
+                "type": "object"
             },
-            "type": "object",
-            "xml": {
-                "name": "PivotElection"
-            }
-        },
-        "User": {
-            "properties": {
-                "id": {
-                    "description": "",
-                    "type": "string",
-                    "example": "123"
+            "User": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "123"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "john.doe@example.com"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "example": "2017-01-01 11:00:00"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "example": "2017-01-01 11:00:00"
+                    }
                 },
-                "name": {
-                    "description": "",
-                    "type": "string",
-                    "example": "John Doe"
-                },
-                "email": {
-                    "description": "",
-                    "type": "string",
-                    "example": "john.doe@example.com"
-                },
-                "created_at": {
-                    "description": "",
-                    "type": "string",
-                    "example": "2017-01-01 11:00:00"
-                },
-                "updated_at": {
-                    "description": "",
-                    "type": "string",
-                    "example": "2017-01-01 11:00:00"
-                }
-            },
-            "type": "object",
-            "xml": {
-                "name": "User"
+                "type": "object"
             }
         }
     }

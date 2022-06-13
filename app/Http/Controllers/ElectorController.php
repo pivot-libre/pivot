@@ -13,23 +13,23 @@ class ElectorController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @SWG\Get(
+     * @OA\Get(
      *     tags={"Electors"},
      *     path="/api/elections/{electionId}/electors",
      *     summary="View the electorate for an election",
      *     operationId="electorIndex",
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="electionId",
      *         in="path",
      *         description="Election to get",
      *         required=true,
-     *         type="string",
+     *         @OA\Schema(type="string"),
      *     ),
-     *     @SWG\Response(response="200", description="Success", @SWG\Schema(
+     *     @OA\Response(response="200", description="Success", @OA\Schema(
      *             type="array",
-     *             @SWG\Items(ref="#/definitions/User")
+     *             @OA\Items(ref="#/components/schemas/User")
      *         )),
-     *     @SWG\Response(response="400", description="Bad Request")
+     *     @OA\Response(response="400", description="Bad Request")
      * )
      *
      * @param  \App\Models\Election $election
@@ -65,28 +65,28 @@ class ElectorController extends Controller
     /**
      * Display the specified resource.
      *
-     * @SWG\Get(
+     * @OA\Get(
      *     tags={"Electors"},
      *     path="/api/elections/{electionId}/electors/{electorId}",
      *     summary="Get information about an elector",
      *     operationId="getElectorById",
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="electionId",
      *         in="path",
      *         description="Election to get",
      *         required=true,
-     *         type="string",
+     *         @OA\Schema(type="string"),
      *     ),
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="electorId",
      *         in="path",
      *         description="Elector to get",
      *         required=true,
-     *         type="string",
+     *         @OA\Schema(type="string"),
      *     ),
-     *     @SWG\Response(response="200", description="Success", @SWG\Schema(ref="#/definitions/User")
+     *     @OA\Response(response="200", description="Success", @OA\Schema(ref="#/components/schemas/User")
      *     ),
-     *     @SWG\Response(response="400", description="Bad Request")
+     *     @OA\Response(response="400", description="Bad Request")
      * )
      *
      * @param  \App\Models\Election $election

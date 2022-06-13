@@ -2,18 +2,17 @@
 
 namespace App\Definitions;
 
-/**
- * @SWG\Definition(
- *     definition="Email",
- *     type="object",
- *     @SWG\Xml(name="Email")
- * )
- */
+use OpenApi\Attributes\Schema;
+
+#[Schema(
+    schema: "Email",
+    type: "object",
+)]
 class Email
 {
     /**
      * @var string
-     * @SWG\Property(example="john.doe@example.com")
+     * @OA\Property(example="john.doe@example.com")
      */
     public $email;
 }

@@ -8,23 +8,23 @@ class ResultController extends Controller
     /**
      * Get Election Results.
      *
-     * @SWG\Get(
+     * @OA\Get(
      *     tags={"Election"},
      *     path="/api/election/{electionId}/result",
      *     summary="View results for an election",
      *     operationId="getElectionResults",
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="electionId",
      *         in="path",
      *         description="Election to get results of",
      *         required=true,
-     *         type="string",
+     *         @OA\Schema(type="string"),
      *     ),
-     *     @SWG\Response(response="200", description="Success", @SWG\Schema(
+     *     @OA\Response(response="200", description="Success", @OA\Schema(
      *             type="array",
-     *             @SWG\Items(ref="#/definitions/Candidate")
+     *             @OA\Items(ref="#/components/schemas/Candidate")
      *         )),
-     *     @SWG\Response(response="400", description="Bad Request")
+     *     @OA\Response(response="400", description="Bad Request")
      * )
      *
      * @return \Illuminate\Http\Response

@@ -6,29 +6,31 @@ use App\Models\Candidate;
 use App\Models\Election;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use OpenApi\Attributes\MediaType;
+use OpenApi\Attributes\RequestBody;
 
 class CandidateController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @SWG\Get(
+     * @OA\Get(
      *     tags={"Candidates"},
      *     path="/api/elections/{electionId}/candidates",
      *     summary="View candidates for an election",
      *     operationId="candidateIndex",
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="electionId",
      *         in="path",
      *         description="Election to get",
      *         required=true,
-     *         type="string",
+     *         @OA\Schema(type="string"),
      *     ),
-     *     @SWG\Response(response="200", description="Success", @SWG\Schema(
+     *     @OA\Response(response="200", description="Success", @OA\Schema(
      *             type="array",
-     *             @SWG\Items(ref="#/definitions/Candidate")
+     *             @OA\Items(ref="#/components/schemas/Candidate")
      *         )),
-     *     @SWG\Response(response="400", description="Bad Request")
+     *     @OA\Response(response="400", description="Bad Request")
      * )
      *
      * @return \Illuminate\Http\Response
@@ -43,28 +45,28 @@ class CandidateController extends Controller
     /**
      * Show a candidate from an election
      *
-     * @SWG\Get(
+     * @OA\Get(
      *     tags={"Candidates"},
      *     path="/api/elections/{electionId}/candidates/{candidateId}",
      *     summary="Get information about a candidate",
      *     operationId="getCandidateById",
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="electionId",
      *         in="path",
      *         description="Election to get",
      *         required=true,
-     *         type="string",
+     *         @OA\Schema(type="string"),
      *     ),
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="candidateId",
      *         in="path",
      *         description="Candidate to get",
      *         required=true,
-     *         type="string",
+     *         @OA\Schema(type="string"),
      *     ),
-     *     @SWG\Response(response="200", description="Success", @SWG\Schema(ref="#/definitions/Candidate")
+     *     @OA\Response(response="200", description="Success", @OA\Schema(ref="#/components/schemas/Candidate")
      *     ),
-     *     @SWG\Response(response="400", description="Bad Request")
+     *     @OA\Response(response="400", description="Bad Request")
      * )
      *
      * @param Election $election
@@ -81,33 +83,31 @@ class CandidateController extends Controller
     /**
      * Add a new candidate for an election
      *
-     * @SWG\Post(
+     * @OA\Post(
      *     tags={"Candidates"},
      *     path="/api/elections/{electionId}/candidates",
      *     summary="Add a candidate",
-     *     consumes={"application/json"},
-     *     produces={"application/json"},
      *     operationId="createCandidate",
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="electionId",
      *         in="path",
      *         description="Election ID",
      *         required=true,
-     *         type="string",
+     *         @OA\Schema(type="string"),
      *     ),
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="payload",
-     *         in="body",
+     *         in="query",
      *         description="Candidate to add",
      *         required=true,
-     *         @SWG\Schema(ref="#/definitions/CreateCandidate")
+     *         @OA\Schema(ref="#/components/schemas/CreateCandidate")
      *     ),
-     *     @SWG\Response(
+     *     @OA\Response(
      *         response=200,
      *         description="successful operation",
-     *         @SWG\Schema(ref="#/definitions/Candidate")
+     *         @OA\Schema(ref="#/components/schemas/Candidate")
      *     ),
-     *     @SWG\Response(
+     *     @OA\Response(
      *         response="400",
      *         description="Bad Request",
      *     )
@@ -141,32 +141,30 @@ class CandidateController extends Controller
     /**
      * Delete a candidate from an election
      *
-     * @SWG\Patch(
+     * @OA\Patch(
      *     tags={"Candidates"},
      *     path="/api/elections/{electionId}/candidates/{candidateId}",
      *     summary="Update a candidate",
-     *     consumes={"application/json"},
-     *     produces={"application/json"},
      *     operationId="updateCandidate",
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="electionId",
      *         in="path",
      *         description="Election ID",
      *         required=true,
-     *         type="string",
+     *         @OA\Schema(type="string"),
      *     ),
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="payload",
-     *         in="body",
+     *         in="query",
      *         description="Candidate to update",
      *         required=true,
-     *         @SWG\Schema(ref="#/definitions/CreateCandidate")
+     *         @OA\Schema(ref="#/components/schemas/CreateCandidate")
      *     ),
-     *     @SWG\Response(
+     *     @OA\Response(
      *         response=200,
      *         description="successful operation"
      *     ),
-     *     @SWG\Response(
+     *     @OA\Response(
      *         response="400",
      *         description="Bad Request",
      *     )
@@ -198,32 +196,30 @@ class CandidateController extends Controller
     /**
      * Delete a candidate from an election
      *
-     * @SWG\Delete(
+     * @OA\Delete(
      *     tags={"Candidates"},
      *     path="/api/elections/{electionId}/candidates/{candidateId}",
      *     summary="Delete a candidate",
-     *     consumes={"application/json"},
-     *     produces={"application/json"},
      *     operationId="deleteCandidate",
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="electionId",
      *         in="path",
      *         description="Election ID",
      *         required=true,
-     *         type="string",
+     *         @OA\Schema(type="string"),
      *     ),
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="candidateId",
      *         in="path",
      *         description="Candidate ID to delete",
      *         required=true,
-     *         type="string",
+     *         @OA\Schema(type="string"),
      *     ),
-     *     @SWG\Response(
+     *     @OA\Response(
      *         response=200,
      *         description="successful operation"
      *     ),
-     *     @SWG\Response(
+     *     @OA\Response(
      *         response="400",
      *         description="Bad Request",
      *     )

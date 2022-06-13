@@ -4,43 +4,56 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
+use OpenApi\Attributes\MediaType;
+use OpenApi\Attributes\Parameter;
+use OpenApi\Attributes\Post;
+use OpenApi\Attributes\RequestBody;
+use OpenApi\Attributes\Response;
 use PivotLibre\Tideman\BffElectionRunner;
 
 class BffElectionController extends BaseController
 {
     /**
      * Run a Ranked Pairs election via BFF ballots.
-     *
-     * @SWG\Post(
-     *     tags={"BFF Election Result"},
-     *     path="/open/try",
-     *     summary="Run an election using BFF ballots",
-     *     operationId="calculateResult",
-     *     consumes={"application/x-www-form-urlencoded"},
-     *     produces={"text/plain"},
-     *     @SWG\Parameter(
-     *         name="ballots",
-     *         in="formData",
-     *         description="One or more BFF ballots, one on each line",
-     *         required=true,
-     *         type="string"
-     *     ),
-     *     @SWG\Parameter(
-     *         name="tieBreaker",
-     *         in="formData",
-     *         description="One BFF Ballot for resolving intermediate ties",
-     *         required=true,
-     *         type="string"
-     *     ),
-     *     @SWG\Response(response="200", description="Success", @SWG\Schema(
-     *             type="string",
-     *             description="JSON with a key `result` whose value is a BFF election result"
-     *         )),
-     *     @SWG\Response(response="400", description="Bad Request")
-     * )
-     *
-     * @return \Illuminate\Http\Response
      */
+    #[Post(
+        path: "/open/try",
+        operationId: "calculateResult",
+        summary: "Run an election using BFF ballots",
+        requestBody: new RequestBody(
+            content: [
+                new MediaType("application/x-www-form-urlencoded"),
+            ],
+        ),
+        tags: ['BFF Election Result'],
+        parameters: [
+            new Parameter(
+                name: "ballots",
+                description: "One or more BFF ballots, one on each line",
+                in: "query",
+                required: true,
+                ref: "string",
+            ),
+            new Parameter(
+                name: "tieBreaker",
+                description: "One BFF Ballot for resolving intermediate ties",
+                in: "query",
+                required: true,
+                ref: "string",
+            ),
+        ],
+        responses: [
+            new Response(
+                ref: "string",
+                response: 200,
+                description: "Success"
+            ),
+            new Response(
+                response: 400,
+                description: "Bad Request",
+            )
+        ]
+    )]
     public function calculateResult(Request $request)
     {
         if (!$request->has('tieBreaker')) {
