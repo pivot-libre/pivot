@@ -24,4 +24,4 @@ jobs:
         uses: ramsey/composer-install@v2
 
       - name: Test php code
-        run: php artisan test --parallel
+        run: php artisan test
