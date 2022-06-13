@@ -12,3 +12,4 @@ npm-debug.log
 .env
 *.sw[op]
 *~
+.phpunit.result.cache

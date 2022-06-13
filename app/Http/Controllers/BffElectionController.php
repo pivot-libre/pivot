@@ -2,13 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Routing\Controller as BaseController;
-use Carbon\Carbon;
-use App\Election;
-use App\Elector;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Routing\Controller as BaseController;
 use PivotLibre\Tideman\BffElectionRunner;
 
 class BffElectionController extends BaseController

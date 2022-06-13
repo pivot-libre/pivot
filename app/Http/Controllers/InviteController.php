@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\InviteElector;
+use App\Models\Election;
+use App\Models\Elector;
 use Carbon\Carbon;
-use App\Election;
-use App\Elector;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -75,18 +76,22 @@ class InviteController extends Controller
      *         description="Bad Request",
      *     )
      * )
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, Election $election)
-    {
+    public function store(
+        Request $request,
+        Election $election,
+        InviteElector $inviteElector
+    ) {
         $this->authorize('update', $election);
 
         $email = $request->json()->get('email');
-        $voter_name = $request->json()->get('voter_name');
-        $elector = $election->invite($email, $voter_name);
-        return $elector;
+        $voterName = $request->json()->get('voter_name');
+
+        return $inviteElector(
+            $election,
+            $email,
+            $voterName,
+        );
     }
 
     /**

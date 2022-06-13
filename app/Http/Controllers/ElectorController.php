@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Election;
+use App\Models\Elector;
 use Carbon\Carbon;
 use DummyFullModelClass;
-use App\Election;
-use App\Elector;
-use App\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ElectorController extends Controller
@@ -34,7 +32,7 @@ class ElectorController extends Controller
      *     @SWG\Response(response="400", description="Bad Request")
      * )
      *
-     * @param  \App\Election $election
+     * @param  \App\Models\Election $election
      * @return \Illuminate\Http\Response
      */
     public function index(Election $election)
@@ -91,7 +89,7 @@ class ElectorController extends Controller
      *     @SWG\Response(response="400", description="Bad Request")
      * )
      *
-     * @param  \App\Election $election
+     * @param  \App\Models\Election $election
      * @return \Illuminate\Http\Response
      */
     public function show(Election $election, $elector_id)
@@ -105,8 +103,8 @@ class ElectorController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Election $election
-     * @param  \App\User $user
+     * @param  \App\Models\Election $election
+     * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
     public function destroy(Election $election, $elector_id)

@@ -2,19 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Mail;
-use App\Election;
-use App\EmailVerification;
+use App\Models\EmailVerification;
+use App\Notifications\VerifyEmailNotification;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\URL;
 
 class VerifyController extends Controller
 {
     public function send_verify_email(Request $request)
     {
         // don't even try if the mail driver is not configured
-        if (env('MAIL_DRIVER', null) == null) {
+        if (config('mail.default') === null) {
             return 'mail driver not configured';
         }
 
@@ -29,17 +31,9 @@ class VerifyController extends Controller
         $verification->token = bin2hex(random_bytes(32));
         $verification->save();
 
-        try {
-            $url = Config::get('app.url').'/register?token='.($verification->token).'&email='.urlencode($email);
-            $msg = 'Continue your registration here: '.$url;
+        Notification::route('mail', $verification->email)
+            ->notifyNow(new VerifyEmailNotification($verification));
 
-            Mail::raw($msg, function ($message) use ($email) {
-                $name = $email;
-                $message->to($email, $name)->subject('Pivot Libre Email Confirmation');
-            });
-            return 'confirmation email sent';
-        } catch(\Exception $e) {
-            return $e->getMessage();
-        }
+        return 'confirmation email sent';
     }
 }

@@ -2,10 +2,14 @@
 
 namespace App\Exceptions;
 
-use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Throwable;
 
 class Handler extends ExceptionHandler
 {
@@ -15,7 +19,7 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        \Illuminate\Auth\AuthenticationException::class,
+        AuthenticationException::class,
         \Illuminate\Auth\Access\AuthorizationException::class,
         \Symfony\Component\HttpKernel\Exception\HttpException::class,
         \Illuminate\Database\Eloquent\ModelNotFoundException::class,
@@ -24,26 +28,23 @@ class Handler extends ExceptionHandler
     ];
 
     /**
-     * Report or log an exception.
+     * A list of the inputs that are never flashed to the session on validation exceptions.
      *
-     * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
-     *
-     * @param  \Exception  $exception
-     * @return void
+     * @var array<int, string>
      */
-    public function report(Exception $exception)
-    {
-        parent::report($exception);
-    }
+    protected $dontFlash = [
+        'current_password',
+        'password',
+        'password_confirmation',
+    ];
 
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $exception
-     * @return \Illuminate\Http\Response
+     * @param  Request  $request
+     * @return Response
      */
-    public function render($request, Exception $exception)
+    public function render($request, Throwable $e)
     {
         if ($request->expectsJson()) {
 
@@ -55,21 +56,21 @@ class Handler extends ExceptionHandler
             // If the app is in debug mode
             if (config('app.debug')) {
                 // Add the exception class name, message and stack trace to response
-                $response['exception'] = get_class($exception); // Reflection might be better here
-                $response['message'] = $exception->getMessage();
-                $response['trace'] = $exception->getTrace();
+                $response['exception'] = get_class($e); // Reflection might be better here
+                $response['message'] = $e->getMessage();
+                $response['trace'] = $e->getTrace();
             }
 
             // Default response of 400
             $status = 400;
 
             // If this exception is an instance of HttpException
-            if ($this->isHttpException($exception)) {
+            if ($this->isHttpException($e)) {
                 // Grab the HTTP status code from the Exception
-                $status = $exception->getStatusCode();
-            } elseif ($exception instanceof ModelNotFoundException) {
+                $status = $e->getStatusCode();
+            } elseif ($e instanceof ModelNotFoundException) {
                 $status = 404;
-                $model = class_basename($exception->getModel());
+                $model = class_basename($e->getModel());
                 $response['errors'] = "Couldn't find the requested resource [{$model}].";
             }
 
@@ -77,15 +78,14 @@ class Handler extends ExceptionHandler
             return response()->json($response, $status);
         }
 
-        return parent::render($request, $exception);
+        return parent::render($request, $e);
     }
 
     /**
      * Convert an authentication exception into an unauthenticated response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Auth\AuthenticationException  $exception
-     * @return \Illuminate\Http\Response
+     * @param  Request  $request
+     * @return JsonResponse|RedirectResponse
      */
     protected function unauthenticated($request, AuthenticationException $exception)
     {
@@ -94,5 +94,15 @@ class Handler extends ExceptionHandler
         }
 
         return redirect()->guest(route('login'));
+    }
+
+    /**
+     * Register the exception handling callbacks for the application.
+     */
+    public function register(): void
+    {
+        $this->reportable(function (Throwable $e) {
+            //
+        });
     }
 }

@@ -1,11 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Election;
-use App\CandidateRank;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Election;
 
 class ResultController extends Controller
 {

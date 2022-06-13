@@ -2,19 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Election;
-use App\Candidate;
+use App\Models\Candidate;
+use App\Models\Election;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class CandidateController extends Controller
 {
-
-    public function __construct()
-    {
-
-    }
-
     /**
      * Display a listing of the resource.
      *

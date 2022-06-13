@@ -11,10 +11,15 @@
 |
 */
 
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+
+
 Auth::routes();
 
-Route::get('/profile', 'ProfileController@index');
-Route::get('/profile/accept', 'ProfileController@accept');
+Route::get('/profile', [ProfileController::class, 'index']);
+Route::get('/profile/accept', [ProfileController::class, 'accept']);
 
 
 Route::get('/', function () {

@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\User;
 use App\Http\Controllers\Controller;
-use App\EmailVerification;
+use App\Models\EmailVerification;
+use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
@@ -51,7 +50,8 @@ class RegisterController extends Controller
     {
         $email = $request->input('email', '');
         $token = $request->input('token', '');
-        $isConfirmation = !empty($token); 
+
+        $isConfirmation = !empty($token);
         return view('auth.register', ['email' => $email, 'token' => $token, 'isConfirmation' => $isConfirmation]);
     }
 
@@ -98,8 +98,7 @@ class RegisterController extends Controller
     {
         if (!$this->verify_token($data))
         {
-            // TODO: create better error.  This fails in a very ugly way
-            return 'bad token';
+            redirect()->back()->withErrors('bad token');
         }
 
         $user = User::create([

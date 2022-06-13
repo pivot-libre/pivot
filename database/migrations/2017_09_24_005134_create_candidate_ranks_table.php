@@ -16,9 +16,9 @@ class CreateCandidateRanksTable extends Migration
         Schema::create('candidate_ranks', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('elector_id')->unsigned();
-            $table->foreign('elector_id')->references('id')->on('electors');
+            $table->foreign('elector_id')->references('id')->on('electors')->onDelete('cascade');
             $table->integer('candidate_id')->unsigned();
-            $table->foreign('candidate_id')->references('id')->on('candidates');
+            $table->foreign('candidate_id')->references('id')->on('candidates')->onDelete('cascade');
             $table->unique(['elector_id', 'candidate_id']);
             $table->integer('rank')->index();
             $table->timestamps();
