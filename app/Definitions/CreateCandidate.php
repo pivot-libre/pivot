@@ -2,18 +2,17 @@
 
 namespace App\Definitions;
 
-/**
- * @SWG\Definition(
- *     definition="CreateCandidate",
- *     type="object",
- *     @SWG\Xml(name="CreateCandidate")
- * )
- */
+use OpenApi\Attributes\Schema;
+
+#[Schema(
+    schema: "CreateCandidate",
+    type: "object",
+)]
 class CreateCandidate
 {
     /**
      * @var string
-     * @SWG\Property(example="Highland Avenue")
+     * @OA\Property(example="Highland Avenue")
      */
     public $name;
 }

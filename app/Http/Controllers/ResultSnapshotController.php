@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Election;
-use App\ResultSnapshot;
+use App\Models\Election;
+use App\Models\ResultSnapshot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 

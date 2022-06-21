@@ -480,19 +480,19 @@ def test14(api):
     elector2 = api.add_elector(election, userA, userA, 'voter2')
     elector3 = api.add_elector(election, userA, userA, 'voter3')
     electors = api.get_electors_for_self(userA, election)
-    print electors
+    print(electors)
     assert(len(electors) == 4)
 
     # cannot add self twice
     api.add_elector(election, userA, userA)
     electors = api.get_electors_for_self(userA, election)
-    print electors
+    print(electors)
     assert(len(electors) == 4)
 
     # cannot add another voter twice
     api.add_elector(election, userA, userA, 'voter1')
     electors = api.get_electors_for_self(userA, election)
-    print electors
+    print(electors)
     assert(len(electors) == 4)
 
     acceptables_before = api.acceptable(userA)

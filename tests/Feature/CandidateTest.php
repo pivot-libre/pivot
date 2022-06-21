@@ -4,35 +4,36 @@
 namespace Tests\Feature;
 
 
-use App\Candidate;
-use App\Election;
-use App\Elector;
-use App\User;
+use App\Models\Candidate;
+use App\Models\Election;
+use App\Models\Elector;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Collection;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
+use Laravel\Passport\Passport;
 use Tests\TestCase;
 
 class CandidateTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     /** @test */
     public function cannot_get_a_candidate_if_not_creator_or_elector()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create();
+        $election = Election::factory()->create();
 
-        $candidate = factory(Candidate::class)->create([
-            'election_id' => $election->id
+        $candidate = Candidate::factory()->create([
+            'election_id' => $election->id,
         ]);
 
-        $response = $this->actingAs($user, 'api')->getJson("api/elections/{$election->id}/candidates/{$candidate->id}");
+        Passport::actingAs($user);
+        $response = $this->getJson("api/elections/{$election->id}/candidates/{$candidate->id}");
 
         $response->assertStatus(400);
         $this->assertInstanceOf(AuthorizationException::class, $response->exception);
@@ -41,10 +42,10 @@ class CandidateTest extends TestCase
     /** @test */
     public function cannot_get_a_candidate_if_guest()
     {
-        $election = factory(Election::class)->create();
+        $election = Election::factory()->create();
 
-        $candidate = factory(Candidate::class)->create([
-            'election_id' => $election->id
+        $candidate = Candidate::factory()->create([
+            'election_id' => $election->id,
         ]);
 
         $response = $this->getJson("api/elections/{$election->id}/candidates/{$candidate->id}");
@@ -56,22 +57,23 @@ class CandidateTest extends TestCase
     /** @test */
     public function can_get_a_candidate_if_elector()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create();
+        $election = Election::factory()->create();
 
-        $candidate = factory(Candidate::class)->create([
-            'election_id' => $election->id
+        $candidate = Candidate::factory()->create([
+            'election_id' => $election->id,
         ]);
 
         // Accepted invite
-        $electorA = factory(Elector::class)->create([
+        $electorA = Elector::factory()->create([
             'user_id' => $user->id,
             'election_id' => $election->id,
-            'invite_accepted_at' => Carbon::now()
+            'invite_accepted_at' => Carbon::now(),
         ]);
 
-        $response = $this->actingAs($user, 'api')->getJson("api/elections/{$election->id}/candidates/{$candidate->id}");
+        Passport::actingAs($user);
+        $response = $this->getJson("api/elections/{$election->id}/candidates/{$candidate->id}");
 
         $response->assertStatus(200);
         $responseCandidate = $response->getOriginalContent();
@@ -81,17 +83,18 @@ class CandidateTest extends TestCase
     /** @test */
     public function can_get_a_candidate_if_creator()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create([
-            'creator_id' => $user->id
+        $election = Election::factory()->create([
+            'creator_id' => $user->id,
         ]);
 
-        $candidate = factory(Candidate::class)->create([
-            'election_id' => $election->id
+        $candidate = Candidate::factory()->create([
+            'election_id' => $election->id,
         ]);
 
-        $response = $this->actingAs($user, 'api')->getJson("api/elections/{$election->id}/candidates/{$candidate->id}");
+        Passport::actingAs($user);
+        $response = $this->getJson("api/elections/{$election->id}/candidates/{$candidate->id}");
 
         $response->assertStatus(200);
         $responseCandidate = $response->getOriginalContent();
@@ -102,15 +105,16 @@ class CandidateTest extends TestCase
     /** @test */
     public function cannot_get_all_candidates_if_not_creator_or_elector()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create();
+        $election = Election::factory()->create();
 
-        $candidate = factory(Candidate::class)->times(5)->create([
-            'election_id' => $election->id
+        $candidate = Candidate::factory()->times(5)->create([
+            'election_id' => $election->id,
         ]);
 
-        $response = $this->actingAs($user, 'api')->getJson("api/elections/{$election->id}/candidates");
+        Passport::actingAs($user);
+        $response = $this->getJson("api/elections/{$election->id}/candidates");
 
         $response->assertStatus(400);
         $this->assertInstanceOf(AuthorizationException::class, $response->exception);
@@ -119,7 +123,7 @@ class CandidateTest extends TestCase
     /** @test */
     public function cannot_get_all_candidates_if_guest()
     {
-        $election = factory(Election::class)->create();
+        $election = Election::factory()->create();
 
 
         $response = $this->getJson("api/elections/{$election->id}/candidates");
@@ -131,22 +135,23 @@ class CandidateTest extends TestCase
     /** @test */
     public function can_get_all_candidates_if_elector()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create();
+        $election = Election::factory()->create();
 
-        $candidates = factory(Candidate::class)->times(5)->create([
-            'election_id' => $election->id
+        $candidates = Candidate::factory()->times(5)->create([
+            'election_id' => $election->id,
         ]);
 
         // Accepted invite
-        $electorA = factory(Elector::class)->create([
+        $electorA = Elector::factory()->create([
             'user_id' => $user->id,
             'election_id' => $election->id,
-            'invite_accepted_at' => Carbon::now()
+            'invite_accepted_at' => Carbon::now(),
         ]);
 
-        $response = $this->actingAs($user, 'api')->getJson("api/elections/{$election->id}/candidates");
+        Passport::actingAs($user);
+        $response = $this->getJson("api/elections/{$election->id}/candidates");
 
         $response->assertStatus(200);
         $responseCandidates = $response->getOriginalContent();
@@ -157,17 +162,18 @@ class CandidateTest extends TestCase
     /** @test */
     public function can_get_all_candidates_if_creator()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create([
-            'creator_id' => $user->id
+        $election = Election::factory()->create([
+            'creator_id' => $user->id,
         ]);
 
-        $candidates = factory(Candidate::class)->times(5)->create([
-            'election_id' => $election->id
+        $candidates = Candidate::factory()->times(5)->create([
+            'election_id' => $election->id,
         ]);
 
-        $response = $this->actingAs($user, 'api')->getJson("api/elections/{$election->id}/candidates");
+        Passport::actingAs($user);
+        $response = $this->getJson("api/elections/{$election->id}/candidates");
 
         $response->assertStatus(200);
         $responseCandidates = $response->getOriginalContent();
@@ -178,26 +184,27 @@ class CandidateTest extends TestCase
     /** @test */
     public function cannot_get_candidates_in_other_election_if_elector()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create();
-        $otherElection = factory(Election::class)->create();
+        $election = Election::factory()->create();
+        $otherElection = Election::factory()->create();
 
-        $candidates = factory(Candidate::class)->times(5)->create([
-            'election_id' => $election->id
+        $candidates = Candidate::factory()->times(5)->create([
+            'election_id' => $election->id,
         ]);
-        $candidatesInOtherElection = factory(Candidate::class)->times(5)->create([
-            'election_id' => $otherElection->id
+        $candidatesInOtherElection = Candidate::factory()->times(5)->create([
+            'election_id' => $otherElection->id,
         ]);
 
         // Accepted invite
-        $electorA = factory(Elector::class)->create([
+        $electorA = Elector::factory()->create([
             'user_id' => $user->id,
             'election_id' => $election->id,
-            'invite_accepted_at' => Carbon::now()
+            'invite_accepted_at' => Carbon::now(),
         ]);
 
-        $response = $this->actingAs($user, 'api')->getJson("api/elections/{$otherElection->id}/candidates");
+        Passport::actingAs($user);
+        $response = $this->getJson("api/elections/{$otherElection->id}/candidates");
 
         $response->assertStatus(400);
         $this->assertInstanceOf(AuthorizationException::class, $response->exception);
@@ -206,21 +213,22 @@ class CandidateTest extends TestCase
     /** @test */
     public function cannot_get_candidates_in_other_election_if_creator()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create([
-            'creator_id' => $user->id
+        $election = Election::factory()->create([
+            'creator_id' => $user->id,
         ]);
-        $otherElection = factory(Election::class)->create();
+        $otherElection = Election::factory()->create();
 
-        $candidates = factory(Candidate::class)->times(5)->create([
-            'election_id' => $election->id
+        $candidates = Candidate::factory()->times(5)->create([
+            'election_id' => $election->id,
         ]);
-        $candidatesInOtherElection = factory(Candidate::class)->times(5)->create([
-            'election_id' => $otherElection->id
+        $candidatesInOtherElection = Candidate::factory()->times(5)->create([
+            'election_id' => $otherElection->id,
         ]);
 
-        $response = $this->actingAs($user, 'api')->getJson("api/elections/{$otherElection->id}/candidates");
+        Passport::actingAs($user);
+        $response = $this->getJson("api/elections/{$otherElection->id}/candidates");
 
         $response->assertStatus(400);
         $this->assertInstanceOf(AuthorizationException::class, $response->exception);
@@ -229,22 +237,23 @@ class CandidateTest extends TestCase
     /** @test */
     public function cannot_get_a_candidate_in_other_election_if_creator()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create([
-            'creator_id' => $user->id
+        $election = Election::factory()->create([
+            'creator_id' => $user->id,
         ]);
-        $otherElection = factory(Election::class)->create();
+        $otherElection = Election::factory()->create();
 
-        $candidate = factory(Candidate::class)->create([
-            'election_id' => $election->id
+        $candidate = Candidate::factory()->create([
+            'election_id' => $election->id,
         ]);
-        $candidateInOtherElection = factory(Candidate::class)->create([
-            'election_id' => $otherElection->id
+        $candidateInOtherElection = Candidate::factory()->create([
+            'election_id' => $otherElection->id,
         ]);
 
         // Trying to access the other candidate in other election through the other election
-        $response = $this->actingAs($user, 'api')->getJson("api/elections/{$otherElection->id}/candidates/{$candidateInOtherElection->id}");
+        Passport::actingAs($user);
+        $response = $this->getJson("api/elections/{$otherElection->id}/candidates/{$candidateInOtherElection->id}");
 
         $response->assertStatus(400);
         $this->assertInstanceOf(AuthorizationException::class, $response->exception);
@@ -252,7 +261,8 @@ class CandidateTest extends TestCase
         //$this->disableExceptionHandling();
 
         // Trying to access the other candidate in other election through the election with access to.
-        $response = $this->actingAs($user, 'api')->getJson("api/elections/{$election->id}/candidates/{$candidateInOtherElection->id}");
+        Passport::actingAs($user);
+        $response = $this->getJson("api/elections/{$election->id}/candidates/{$candidateInOtherElection->id}");
 
         $response->assertStatus(404);
         $this->assertInstanceOf(ModelNotFoundException::class, $response->exception);
@@ -261,33 +271,35 @@ class CandidateTest extends TestCase
     /** @test */
     public function cannot_get_a_candidate_in_other_election_if_elector()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create();
-        $otherElection = factory(Election::class)->create();
+        $election = Election::factory()->create();
+        $otherElection = Election::factory()->create();
 
-        $candidate = factory(Candidate::class)->create([
-            'election_id' => $election->id
+        $candidate = Candidate::factory()->create([
+            'election_id' => $election->id,
         ]);
-        $candidateInOtherElection = factory(Candidate::class)->create([
-            'election_id' => $otherElection->id
+        $candidateInOtherElection = Candidate::factory()->create([
+            'election_id' => $otherElection->id,
         ]);
 
         // Accepted invite
-        $electorA = factory(Elector::class)->create([
+        $electorA = Elector::factory()->create([
             'user_id' => $user->id,
             'election_id' => $election->id,
-            'invite_accepted_at' => Carbon::now()
+            'invite_accepted_at' => Carbon::now(),
         ]);
 
         // Trying to access the other candidate in other election through the other election
-        $response = $this->actingAs($user, 'api')->getJson("api/elections/{$otherElection->id}/candidates/{$candidateInOtherElection->id}");
+        Passport::actingAs($user);
+        $response = $this->getJson("api/elections/{$otherElection->id}/candidates/{$candidateInOtherElection->id}");
 
         $response->assertStatus(400);
         $this->assertInstanceOf(AuthorizationException::class, $response->exception);
 
         // Trying to access the other candidate in other election through the election with access to.
-        $response = $this->actingAs($user, 'api')->getJson("api/elections/{$election->id}/candidates/{$candidateInOtherElection->id}");
+        Passport::actingAs($user);
+        $response = $this->getJson("api/elections/{$election->id}/candidates/{$candidateInOtherElection->id}");
 
         $response->assertStatus(404);
         $this->assertInstanceOf(ModelNotFoundException::class, $response->exception);
@@ -296,19 +308,20 @@ class CandidateTest extends TestCase
     /** @test */
     public function can_delete_a_candidate_if_creator()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create([
+        $election = Election::factory()->create([
             'creator_id' => $user->id,
-            'ballot_version' => 1
+            'ballot_version' => 1,
         ]);
 
-        $candidate = factory(Candidate::class)->create([
-            'election_id' => $election->id
+        $candidate = Candidate::factory()->create([
+            'election_id' => $election->id,
         ]);
 
         // Trying to access the other candidate in other election through the other election
-        $response = $this->actingAs($user, 'api')->deleteJson("api/elections/{$election->id}/candidates/{$candidate->id}");
+        Passport::actingAs($user);
+        $response = $this->deleteJson("api/elections/{$election->id}/candidates/{$candidate->id}");
 
         $response->assertStatus(204);
         $this->assertEquals(2, $election->fresh()->ballot_version);
@@ -318,20 +331,21 @@ class CandidateTest extends TestCase
     /** @test */
     public function cannot_delete_a_candidate_if_elector()
     {
-        $user = factory(User::class)->create();
-        $election = factory(Election::class)->create();
-        $candidate = factory(Candidate::class)->create([
-            'election_id' => $election->id
+        $user = User::factory()->create();
+        $election = Election::factory()->create();
+        $candidate = Candidate::factory()->create([
+            'election_id' => $election->id,
         ]);
         // Accepted invite
-        $elector = factory(Elector::class)->create([
+        $elector = Elector::factory()->create([
             'user_id' => $user->id,
             'election_id' => $election->id,
-            'invite_accepted_at' => Carbon::now()
+            'invite_accepted_at' => Carbon::now(),
         ]);
 
         // Trying to access the other candidate in other election through the other election
-        $response = $this->actingAs($user, 'api')->deleteJson("api/elections/{$election->id}/candidates/{$candidate->id}");
+        Passport::actingAs($user);
+        $response = $this->deleteJson("api/elections/{$election->id}/candidates/{$candidate->id}");
 
         $response->assertStatus(400);
         $this->assertInstanceOf(AuthorizationException::class, $response->exception);
@@ -341,14 +355,15 @@ class CandidateTest extends TestCase
     /** @test */
     public function cannot_delete_a_candidate_if_guest()
     {
-        $user = factory(User::class)->create();
-        $election = factory(Election::class)->create();
-        $candidate = factory(Candidate::class)->create([
-            'election_id' => $election->id
+        $user = User::factory()->create();
+        $election = Election::factory()->create();
+        $candidate = Candidate::factory()->create([
+            'election_id' => $election->id,
         ]);
 
         // Trying to access the other candidate in other election through the other election
-        $response = $this->actingAs($user, 'api')->deleteJson("api/elections/{$election->id}/candidates/{$candidate->id}");
+        Passport::actingAs($user);
+        $response = $this->deleteJson("api/elections/{$election->id}/candidates/{$candidate->id}");
 
         $response->assertStatus(400);
         $this->assertInstanceOf(AuthorizationException::class, $response->exception);
@@ -358,22 +373,23 @@ class CandidateTest extends TestCase
     /** @test */
     public function cannot_delete_a_candidate_in_other_election_if_has_access()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create([
-            'creator_id' => $user->id
+        $election = Election::factory()->create([
+            'creator_id' => $user->id,
         ]);
-        $otherElection = factory(Election::class)->create();
+        $otherElection = Election::factory()->create();
 
-        $candidate = factory(Candidate::class)->create([
-            'election_id' => $election->id
+        $candidate = Candidate::factory()->create([
+            'election_id' => $election->id,
         ]);
-        $candidateInOtherElection = factory(Candidate::class)->create([
-            'election_id' => $otherElection->id
+        $candidateInOtherElection = Candidate::factory()->create([
+            'election_id' => $otherElection->id,
         ]);
 
         // Trying to access the other candidate in other election through the other election
-        $response = $this->actingAs($user, 'api')->deleteJson("api/elections/{$election->id}/candidates/{$candidateInOtherElection->id}");
+        Passport::actingAs($user);
+        $response = $this->deleteJson("api/elections/{$election->id}/candidates/{$candidateInOtherElection->id}");
 
         $response->assertStatus(404);
         $this->assertInstanceOf(ModelNotFoundException::class, $response->exception);
@@ -383,21 +399,22 @@ class CandidateTest extends TestCase
     /** @test */
     public function can_update_a_candidates_name_if_creator()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create([
+        $election = Election::factory()->create([
             'creator_id' => $user->id,
-            'ballot_version' => 1
+            'ballot_version' => 1,
         ]);
 
-        $candidate = factory(Candidate::class)->create([
+        $candidate = Candidate::factory()->create([
             'election_id' => $election->id,
             'name' => "old name",
         ]);
 
         // Trying to access the other candidate in other election through the other election
-        $response = $this->actingAs($user, 'api')->patchJson("api/elections/{$election->id}/candidates/{$candidate->id}", [
-            'name' => "new name"
+        Passport::actingAs($user);
+        $response = $this->patchJson("api/elections/{$election->id}/candidates/{$candidate->id}", [
+            'name' => "new name",
         ]);
 
         $response->assertStatus(204);
@@ -410,20 +427,21 @@ class CandidateTest extends TestCase
     /** @test */
     public function cannot_update_a_candidate_if_no_name_is_specified()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create([
+        $election = Election::factory()->create([
             'creator_id' => $user->id,
-            'ballot_version' => 1
+            'ballot_version' => 1,
         ]);
 
-        $candidate = factory(Candidate::class)->create([
+        $candidate = Candidate::factory()->create([
             'election_id' => $election->id,
             'name' => "old name",
         ]);
 
         // Trying to access the other candidate in other election through the other election
-        $response = $this->actingAs($user, 'api')->patchJson("api/elections/{$election->id}/candidates/{$candidate->id}", [
+        Passport::actingAs($user);
+        $response = $this->patchJson("api/elections/{$election->id}/candidates/{$candidate->id}", [
 
         ]);
 
@@ -436,27 +454,28 @@ class CandidateTest extends TestCase
     /** @test */
     public function cannot_update_a_candidate_if_elector()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create([
-            'ballot_version' => 1
+        $election = Election::factory()->create([
+            'ballot_version' => 1,
         ]);
 
-        $candidate = factory(Candidate::class)->create([
+        $candidate = Candidate::factory()->create([
             'election_id' => $election->id,
             'name' => "old name",
         ]);
 
         // Accepted invite
-        $elector = factory(Elector::class)->create([
+        $elector = Elector::factory()->create([
             'user_id' => $user->id,
             'election_id' => $election->id,
-            'invite_accepted_at' => Carbon::now()
+            'invite_accepted_at' => Carbon::now(),
         ]);
 
         // Trying to access the other candidate in other election through the other election
-        $response = $this->actingAs($user, 'api')->patchJson("api/elections/{$election->id}/candidates/{$candidate->id}", [
-            'name' => "new name"
+        Passport::actingAs($user);
+        $response = $this->patchJson("api/elections/{$election->id}/candidates/{$candidate->id}", [
+            'name' => "new name",
         ]);
 
         $response->assertStatus(400);
@@ -467,20 +486,21 @@ class CandidateTest extends TestCase
     /** @test */
     public function cannot_update_a_candidate_if_guest()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create([
-            'ballot_version' => 1
+        $election = Election::factory()->create([
+            'ballot_version' => 1,
         ]);
 
-        $candidate = factory(Candidate::class)->create([
+        $candidate = Candidate::factory()->create([
             'election_id' => $election->id,
             'name' => "old name",
         ]);
 
         // Trying to access the other candidate in other election through the other election
-        $response = $this->actingAs($user, 'api')->patchJson("api/elections/{$election->id}/candidates/{$candidate->id}", [
-            'name' => "new name"
+        Passport::actingAs($user);
+        $response = $this->patchJson("api/elections/{$election->id}/candidates/{$candidate->id}", [
+            'name' => "new name",
         ]);
 
         $response->assertStatus(400);
@@ -491,16 +511,17 @@ class CandidateTest extends TestCase
     /** @test */
     public function can_create_a_candidate_if_creator()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create([
+        $election = Election::factory()->create([
             'creator_id' => $user->id,
-            'ballot_version' => 1
+            'ballot_version' => 1,
         ]);
 
         // Trying to access the other candidate in other election through the other election
-        $response = $this->actingAs($user, 'api')->postJson("api/elections/{$election->id}/candidates", [
-            'name' => "new name"
+        Passport::actingAs($user);
+        $response = $this->postJson("api/elections/{$election->id}/candidates", [
+            'name' => "new name",
         ]);
 
         $response->assertStatus(201);
@@ -511,22 +532,23 @@ class CandidateTest extends TestCase
     /** @test */
     public function cannot_create_a_candidate_if_elector()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create([
-            'ballot_version' => 1
+        $election = Election::factory()->create([
+            'ballot_version' => 1,
         ]);
 
         // Accepted invite
-        $elector = factory(Elector::class)->create([
+        $elector = Elector::factory()->create([
             'user_id' => $user->id,
             'election_id' => $election->id,
-            'invite_accepted_at' => Carbon::now()
+            'invite_accepted_at' => Carbon::now(),
         ]);
 
         // Trying to access the other candidate in other election through the other election
-        $response = $this->actingAs($user, 'api')->postJson("api/elections/{$election->id}/candidates", [
-            'name' => "new name"
+        Passport::actingAs($user);
+        $response = $this->postJson("api/elections/{$election->id}/candidates", [
+            'name' => "new name",
         ]);
 
         $response->assertStatus(400);
@@ -537,15 +559,16 @@ class CandidateTest extends TestCase
     /** @test */
     public function cannot_create_a_candidate_if_guest()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create([
-            'ballot_version' => 1
+        $election = Election::factory()->create([
+            'ballot_version' => 1,
         ]);
 
         // Trying to access the other candidate in other election through the other election
-        $response = $this->actingAs($user, 'api')->postJson("api/elections/{$election->id}/candidates", [
-            'name' => "new name"
+        Passport::actingAs($user);
+        $response = $this->postJson("api/elections/{$election->id}/candidates", [
+            'name' => "new name",
         ]);
 
         $response->assertStatus(400);

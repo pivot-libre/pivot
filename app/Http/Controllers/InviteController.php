@@ -2,34 +2,37 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\InviteElector;
+use App\Models\Election;
+use App\Models\Elector;
 use Carbon\Carbon;
-use App\Election;
-use App\Elector;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use OpenApi\Attributes\MediaType;
+use OpenApi\Attributes\RequestBody;
 
 class InviteController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @SWG\Get(
+     * @OA\Get(
      *     tags={"Invites"},
      *     path="/api/elections/{electionId}/invite",
      *     summary="View electors who have not accepted their invite yet",
      *     operationId="inviteIndex",
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="electionId",
      *         in="path",
      *         description="Election to get",
      *         required=true,
-     *         type="string",
+     *         @OA\Schema(type="string"),
      *     ),
-     *     @SWG\Response(response="200", description="Success", @SWG\Schema(
+     *     @OA\Response(response="200", description="Success", @OA\Schema(
      *             type="array",
-     *             @SWG\Items(ref="#/definitions/InviteWithElection")
+     *             @OA\Items(ref="#/components/schemas/InviteWithElection")
      *         )),
-     *     @SWG\Response(response="400", description="Bad Request")
+     *     @OA\Response(response="400", description="Bad Request")
      * )
      *
      * @return \Illuminate\Http\Response
@@ -44,74 +47,74 @@ class InviteController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @SWG\Post(
+     * @OA\Post(
      *     tags={"Invites"},
      *     path="/api/elections/{electionId}/invite",
      *     summary="Send an invite",
      *     operationId="createInvite",
-     *     consumes={"application/json"},
-     *     produces={"application/json"},
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="electionId",
      *         in="path",
      *         description="Election ID",
      *         required=true,
-     *         type="string",
+     *         @OA\Schema(type="string"),
      *     ),
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="payload",
-     *         in="body",
+     *         in="query",
      *         description="Email to invite",
      *         required=true,
-     *         @SWG\Schema(ref="#/definitions/Email")
+     *         @OA\Schema(ref="#/components/schemas/Email")
      *     ),
-     *     @SWG\Response(
+     *     @OA\Response(
      *         response=200,
      *         description="successful operation",
-     *         @SWG\Schema(ref="#/definitions/Invite")
+     *         @OA\Schema(ref="#/components/schemas/Invite")
      *     ),
-     *     @SWG\Response(
+     *     @OA\Response(
      *         response="400",
      *         description="Bad Request",
      *     )
      * )
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, Election $election)
-    {
+    public function store(
+        Request $request,
+        Election $election,
+        InviteElector $inviteElector
+    ) {
         $this->authorize('update', $election);
 
         $email = $request->json()->get('email');
-        $voter_name = $request->json()->get('voter_name');
-        $elector = $election->invite($email, $voter_name);
-        return $elector;
+        $voterName = $request->json()->get('voter_name');
+
+        return $inviteElector(
+            $election,
+            $email,
+            $voterName,
+        );
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @SWG\Post(
+     * @OA\Post(
      *     tags={"Invites"},
      *     path="/api/invite/accept",
      *     summary="Accept an invite",
-     *     consumes={"application/json"},
-     *     produces={"application/json"},
      *     operationId="acceptInvite",
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="payload",
-     *         in="body",
+     *         in="query",
      *         description="Code to accept an invite",
      *         required=true,
-     *         @SWG\Schema(ref="#/definitions/Code")
+     *         @OA\Schema(ref="#/components/schemas/Code")
      *     ),
-     *     @SWG\Response(
+     *     @OA\Response(
      *         response=200,
      *         description="successful operation",
-     *         @SWG\Schema(ref="#/definitions/Invite")
+     *         @OA\Schema(ref="#/components/schemas/Invite")
      *     ),
-     *     @SWG\Response(
+     *     @OA\Response(
      *         response="400",
      *         description="Bad Request",
      *     )

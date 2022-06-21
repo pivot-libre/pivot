@@ -17,8 +17,6 @@ class CreateElectorsTable extends Migration
             $table->increments('id');
             $table->integer('election_id')->unsigned()->index();
             $table->foreign('election_id')->references('id')->on('elections')->onDelete('cascade');
-            $table->integer('invite_id')->nullable()->unsigned()->index();
-            $table->foreign('invite_id')->references('id')->on('invites')->onDelete('cascade');
             $table->integer('user_id')->nullable()->unsigned()->index();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });

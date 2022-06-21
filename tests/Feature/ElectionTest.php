@@ -4,34 +4,36 @@
 namespace Tests\Feature;
 
 
-use App\Candidate;
-use App\Election;
-use App\Elector;
-use App\User;
+use App\Models\Candidate;
+use App\Models\Election;
+use App\Models\Elector;
+use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Passport\Passport;
 use Tests\TestCase;
 
 class ElectionTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     /** @test */
     public function can_get_a_election()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create();
+        $election = Election::factory()->create();
 
         /** @var Elector $elector */
-        $elector = factory(Elector::class)->create([
+        $elector = Elector::factory()->create([
             'user_id' => $user->id,
             'election_id' => $election->id,
         ]);
 
-        $response = $this->actingAs($user, 'api')->getJson("api/elections/{$election->id}");
+        Passport::actingAs($user);
+        $response = $this->getJson("api/elections/{$election->id}");
 
         $response->assertStatus(200);
         $this->assertInstanceOf(Election::class, $response->getOriginalContent());
@@ -40,44 +42,46 @@ class ElectionTest extends TestCase
     /** @test */
     public function can_batch_vote()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create();
+        $election = Election::factory()->create();
 
         /** @var Elector $elector */
-        $elector = factory(Elector::class)->create([
+        $elector = Elector::factory()->create([
             'user_id' => $user->id,
             'election_id' => $election->id,
         ]);
 
-        $candidateA = factory(Candidate::class)->create([
+        $candidateA = Candidate::factory()->create([
             'name' => 'candidate-A',
             'election_id' => $election->id,
         ]);
-        $candidateB = factory(Candidate::class)->create([
+        $candidateB = Candidate::factory()->create([
             'name' => 'candidate-B',
             'election_id' => $election->id,
         ]);
-        $candidateC = factory(Candidate::class)->create([
+        $candidateC = Candidate::factory()->create([
             'name' => 'candidate-C',
             'election_id' => $election->id,
         ]);
 
         $this->assertEquals(0, $elector->ranks()->count());
-        $response = $this->actingAs($user, 'api')->postJson("api/elections/{$election->id}/batchvote", [
+        Passport::actingAs($user);
+
+        $response = $this->postJson("api/elections/{$election->id}/batchvote", [
             'votes' => [
                 [
                     'candidate_id' => $candidateA->id,
-                    'rank' => 2
+                    'rank' => 2,
                 ],
                 [
                     'candidate_id' => $candidateB->id,
-                    'rank' => 1
+                    'rank' => 1,
                 ],
                 [
                     'candidate_id' => $candidateC->id,
-                    'rank' => 3
-                ]
+                    'rank' => 3,
+                ],
             ],
             'elector_id' => $elector->id,
         ]);
@@ -89,29 +93,31 @@ class ElectionTest extends TestCase
     /** @test */
     public function cannot_batch_vote_if_invalid_election_id()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create();
+        $election = Election::factory()->create();
 
-        $candidateA = factory(Candidate::class)->create([
-            'name' => 'candidate-A'
+        $candidateA = Candidate::factory()->create([
+            'name' => 'candidate-A',
         ]);
 
         $invalidElectionId = $election->id + 9999;
 
-       $elector = factory(Elector::class)->create([
+        $elector = Elector::factory()->create([
             'user_id' => $user->id,
             'election_id' => $election->id,
         ]);
 
-        $response = $this->actingAs($user, 'api')->postJson("api/elections/{$invalidElectionId}/batchvote", [
+        Passport::actingAs($user);
+
+        $response = $this->postJson("api/elections/{$invalidElectionId}/batchvote", [
             'votes' => [
                 [
                     'candidate_id' => $candidateA->id,
-                    'rank' => 2
+                    'rank' => 2,
                 ],
             ],
-            'elector_id' => $elector->id
+            'elector_id' => $elector->id,
         ]);
         $this->assertInstanceOf(ModelNotFoundException::class, $response->exception);
     }
@@ -119,17 +125,17 @@ class ElectionTest extends TestCase
     /** @test */
     public function cannot_batch_vote_if_not_authenticated()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $election = factory(Election::class)->create();
+        $election = Election::factory()->create();
 
-        $elector = factory(Elector::class)->create([
+        $elector = Elector::factory()->create([
             'user_id' => $user->id,
             'election_id' => $election->id,
         ]);
 
-        $candidateA = factory(Candidate::class)->create([
-            'name' => 'candidate-A'
+        $candidateA = Candidate::factory()->create([
+            'name' => 'candidate-A',
         ]);
 
         $invalidElectionId = $election->id + 9999;
@@ -137,10 +143,10 @@ class ElectionTest extends TestCase
             'votes' => [
                 [
                     'candidate_id' => $candidateA->id,
-                    'rank' => 2
+                    'rank' => 2,
                 ],
             ],
-            'elector_id' => $elector->id
+            'elector_id' => $elector->id,
         ]);
 
         $this->assertInstanceOf(AuthenticationException::class, $response->exception);

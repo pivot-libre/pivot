@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Election;
+use App\Models\Elector;
 use Carbon\Carbon;
 use DummyFullModelClass;
-use App\Election;
-use App\Elector;
-use App\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ElectorController extends Controller
@@ -15,26 +13,26 @@ class ElectorController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @SWG\Get(
+     * @OA\Get(
      *     tags={"Electors"},
      *     path="/api/elections/{electionId}/electors",
      *     summary="View the electorate for an election",
      *     operationId="electorIndex",
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="electionId",
      *         in="path",
      *         description="Election to get",
      *         required=true,
-     *         type="string",
+     *         @OA\Schema(type="string"),
      *     ),
-     *     @SWG\Response(response="200", description="Success", @SWG\Schema(
+     *     @OA\Response(response="200", description="Success", @OA\Schema(
      *             type="array",
-     *             @SWG\Items(ref="#/definitions/User")
+     *             @OA\Items(ref="#/components/schemas/User")
      *         )),
-     *     @SWG\Response(response="400", description="Bad Request")
+     *     @OA\Response(response="400", description="Bad Request")
      * )
      *
-     * @param  \App\Election $election
+     * @param  \App\Models\Election $election
      * @return \Illuminate\Http\Response
      */
     public function index(Election $election)
@@ -67,31 +65,31 @@ class ElectorController extends Controller
     /**
      * Display the specified resource.
      *
-     * @SWG\Get(
+     * @OA\Get(
      *     tags={"Electors"},
      *     path="/api/elections/{electionId}/electors/{electorId}",
      *     summary="Get information about an elector",
      *     operationId="getElectorById",
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="electionId",
      *         in="path",
      *         description="Election to get",
      *         required=true,
-     *         type="string",
+     *         @OA\Schema(type="string"),
      *     ),
-     *     @SWG\Parameter(
+     *     @OA\Parameter(
      *         name="electorId",
      *         in="path",
      *         description="Elector to get",
      *         required=true,
-     *         type="string",
+     *         @OA\Schema(type="string"),
      *     ),
-     *     @SWG\Response(response="200", description="Success", @SWG\Schema(ref="#/definitions/User")
+     *     @OA\Response(response="200", description="Success", @OA\Schema(ref="#/components/schemas/User")
      *     ),
-     *     @SWG\Response(response="400", description="Bad Request")
+     *     @OA\Response(response="400", description="Bad Request")
      * )
      *
-     * @param  \App\Election $election
+     * @param  \App\Models\Election $election
      * @return \Illuminate\Http\Response
      */
     public function show(Election $election, $elector_id)
@@ -105,8 +103,8 @@ class ElectorController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Election $election
-     * @param  \App\User $user
+     * @param  \App\Models\Election $election
+     * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
     public function destroy(Election $election, $elector_id)

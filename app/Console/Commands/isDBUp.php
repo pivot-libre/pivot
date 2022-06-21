@@ -23,8 +23,6 @@ class isDBUp extends Command
 
     /**
      * Create a new command instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -35,10 +33,8 @@ class isDBUp extends Command
      * Execute the console command.
      *  Prints 'true' if we can connect to the DB,
      *  'false' otherwise.
-     *
-     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         try {
             DB::Connection()->selectOne('SELECT 1');

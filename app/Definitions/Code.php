@@ -2,18 +2,17 @@
 
 namespace App\Definitions;
 
-/**
- * @SWG\Definition(
- *     definition="Code",
- *     type="object",
- *     @SWG\Xml(name="Code")
- * )
- */
+use OpenApi\Attributes\Schema;
+
+#[Schema(
+    schema: "Code",
+    type: "object",
+)]
 class Code
 {
     /**
      * @var string
-     * @SWG\Property(example="12345678")
+     * @OA\Property(example="12345678")
      */
     public $code;
 }
