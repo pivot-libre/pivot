@@ -10,15 +10,11 @@ use App\Models\Elector;
 use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Passport\Passport;
 use Tests\TestCase;
 
 class ElectionTest extends TestCase
 {
-    use RefreshDatabase;
-
     /** @test */
     public function can_get_a_election()
     {

@@ -23,5 +23,11 @@ jobs:
       - name: Install Composer dependencies
         uses: ramsey/composer-install@v2
 
+      - name: Prepare the application
+        run: php artisan key:generate
+
+      - name: Clear Config
+        run: php artisan config:clear
+
       - name: Test php code
         run: php artisan test
