@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use PivotLibre\Tideman\Ballot;
@@ -17,7 +19,7 @@ use PivotLibre\Tideman\NBallot;
 use PivotLibre\Tideman\RankedPairsCalculator;
 
 /**
- * @property Collection electors
+ * @property Collection<int, Elector> $electors
  * @property string $name
  */
 class Election extends Model
@@ -27,8 +29,6 @@ class Election extends Model
 
     /**
      * The attributes that are mass assignable.
-     *
-     * @var array
      */
     protected $fillable = ['name'];
 
@@ -38,8 +38,6 @@ class Election extends Model
 
     /**
      * The attributes that should be mutated to dates.
-     *
-     * @var array
      */
     protected $dates = ['deleted_at'];
 
@@ -58,7 +56,10 @@ class Election extends Model
             "approved_previous" => array()
         );
 
-        $query = Election::where('elections.id', '=', $electionId)
+        $query = Election::query()
+            // Convert to base so Election models are not returned.
+            ->toBase()
+            ->where('elections.id', '=', $electionId)
             ->join('electors', 'elections.id', '=', 'electors.election_id')
             ->leftJoin('users', 'electors.user_id', '=', 'users.id')
             ->select('users.name',
@@ -71,7 +72,6 @@ class Election extends Model
                 'electors.ballot_version_approved');
 
         foreach ($query->get() as $row) {
-            $key = null;
             if ($row->invite_accepted_at == null) {
                 $key = 'outstanding_invites';
             } else if ($row->ballot_version_approved == null) {
@@ -90,32 +90,29 @@ class Election extends Model
             # user_name may be null if the elector hasn't created an
             # account yet.  voter_name will be non null iff user is
             # proxy voting on behalf of voter.
-            $elector = array(
+            $elector = [
                 "user_name" => $user_name,
                 "voter_name" => $voter_name,
                 "email" => $email,
                 "elector_id" => $elector_id
-            );
+            ];
             array_push($stats[$key], $elector);
         }
 
         return $stats;
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany|Elector
-     */
-    public function electors()
+    public function electors(): HasMany
     {
         return $this->hasMany(Elector::class);
     }
 
-    public function candidates()
+    public function candidates(): HasMany
     {
         return $this->hasMany(Candidate::class);
     }
 
-    public function result_snapshots()
+    public function result_snapshots(): HasMany
     {
         return $this->hasMany(ResultSnapshot::class);
     }
@@ -133,14 +130,13 @@ class Election extends Model
     }
 
     /**
-     * @param int $electionId
      * @return Collection of all CandidateRanks associated with
-     * the election identified by the parameterized  id.
+     * the election identified by the parameterized id.
      */
     public function getCandidateRankCollection()
     {
         $electionId = $this->getKey();
-        $query = \DB::table('elections')->where('elections.id', '=', $electionId)
+        $query = DB::table('elections')->where('elections.id', '=', $electionId)
                ->join('candidates', 'candidates.election_id', '=', 'elections.id')
                ->join('electors', 'electors.election_id', '=', 'elections.id')
                ->leftJoin('candidate_ranks', function($join) {
@@ -148,7 +144,7 @@ class Election extends Model
                    $join->on('candidate_ranks.candidate_id', '=', 'candidates.id');
                });
         if ($this->get_config_approved_only()) {
-            $query = $query->where('electors.ballot_version_approved', '=', \DB::raw('elections.ballot_version'));
+            $query = $query->where('electors.ballot_version_approved', '=', DB::raw('elections.ballot_version'));
         }
         $query = $query->select('electors.id AS elector_id', 'candidates.id AS candidate_id', 'candidates.name', 'candidate_ranks.rank');
 

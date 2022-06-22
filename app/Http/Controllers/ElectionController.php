@@ -65,9 +65,6 @@ class ElectionController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
@@ -103,9 +100,6 @@ class ElectionController extends Controller
      *         )),
      *     @OA\Response(response="400", description="Bad Request")
      * )
-     *
-     * @param  \App\Models\Election $election
-     * @return \Illuminate\Http\Response
      */
     public function show(Election $election)
     {
@@ -116,10 +110,6 @@ class ElectionController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \App\Models\Election $election
-     * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Election $election)
     {
@@ -140,9 +130,6 @@ class ElectionController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Election $election
-     * @return \Illuminate\Http\Response
      */
     public function destroy(Election $election)
     {
@@ -269,7 +256,9 @@ class ElectionController extends Controller
         );
 
         $columns = DB::raw('count(*) AS elector_count, elections.ballot_version, electors.ballot_version_approved, (electors.invite_accepted_at IS NOT NULL) AS accepted');
-        $query = Election::where('elections.id', '=', $election_id)
+        $query = Election::query()
+            ->toBase()
+            ->where('elections.id', '=', $election_id)
             ->join('electors', 'elections.id', '=', 'electors.election_id')
             ->select($columns)
             ->groupBy('elections.ballot_version', 'electors.ballot_version_approved', 'accepted');

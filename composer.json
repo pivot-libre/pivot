@@ -28,6 +28,7 @@
         "fakerphp/faker": "^1.19",
         "mockery/mockery": "^1.5",
         "nunomaduro/collision": "^6.1",
+        "nunomaduro/larastan": "^2.1",
         "phpunit/phpunit": "^9.5",
         "spatie/laravel-ignition": "^1.0"
     },

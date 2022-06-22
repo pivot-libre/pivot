@@ -32,8 +32,6 @@ class CandidateController extends Controller
      *         )),
      *     @OA\Response(response="400", description="Bad Request")
      * )
-     *
-     * @return \Illuminate\Http\Response
      */
     public function index(Election $election)
     {
@@ -68,10 +66,6 @@ class CandidateController extends Controller
      *     ),
      *     @OA\Response(response="400", description="Bad Request")
      * )
-     *
-     * @param Election $election
-     * @param Candidate $candidate
-     * @return Candidate
      */
     public function show(Election $election, Candidate $candidate)
     {
@@ -112,10 +106,6 @@ class CandidateController extends Controller
      *         description="Bad Request",
      *     )
      * )
-     *
-     * @param Request $request
-     * @param Election $election
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request, Election $election)
     {
@@ -169,10 +159,6 @@ class CandidateController extends Controller
      *         description="Bad Request",
      *     )
      * )
-     *
-     * @param Election $election
-     * @param Candidate $candidate
-     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, Election $election, Candidate $candidate)
     {
@@ -224,10 +210,6 @@ class CandidateController extends Controller
      *         description="Bad Request",
      *     )
      * )
-     *
-     * @param Election $election
-     * @param Candidate $candidate
-     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Election $election, Candidate $candidate)
     {
