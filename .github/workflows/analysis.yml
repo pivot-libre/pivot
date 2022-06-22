@@ -1,7 +1,7 @@
 name: Code Analysis
 
 on:
-  pull_request:
+  push:
 
 jobs:
   code_analysis_composer:
