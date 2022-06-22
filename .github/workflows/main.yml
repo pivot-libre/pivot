@@ -32,5 +32,8 @@ jobs:
       - name: Clear Config
         run: php artisan config:clear
 
+      - name: Generate keys for Passport
+        run: php artisan passport:keys
+
       - name: Test php code
         run: php artisan test

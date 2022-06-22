@@ -122,7 +122,6 @@ class CandidateTest extends TestCase
     {
         $election = Election::factory()->create();
 
-        $this->withoutExceptionHandling();
         $response = $this->getJson("api/elections/{$election->id}/candidates");
 
         $response->assertStatus(400);

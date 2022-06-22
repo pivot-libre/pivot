@@ -130,7 +130,7 @@ class Election extends Model
     }
 
     /**
-     * @return Collection of all CandidateRanks associated with
+     * @return \Illuminate\Support\Collection of all CandidateRanks associated with
      * the election identified by the parameterized id.
      */
     public function getCandidateRankCollection()
@@ -154,7 +154,7 @@ class Election extends Model
     }
 
     /**
-     * @param Collection of App\CandidateRank
+     * @param Collection<int, CandidateRank> $candidateRanks
      * @return array of arrays of arrays. The arrays are grouped at the outermost level
      * on elector id. The arrays are grouped at the next level by rank. Array entries at this level are ordered in
      * ascending rank. The innermost arrays are associative arrays that contain CandidateRank attributes.
@@ -177,14 +177,14 @@ class Election extends Model
         });
 
         // bucketize by rank within each elector
-        $candidateRanksGroupedByElectorAndRank = $candidateRanksGroupedByElector->map(function($candidateRanksFromOneElector) use ($unranked) {
-            return $candidateRanksFromOneElector->mapToGroups(function($candidateRank) use ($unranked) {
+        $candidateRanksGroupedByElectorAndRank = $candidateRanksGroupedByElector->map(
+            fn($candidateRanksFromOneElector) => $candidateRanksFromOneElector->mapToGroups(function($candidateRank) use ($unranked) {
                 // default rank is <= 0.  Map that to largest value
                 $key = (is_null($candidateRank->rank) || $candidateRank->rank <= 0) ? $unranked : $candidateRank->rank;
                 $value = $candidateRank;
                 return [ $key => $value ];
-            });
-        })->toArray();
+            })
+        )->toArray();
         return $candidateRanksGroupedByElectorAndRank;
     }
 
@@ -211,7 +211,6 @@ class Election extends Model
 
             # sort by rank (best=1 first)
             ksort($candidateLists);
-            array_reverse($candidateLists);
 
             $nBallot = new NBallot(1, ...$candidateLists);
             return $nBallot;
