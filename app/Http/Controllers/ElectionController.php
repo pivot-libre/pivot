@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\GetVoterDetails;
 use App\Models\Candidate;
 use App\Models\CandidateRank;
 use App\Models\Election;
@@ -248,12 +249,12 @@ class ElectionController extends Controller
         $election = Election::where('id', '=', $election_id)->firstOrFail();
         $this->authorize('view_voter_stats', $election);
 
-        $stats = array(
+        $stats = [
             "outstanding_invites" => 0,
             "approved_none" => 0,
             "approved_current" => 0,
             "approved_previous" => 0
-        );
+        ];
 
         $columns = DB::raw('count(*) AS elector_count, elections.ballot_version, electors.ballot_version_approved, (electors.invite_accepted_at IS NOT NULL) AS accepted');
         $query = Election::query()
@@ -264,7 +265,7 @@ class ElectionController extends Controller
             ->groupBy('elections.ballot_version', 'electors.ballot_version_approved', 'accepted');
 
         foreach ($query->get() as $row) {
-            $count = $row['elector_count'];
+            $count = $row->elector_count;
 
             if (!$row->accepted) {
                 $stats['outstanding_invites'] += $count;
@@ -280,11 +281,11 @@ class ElectionController extends Controller
         return response()->json($stats);
     }
 
-    public function voter_details(Request $request, $election_id)
+    public function voter_details(Request $request, $election_id, GetVoterDetails $getVoterDetails)
     {
         $election = Election::where('id', '=', $election_id)->firstOrFail();
         $this->authorize('view_voter_details', $election);
-        $stats = $election->voter_details();
+        $stats = $getVoterDetails($election);
         return response()->json($stats);
     }
 
