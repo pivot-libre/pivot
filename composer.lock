@@ -58,16 +58,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.227.1",
+            "version": "3.228.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "dd3271b171cd83dfcfa3cfc390057114d8f010b1"
+                "reference": "c8ab968e44b3371b1ed055b61f947dcd1f3a6aab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/dd3271b171cd83dfcfa3cfc390057114d8f010b1",
-                "reference": "dd3271b171cd83dfcfa3cfc390057114d8f010b1",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c8ab968e44b3371b1ed055b61f947dcd1f3a6aab",
+                "reference": "c8ab968e44b3371b1ed055b61f947dcd1f3a6aab",
                 "shasum": ""
             },
             "require": {
@@ -75,7 +75,7 @@
                 "ext-json": "*",
                 "ext-pcre": "*",
                 "ext-simplexml": "*",
-                "guzzlehttp/guzzle": "^6.5.7 || ^7.4.4",
+                "guzzlehttp/guzzle": "^6.5.8 || ^7.4.5",
                 "guzzlehttp/promises": "^1.4.0",
                 "guzzlehttp/psr7": "^1.8.5 || ^2.3",
                 "mtdowling/jmespath.php": "^2.6",
@@ -143,9 +143,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.227.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.228.4"
             },
-            "time": "2022-06-20T18:14:17+00:00"
+            "time": "2022-06-27T18:13:31+00:00"
         },
         {
             "name": "brick/math",
