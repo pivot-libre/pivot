@@ -9,14 +9,11 @@ use App\Models\Elector;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Passport\Passport;
 use Tests\TestCase;
 
 class ElectorTest extends TestCase
 {
-    use RefreshDatabase;
-
     /** @test */
     public function can_get_electors()
     {

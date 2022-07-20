@@ -12,15 +12,12 @@ use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 use Laravel\Passport\Passport;
 use Tests\TestCase;
 
 class CandidateTest extends TestCase
 {
-    use RefreshDatabase;
-
     /** @test */
     public function cannot_get_a_candidate_if_not_creator_or_elector()
     {
@@ -124,7 +121,6 @@ class CandidateTest extends TestCase
     public function cannot_get_all_candidates_if_guest()
     {
         $election = Election::factory()->create();
-
 
         $response = $this->getJson("api/elections/{$election->id}/candidates");
 

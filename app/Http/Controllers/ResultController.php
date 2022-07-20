@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Actions\CalculateResult;
 use App\Models\Election;
 
 class ResultController extends Controller
@@ -26,13 +27,11 @@ class ResultController extends Controller
      *         )),
      *     @OA\Response(response="400", description="Bad Request")
      * )
-     *
-     * @return \Illuminate\Http\Response
      */
-    public function index(Election $election)
+    public function index(Election $election, CalculateResult $calculateResult)
     {
         $this->authorize('view_results', $election);
         
-        return $election->calculateResult();
+        return $calculateResult($election);
     }
 }

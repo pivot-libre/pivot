@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\CalculateResult;
 use App\Models\Election;
 use App\Models\ResultSnapshot;
 use Illuminate\Http\Request;
@@ -37,11 +38,11 @@ class ResultSnapshotController extends Controller
         return $snapshot;
     }
 
-    public function store(Request $request, Election $election)
+    public function store(Request $request, Election $election, CalculateResult $calculateResult)
     {
         $this->authorize('update', $election);
 
-        $result = $election->calculateResult();
+        $result = $calculateResult($election);
 
         # snapshot result
         $snapshot = new ResultSnapshot();

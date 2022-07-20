@@ -10,8 +10,6 @@ class ProfileController extends Controller
 {
     /**
      * Show the application dashboard.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function index()
     {
@@ -20,8 +18,6 @@ class ProfileController extends Controller
 
     /**
      * Show the invite accept form.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function accept(Request $request)
     {
@@ -29,7 +25,7 @@ class ProfileController extends Controller
 
         $user = Auth::user();
         if (empty($user)) {
-            Session::set('invite', $invite);
+            Session::push('invite', $invite);
             return redirect()->route('login');
         }
 
@@ -37,9 +33,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Greet user who created new account.
-     *
-     * @return \Illuminate\Http\Response
+     * Greet user who created a new account.
      */
     public function new_account()
     {

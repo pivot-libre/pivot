@@ -10,8 +10,6 @@ class Kernel extends HttpKernel
      * The application's global HTTP middleware stack.
      *
      * These middlewares are run during every request to your application.
-     *
-     * @var array<int, class-string>
      */
     protected $middleware = [
         // \App\Http\Middleware\TrustHosts::class,
@@ -25,8 +23,6 @@ class Kernel extends HttpKernel
 
     /**
      * The application's route middleware groups.
-     *
-     * @var array<string, array<int, class-string>>
      */
     protected $middlewareGroups = [
         'web' => [
@@ -50,8 +46,6 @@ class Kernel extends HttpKernel
      * The application's route middleware.
      *
      * These middlewares may be assigned to groups or used individually.
-     *
-     * @var array<string, class-string>
      */
     protected $routeMiddleware = [
         'auth' => \App\Http\Middleware\Authenticate::class,

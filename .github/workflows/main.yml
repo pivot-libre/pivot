@@ -2,6 +2,7 @@ name: Tests
 
 on:
   push:
+  pull_request:
 
 jobs:
   setup:
@@ -22,6 +23,18 @@ jobs:
 
       - name: Install Composer dependencies
         uses: ramsey/composer-install@v2
+
+      - name: Copy .env file
+        run: cp .env.example .env
+
+      - name: Prepare the application
+        run: php artisan key:generate
+
+      - name: Clear Config
+        run: php artisan config:clear
+
+      - name: Generate keys for Passport
+        run: php artisan passport:keys
 
       - name: Test php code
         run: php artisan test

@@ -34,8 +34,6 @@ class InviteController extends Controller
      *         )),
      *     @OA\Response(response="400", description="Bad Request")
      * )
-     *
-     * @return \Illuminate\Http\Response
      */
     public function index(Election $election)
     {
@@ -119,9 +117,6 @@ class InviteController extends Controller
      *         description="Bad Request",
      *     )
      * )
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
     public function accept(Request $request)
     {

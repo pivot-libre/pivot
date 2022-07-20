@@ -9,6 +9,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -16,7 +18,7 @@ class Handler extends ExceptionHandler
     /**
      * A list of the exception types that should not be reported.
      *
-     * @var array
+     * @var array<int, class-string<\Throwable>>
      */
     protected $dontReport = [
         AuthenticationException::class,
@@ -42,9 +44,8 @@ class Handler extends ExceptionHandler
      * Render an exception into an HTTP response.
      *
      * @param  Request  $request
-     * @return Response
      */
-    public function render($request, Throwable $e)
+    public function render($request, Throwable $e): Response|JsonResponse|SymfonyResponse
     {
         if ($request->expectsJson()) {
 
@@ -65,7 +66,7 @@ class Handler extends ExceptionHandler
             $status = 400;
 
             // If this exception is an instance of HttpException
-            if ($this->isHttpException($e)) {
+            if ($e instanceof HttpExceptionInterface) {
                 // Grab the HTTP status code from the Exception
                 $status = $e->getStatusCode();
             } elseif ($e instanceof ModelNotFoundException) {
